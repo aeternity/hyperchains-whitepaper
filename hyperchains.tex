@@ -1,0 +1,67 @@
+\section{Hyperchains}
+
+\textbf{todo: reorganize, mention commitments earlier, images!}
+
+The previous approaches had a lot to offer, but considering they cons it is hard
+to scale them in a reasonable way. PoW seems to work well only with big
+computational effort being burned and PoS suffers from huge amount of security
+holes that require very complicated algorithms that usually either don't solve
+the problem at all or just move it further to another layer of abstraction.
+
+Here we present a hybrid strategy which will benefit from stability of PoW
+solutions but will offer the scalability of PoS systems. A Hyperchain is a
+special kind of blockchain that sticks to an already existing chain. They are
+going to be called respectively child- and parent-chain
+\footnote{https://medium.com/@yanislav/hyperchains-secure-cheap-scalable-blockchain-technology-for-everyone-3ddec96a4152}.
+
+The parent chain can be almost any blockchain in the world. In general, we want
+to use some big existing PoW based chains (at the time of writing, preferably
+BitCoin or Ethereum, but not limited to) to reuse their burned work to maintain
+the stability of the childchain. We would also like to have
+PoS-like election system to choose the leaders on the hyperchain. In this case
+however we have a really reliable – and most important, unpredictable – source
+of randomness – the keyblock hash of the parent chain. The idea is not very new
+though – there is already some research made in this direction
+\footnote{https://eprint.iacr.org/2015/1015.pdf}.
+The critics say that it is still possible to exploit it to mine blocks in such a
+manner that the outcome would be beneficial, but in reality that reduces to
+compound PoW – most likely the difficulty of mining such a block will go
+squared, so in order to have actual control over the entropy one needs to
+control the parent chain anyway.
+
+Having this machinery it seems natural to start a new election each time a
+keyblock was mined on the parent chain. The next leader shall be chosen
+depending on the hash of that block and selected with proportional chances to
+their stake. The selection algorithm is going to be straightforward – we take
+the hash (let's say, MD5) and consider a whole MD5 counterdomain as a closed
+line segment divided into intervals of lengths proportional to the stakes of the
+delegates. The intervals are going to be sorted by the order of the respective
+commitments that appeared on the parent chain. The generated hash will then
+point into some subsection which will determine the winner.
+
+$$Insert\ some\ nice\ image\ here$$
+
+One of the important concepts of the commitment idea is to be able to rely on
+the parent chain's stability. Therefore we want to treat it as a rigid skeleton
+of the hyperchain which can be achieved by proper blockhash linking. Each
+commitment must declare over which block is the delegating going to compete.
+Therefore the commitment must consist of:
+\begin{itemize}
+\item The subject of delegation on the child chain
+\item The block over the delegate is going to build
+\item Singature of the delegate from the child chain
+\end{itemize}
+
+One dillema that rises at this point is whether should the commitment reference
+the latest keyblock or the microblock of the child chain. Referencing microblock
+on the first sight looks more consistent, but we believe that in reality would
+lead to massive forking (especially when some peers wouldn't receive all of the
+blocks). The problem with referencing keyblock is that the next leader could
+steal the transactions and post them in their microblocks. This however can be
+faced with the smarter feeing strategy: instead of giving the full fee to the
+miner we can split it up and give the bigger part to the next leader that did
+include the previous leader's microblocks in their continuation of the history.
+
+$$Insert\ some\ nice\ image\ here$$
+
+

@@ -1,0 +1,29 @@
+
+\section{Introduction}
+
+\textbf{TO BE REBUILT}
+
+Proof of Work (PoW) solutions are traditionally the most popular solution. They achieve network security by burning (usually empty) CPU cycles. Assumption is that no single entity has over 51\% of the computing power of the network. This is a slow and costly process that relies on having a vast and decentralized network of miners.
+
+Proof of Stake (PoS) on the other hand is much more energy efficient but its implementation details matter greatly. It could be subject to nothing-at-stake problem or stake grinding and thus eventually degrade to a PoW solution.
+
+We propose a hybrid approach between the two: we build a PoS system that relies on a PoW solution for providing the security. The security of the PoW network itself is outside of the scope of this document: this is up to the specific hyperchain setup to choose a secure PoW network to use as it can ever be as secure as the PoW chain. It is worth noting that it should be possible to change the PoW system the Hyperchain is using further down in its lifetime. We will call the PoW chain a parent chain and the PoS - a child chain.
+
+This approach is agnostic with regards of the structure of the blocks that makes up the Hyperchain. It had been designed with BitcoinNG in mind but it would work with a traditional chain of blocks as well. After some adaptations it could work with any serializable structure of blocks. The important architectural constraint is having just one block producer at a time.
+
+The role of the block producer is a temporary one. The block producer is the one that includes new transactions in the blockchain. The block producer is elected, and once a new one is elected, the old one can no longer include transactions. A subset of of all accounts in the child chain is eligible for being elected as the next block producer. We call them delegates.
+
+Their child chain balances represent their staking power in the child chain. Every account can use their staking power to become a delegate or to delegate it to another account. How staking power relates to becoming a delegate is up to the child chain.
+
+Delegates are provable only in the scope of the child chain. The parent chain has no knowledge for the child chain's mechanism for who is a delegate.
+
+A requirement for the parent chain is that anyone can post a transaction to it. Delegates use that to provide a certain hash. It represents the delegate’s intention to become a block producer and we call it a commitment. An example for such hash would be the block the delegate considers to be the last one one had seen. This would be the block one would append their block to. A delegate is free to post as many commitments they like but at most one would be considered as a valid one - the one with the expected hash of the previous block.
+
+Once a certain event happens on the parent chain - the child chain election mechanism takes over. Using all valid commitments and a source of entropy, a new child chain block producer is elected deterministically and transparently by a publicly provable function. The source of entropy could be anything that is part of the parent chain (ex. a block hash). This function takes into account the staking power of every commitment’s delegate - the more staking power, the higher the chance of being elected. Delegate’s staking power is taken at commitment’s height.
+
+After being elected as a block producer, one is expected to produce one or more blocks in the child chain. Once other delegates receive those - they start posting their new commitments on the parent chain and the election process begins all over again. If the elected block producer does not produce block(s) because of being missing or actively malicious, delegates post their old commitments again.
+
+This binds the child chain election process to the parent chain and the child chain reuses the safety of the parent chain. This allows making smaller and possibly private child chains that still keep the same amount of security the parent chain provides publicly. It is not for free as delegates are expected to post their commitments on the parent chain. Assumption is that they’re to be propery reimbursed for those in the child chain either by the fees there or by freshly minted child chain coins.
+
+This approach is intended to take advantage of the efficient PoS approach while keeping the safety of the PoW. To the best of our knowledge - it is a unique solution that provides this safety even for small Hyperchains. That perk makes it suitable for various private custom solutions but also for scaling the blockchain throughput.
+

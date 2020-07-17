@@ -1,0 +1,75 @@
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for
+%\input{settings}
+
+\documentclass{article}
+
+%\overrideIEEEmargins
+
+\newcommand{\blockchain}{{\ae}ternity blockchain}
+\newcommand{\aet}{{\ae}ternity}
+\newcommand{\Aet}{{\AE}ternity}
+
+\title{\huge \Aet\ Hyperchains \\[0.5em]
+  \large Recycling power of blockchains
+  \\[1em] v0.1.0-DRAFT }
+
+\author{ Grzegorz Uriasz
+  \and Radosław Rowicki
+  \and Dimitar Ivanov
+  \and Ulf Wiger
+}
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+%\\[0.4em]
+%\blockchain\ block 224206 hash kh_28pjh8P7mbs2udZ2ai5WdERfLNWmupZW14K8umVVddsafRjwj6
+
+%\usepackage{fontspec}
+%\setmainfont{MinionPro-Regular.otf}
+
+%\usepackage[]{todonotes} % notes not showed
+\usepackage[draft]{todonotes}   % notes showed
+
+\usepackage{hyperref}
+\usepackage{graphics}
+\usepackage{multicol}
+\usepackage{csquotes}
+
+% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+%\addbibresource{references.bib}
+
+\begin{document}
+\maketitle
+
+
+%
+% The abstract is a short summary of the work to be presented in the article.
+\begin{abstract}
+
+The blockchain relies on consensus between miners. A well known problem is that the block producer should not be known in advance as this opens the possibilities for malicious actors. A solution as old as Satoshi Nakamoto’s whitepaper is that this must be a random event. This should also be an open, transparent and provable process but also a fair one. There are different approaches for achieving this and they all have their perks and flaws. We propose a hybrid between a Proof of Work and Proof of Stake.
+
+\end{abstract}
+
+%%\keywords{blockchain, state channels}
+
+\tableofcontents
+
+\newpage
+
+\input{intro.tex}
+\input{existing-solutions.tex}
+\input{hyperchains.tex}
+\input{security.tex}
+\input{unsolved.tex}
+
+
+\bibliographystyle{acm} \bibliography{paper}
+
+\end{document}

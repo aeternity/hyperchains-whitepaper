@@ -1,0 +1,30 @@
+\section{Security}
+
+At the first sight we inherit most of the flaws of the PoS
+approaches. However, this hybrid solution allows us to use the parent chain as a
+reliable protector against most of attacks that target the PoS systems.
+\footnote{https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8653269}
+
+\subsection{Nothing at stake}
+
+Nothing at stake is actually non-existent problem for hyperchains, as the shape
+of the child chain is determined by the shape of the parent which is free of
+this issue. The microforks can be easily treated by regular slashing solutions
+that we know from BitcoinNG.
+
+\subsection{Stake grinding}
+
+Since the RNG depends finally on the keyblock hash on the PoW hash it is
+impossible to predict the final outcome. One could try to mine the parent chain
+in a special way, but this would require so much computational power that in
+most cases it would be easier just to take the control over it by some 51\%
+attack.
+
+\subsection{Long range attack}
+While it is still possible to perform it, it would be impossible to do it in a
+silence and without preparation since the very beginning. The commitments
+guarantee that the information of the delegates is stored on a immutable chain
+and one would need to announce their will of mining some suspicious blocks during
+the full period of the attack. This would easily expose the will of the attacker
+and would let the others prepare for eventual surprise (by for example
+blacklisting them).

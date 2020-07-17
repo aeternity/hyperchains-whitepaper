@@ -1,0 +1,79 @@
+
+\section{Existing solutions}
+
+In this section we will describe the existing approaches to the problem along
+with the problems they suffer and how are they trying to face them.
+
+\subsection{Proof of Work}
+
+Proof of work (or shortly PoW) solves the problem of randomness by forcing the
+users (here called miners) to solve some hard computational puzzle to validate
+(here, mine) blocks \footnote{https://bitcoin.org/bitcoin.pdf}. The idea is to make it hard to dominate the network by a
+single entity. This solution works as long as nobody has over 50\% of the whole
+computational power – in that case they could just fork the chain at any point
+and get ahead of the main history line (this is a serious issue since in most
+protocols the longest chain is considered the actual one). Therefore you need a
+lot of participants in the network to make it reasonably safe. Moreover, this
+solution leads to extreme waste of energy and huge costs – according to some
+measurements the whole blockchain environment wastes enough energy to power
+Denkmark \footnote{https://arstechnica.com/tech-policy/2017/12/bitcoins-insane-energy-consumption-explained/}.
+
+This idea does not scale well – it is almost impossible to create a public
+network from scratch that wouldn't be eventually dominated by some malicious
+user. No mater if for some particular benefits or just for fun. Actually, a lot
+of existing serious blockchains suffer this problem
+\footnote{https://www.crypto51.app/}. On the other hand it is extremely solid if
+popular enough.
+
+\subsection{Proof of Stake}
+
+While PoW distributes the leadership by computational power, the PoS does it by
+the so-called stake, which basicaly means the token supply (sometimes decorated
+with some additional tweaks)
+\footnote{https://www.peercoin.net/whitepapers/peercoin-paper.pdf}
+\footnote{https://link.springer.com/chapter/10.1007/978-3-662-53357-4_10}.
+The idea is to create a leadership voting system
+that is triggered with some period of time. Each time the election event occurs
+the new leader is randomly selected among the stakeholders (called delegates).
+The election chance is proportional to the size of the stake. This approach does
+not require any burning of empty CPU cycles and therefore is way better for the
+environment. It doesn't require users to have powerful computers to be able to
+have some involvement in the decision making.
+
+However, it comes with some serious issues. First comes the "nothing at stake"
+\footnote{https://medium.com/@abhisharm/understanding-proof-of-stake-through-its-flaws-part-2-nothing-s-at-stake-8d12d826956c}
+problem which exploits the lack of any cost of the actual mining. In this case
+there is no reason not to mine several branches simultanousely in case of fork.
+The next thing is the source of random entropy – as it needs to be deterministic
+and distributed it usually comes from the last blocks' hashes. However this
+makes all of the elections completely predictible and leads to strategy known
+commonly as "stake grinding", where the dishonest leader tries to rearrange the
+transactions to influence the result of the upcoming election. Next issue is the
+"long range attack".
+\footnote{https://medium.com/@abhisharm/understanding-proof-of-stake-through-its-flaws-part-3-long-range-attacks-672a3d413501}
+In the very beginning the stake is scattered among a small
+group of delegates that toghether have full control over the chain. After
+several years they can agree and start a concurrent chain from the same genesis
+and go ahead of the main one. This could lead to nasty frauds and would
+destabilize the trust over the chain.
+
+However, there are multiple approaches to deal with these problems. For instance
+the CASPER protocol introduces a "wrong voting penalty" which punishes the
+voters that support conflicting forks to deal with nothing at stake
+\footnote{https://arxiv.org/pdf/1710.09437.pdf}.
+However, there is PoW mechanism in the background anyway. Another way is to use
+slashing mechanisms known from BitcoinNG
+\footnote{https://www.usenix.org/system/files/conference/nsdi16/nsdi16-paper-eyal.pdf},
+but they are hopeless in a situation where the chain forks over a transation
+transferring stake between two accounts. Also, it simply doesn't work until the
+conflicting branch is published. NXT deals with long range attack by forcefully
+finalizing all blocks that are older than 720 generations
+\footnote{https://nxtdocs.jelurida.com/Nxt_Whitepaper}.
+One must note that this doesn't actually solve the problem, but rather moves it
+away. Moreover, it introduces weak subjectivity since one still needs to trust
+some entity while entering the network for the first time.
+
+These are only some examples. The general situation is that PoS comes with a lot
+of flaws that are being solved by eventually introducing some other ones. This
+makes most of the pure PoS networks not reliable, and especially not as reliable
+as mature PoWs.
