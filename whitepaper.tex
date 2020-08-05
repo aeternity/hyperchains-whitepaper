@@ -48,16 +48,19 @@
 \begin{document}
 \maketitle
 
-
-%
 % The abstract is a short summary of the work to be presented in the article.
 \begin{abstract}
-
-The blockchain relies on consensus between miners. A well known problem is that the block producer should not be known in advance as this opens the possibilities for malicious actors. A solution as old as Satoshi Nakamoto’s whitepaper is that this must be a random event. This should also be an open, transparent and provable process but also a fair one. There are different approaches for achieving this and they all have their perks and flaws. We propose a hybrid between a Proof of Work and Proof of Stake.
-
+  Blockchains rely on decentralized consensus between miners. Several ways of
+  achieving it in a safe, provable and fair manner have emerged. The oldest
+  approach dating back to Satoshi Nakamoto's whitepaper, known as Proof of Work
+  (PoW) implemented in several cryptocurriencies is extremely expensive and
+  leads to ridiculous energy waste. Cheaper algorithms based on Proof of Stake (PoS)
+  promise similar security to PoW, but are usually prone to exploitation. We
+  propose a novel hybrid between PoW and PoS based on BitcoinNG which combines
+  advantages of both of them without acquiring their drawbacks.
 \end{abstract}
 
-%%\keywords{blockchain, state channels}
+\keywords{blockchain, proof of work, proof of stake, hyperchains}
 
 \tableofcontents
 
@@ -68,7 +71,6 @@ The blockchain relies on consensus between miners. A well known problem is that 
 \input{hyperchains.tex}
 \input{security.tex}
 \input{unsolved.tex}
-
 
 \bibliographystyle{acm} \bibliography{paper}
 
