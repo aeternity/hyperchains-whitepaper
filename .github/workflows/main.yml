@@ -1,0 +1,21 @@
+name: CD
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Build
+      uses: dante-ev/latex-action@master
+      with:
+        root_file: whitepaper.tex
+    - name: Deploy   
+      uses: actions/upload-artifact@v1
+      with:
+        name: whitepaper.pdf
+        path: whitepaper.pdf
