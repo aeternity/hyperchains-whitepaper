@@ -6,7 +6,7 @@ with the problems they suffer and how are they trying to face them.
 
 \subsection{Proof of Work}
 
-Proof of work (or shortly PoW) solves the problem of randomness by forcing the
+Proof of work (or shortly PoW) solves the problem of decision making by forcing the
 users (here called miners) to solve some hard computational puzzle to validate
 (here, mine) blocks \footnote{https://bitcoin.org/bitcoin.pdf}.
 The idea is to make it hard to dominate the network by a
@@ -22,10 +22,9 @@ Denkmark
 
 This idea does not scale well – it is almost impossible to create a public
 network from scratch that wouldn't be eventually dominated by some malicious
-user. No mater if for some particular benefits or just for fun. Actually, a lot
-of existing serious blockchains suffer this problem
+user. A lot of existing serious blockchains suffer this problem
 \footnote{https://www.crypto51.app/}. On the other hand it is extremely solid if
-popular enough.
+the network is popular enough.
 
 \subsection{Proof of Stake}
 
@@ -42,7 +41,7 @@ not require any burning of empty CPU cycles and therefore is way better for the
 environment. It doesn't require users to have powerful computers to be able to
 have some involvement in the decision making.
 
-However, it comes with some serious issues. First comes the "nothing at stake"
+However, it comes with some serious issues. First there is the infamous "nothing at stake"
 \footnote{https://medium.com/@abhisharm/understanding-proof-of-stake-through-its-flaws-part-2-nothing-s-at-stake-8d12d826956c}
 problem which exploits the lack of any cost of the actual mining. In this case
 there is no reason not to mine several branches simultanousely in case of fork.
@@ -73,7 +72,7 @@ finalizing all blocks that are older than 720 generations
 \footnote{https://nxtdocs.jelurida.com/Nxt_Whitepaper}.
 One must note that this doesn't actually solve the problem, but rather moves it
 away. Moreover, it introduces weak subjectivity since one still needs to trust
-some entity while entering the network for the first time.
+some entity while entering the network for the first time or after longer downtime.
 
 These are only some examples. The general situation is that PoS comes with a lot
 of flaws that are being solved by eventually introducing some other ones. This
