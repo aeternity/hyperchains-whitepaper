@@ -1,7 +1,5 @@
 \section{Hyperchains}
 
-\textbf{todo: reorganize, mention commitments earlier, images!}
-
 The previous approaches had a lot to offer, but considering they cons it is hard
 to scale them in a reasonable way. PoW seems to work well only with big
 computational effort being burned and PoS suffers from huge amount of security
@@ -19,25 +17,16 @@ to use some big existing PoW based chains (at the time of writing, preferably
 Bitcoin or Ethereum, but not limited to) to reuse their burned work to maintain
 the stability of the childchain. We would also like to have
 PoS-like election system to choose the leaders on the hyperchain. In this case
-however we have a really reliable – and most important, unpredictable – source
-of randomness – the keyblock hash of the parent chain. The idea is not very new
+however we have a very reliable – and mostly important, unpredictable – source
+of randomness – the (key)block hash of the parent chain. The idea is not very new
 though – there is already some research made in this direction
 \footnote{https://eprint.iacr.org/2015/1015.pdf}.
-The critics say that it is still possible to exploit it to mine blocks in such a
-manner that the outcome would be beneficial, but in reality that reduces to
-compound PoW – most likely the difficulty of mining such a block will go
-squared, so in order to have actual control over the entropy one needs to
-control the parent chain anyway.
 
 Having this machinery it seems natural to start a new election each time a
-keyblock was mined on the parent chain. The next leader shall be chosen
+(key)block was mined on the parent chain. The next leader shall be chosen
 depending on the hash of that block and selected with proportional chances to
-their stake. The selection algorithm is going to be straightforward – we take
-the hash (let's say, MD5) and consider a whole MD5 counterdomain as a closed
-line segment divided into intervals of lengths proportional to the stakes of the
-delegates. The intervals are going to be sorted by the order of the respective
-commitments that appeared on the parent chain. The generated hash will then
-point into some subsection which will determine the winner.
+their stake. The selection algorithm is an abstract over this document – it is
+up to the hyperchain to define the details.
 
 $$Insert\ some\ nice\ image\ here$$
 
@@ -60,7 +49,13 @@ blocks). The problem with referencing keyblock is that the next leader could
 steal the transactions and post them in their microblocks. This however can be
 faced with the smarter feeing strategy: instead of giving the full fee to the
 miner we can split it up and give the bigger part to the next leader that did
-include the previous leader's microblocks in their continuation of the history.
+include the previous leader's microblocks in their continuation of the history,
+as it happens in the BitcoinNG
+\footnote{https://arxiv.org/pdf/2001.05082.pdf}.
+After getting elected the new leader posts a keyblock on the child chain that
+references the point on the parent which proves their right to lead the
+generation. Beside that, they need to reference the microblock from the previous
+generation they want to mine on.
 
 $$Insert\ some\ nice\ image\ here$$
 

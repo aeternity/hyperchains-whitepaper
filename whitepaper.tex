@@ -11,29 +11,30 @@
 
 \title{\huge \Aet\ Hyperchains \\[0.5em]
   \large Recycling power of blockchains
-  \\[1em] v0.1.0-DRAFT }
+  \\[1em] v0.2.0-DRAFT }
 
 \author{ Grzegorz Uriasz
   \and Radosław Rowicki
   \and Dimitar Ivanov
   \and Ulf Wiger
 }
-% See the \addtolength command later in the file to balance the column lengths
-% on the last page of the document
 
-%\\[0.4em]
-%\blockchain\ block 224206 hash kh_28pjh8P7mbs2udZ2ai5WdERfLNWmupZW14K8umVVddsafRjwj6
-
-%\usepackage{fontspec}
-%\setmainfont{MinionPro-Regular.otf}
-
-%\usepackage[]{todonotes} % notes not showed
+% \usepackage[]{todonotes} % notes not showed
 \usepackage[draft]{todonotes}   % notes showed
 
 \usepackage{hyperref}
 \usepackage{graphics}
 \usepackage{multicol}
 \usepackage{csquotes}
+
+\usepackage{listings}
+\lstdefinelanguage{pseudocode}
+{morekeywords={if, then, else},
+  keywordstyle=\color{red},
+  sensitive=false,
+  morestring=[b]",
+}
+\lstset{language=pseudocode}
 
 % \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
