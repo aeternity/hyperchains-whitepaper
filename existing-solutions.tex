@@ -43,7 +43,7 @@ have some involvement in the decision making.
 However, it comes with some serious issues. First there is the infamous "nothing at stake"
 \footnote{https://medium.com/@abhisharm/understanding-proof-of-stake-through-its-flaws-part-2-nothing-s-at-stake-8d12d826956c}
 problem which exploits the lack of any cost of the actual mining. In this case
-there is no reason not to mine several branches simultanousely in case of fork.
+there is no downside to staking several branches simultaneously in case of fork.
 The next thing is the source of random entropy – as it needs to be deterministic
 and distributed it usually comes from the last blocks' hashes. However this
 makes all of the elections completely predictible and leads to strategy known
@@ -64,7 +64,7 @@ voters that support conflicting forks to deal with nothing at stake
 However, there is PoW mechanism in the background anyway. Another way is to use
 slashing mechanisms known from BitcoinNG
 \footnote{https://www.usenix.org/system/files/conference/nsdi16/nsdi16-paper-eyal.pdf},
-but they are hopeless in a situation where the chain forks over a transation
+but they are hopeless in a situation where the chain forks over a transaction
 transferring stake between two accounts. Also, it simply doesn't work until the
 conflicting branch is published. NXT deals with long range attack by forcefully
 finalizing all blocks that are older than 720 generations
