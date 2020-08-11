@@ -1,3 +1,5 @@
-# hyperchains-whitepaper
+# Hyperchains whitepaper
 
-The specification of the aeternity's hyperchains protocol
+The specification of the aeternity's hyperchains protocol.
+
+WIP version
