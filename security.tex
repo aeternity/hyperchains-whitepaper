@@ -3,8 +3,8 @@
 This hybrid solution allows us to use the parent chain as a
 reliable protector against most of attacks that target the PoS systems.
 \footnote{https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8653269}
-We assume that the parent chain is well secured and every user has a decent
-and reliable access to it.
+In this section we assume that the parent chain is well secured and every
+user has a decent and reliable access to it.
 
 \subsection{Nothing at stake}
 
@@ -17,7 +17,8 @@ They are free to create conflicting branches within a single generation.
 
 This case is very similar to BitcoinNG's. We introduce the Proof of Fraud (PoF)
 mechanism to punish the malicious leaders, but in this situation we are able to
-make the penalties much more severe. On the other hand this kind of forking is
+make the penalties much more severe by acting not only on the transaction fees,
+but also staked tokens. On the other hand this kind of forking is
 not dangerous at all – it may introduce some mess but will be instantly solved
 with the next keyblock.
 
@@ -30,35 +31,35 @@ keyblocks is a hard task. On the contrary keyblocks on hyperchains are really,
 really cheap - a malicious leader might flood the network with conflicting
 keyblocks:
 
-$$insert\ some\ image\ (aciiart\ in\ the\ code)$$
+$$insert\ some\ image\ (aciiart\ in\ the\ latex\ code)$$
 % K2a   K2b    K2c   K2d
 % |     |      |     |
 % V     V      V     V
 % K1 <-- O <-- O < -- O <-- O 
 
 The $K2a$, $K2b$, etc. are keyblocks on the child chain emitted by a malicious
-leader over the different microblocks (denoted by the $O$ letter). This
+leader over different microblocks (denoted by the $O$ letter). This
 effectively splits the network in many parts, as it becomes unclear to which of
-the forks the delegates should commit. To resolve this situation a single leader
-must be agreed upon using some additional mechanism. Due to network propagation
-delays and connectivity issues some nodes might not notice that a generational
+the forks the delegates should commit. To resolve this issue a single leader
+must be agreed upon using some additional mechanism – a new election
+should be performed with exclusion of the compromised delegate.
+
+In order to notify the network about the generational fork the peers need to announce
+this fact on the parent chain by publishing the fraud commitments along with the
+cryptographical proofs of generational fraud (PoGF). Each commitment has to point to
+the latest child keyblock considered by the delegates to be
+valid, that is the generation where the fork starts. The commiter
+needs also to submit to which fork they want to contribute – if they get elected they
+will must keep building on it (we disallow rollbacks). The voting power should be
+calculated basing on the latest block before the fraud was detected.
+
+Due to network propagation
+delays and connectivity failures some nodes might not notice that a generational
 fork was created and not respond accordingly. New nodes or the ones catching up
 after downtime need to be aware that a generational fork was created and apply
-the appropriate resolution.
-
-In order to notify the network about the generational fork somebody needs to announce
-this fact on the parent chain – preferably in the commitment. The fraud
-commitment (Proof of Generational Fraud – PoGF) has to point to the latest child
-keyblock considered by them to be
-valid, that is the point to the generation where the fork starts. The commiter
-needs also to submit which fork they want to support – if they get elected they
-will need to build on the declared branch. The voting power is calculated on the
-latest valid block. The second election bans the malicious delegate.
-
-However, not all delegates might notice in time that a generational fork
-occured. Some of them may commit to one of the forks and receive a fraud
+the appropriate resolution. Some of them may commit to one of the forks and receive a fraud
 notification after they started mining. Therefore we introduce a metric over the
-forks which for conventional reason we are going to call "difficulty". The
+branches which for conventional reason we are going to call "difficulty". The
 rule to resolve conflicts caused by such dataraces is similar to already
 existing PoW strategy "follow the most difficult chain", and the formula goes
 as follows:
@@ -85,7 +86,7 @@ forks have higher priority over poorly connected/bootstraping/syncing ones.
 This solution may look vunerable to situations where the leader doesn't respond
 or responds with significant delay. To solve these cases we just elect new
 leader stalling the network for a while. To vanish the doubts araising when the
-previous leader apperas we can assume
+previous leader reapperas we can assume
 finalization after $f$ (implementation dependent) generations.
 
 There is an interesting case where the malicious leader submits a generational
@@ -122,6 +123,6 @@ malicious leaders by burning/redistributing their stake. This however may raise
 some problems when the delegated voting is used – the malicious leader may vote
 for their second, empty account that will do the fraud loosing potentially
 nothing in case of compromitation. This scenario can be dealt with allowing only
-top $k$ stakers to be voted on or slashing \emph{everyone} who supported the
+top $k$ stakers to be voted on or slashing \textit{everyone} who supported the
 malicious leader. We leave this implementation dependent as different solutions
 require different security approaches.

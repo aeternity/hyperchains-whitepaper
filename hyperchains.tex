@@ -9,7 +9,7 @@ the problem at all or just move it further to another layer of abstraction.
 Here we present a hybrid strategy which will benefit from stability of PoW
 solutions but will offer the scalability of PoS systems. A Hyperchain is a
 special kind of blockchain that sticks to an already existing chain. They are
-going to be called respectively child- and parent-chain
+going to be called respectively child and parent chain
 \footnote{https://medium.com/@yanislav/hyperchains-secure-cheap-scalable-blockchain-technology-for-everyone-3ddec96a4152}.
 
 The parent chain can be almost any blockchain in the world. In general, we want
@@ -18,22 +18,23 @@ Bitcoin or Ethereum, but not limited to) to reuse their burned work to maintain
 the stability of the childchain. We would also like to have
 PoS-like election system to choose the leaders on the hyperchain. In this case
 however we have a very reliable – and mostly important, unpredictable – source
-of randomness – the (key)block hash of the parent chain. The idea is not very new
+of randomness – the state of the parent chain. The idea is not very new
 though – there is already some research made in this direction
 \footnote{https://eprint.iacr.org/2015/1015.pdf}.
 
 Having this machinery it seems natural to start a new election each time a
 (key)block was mined on the parent chain. The next leader shall be chosen
-depending on the hash of that block and selected with proportional chances to
+depending on the hash of that block and selected with chances proportional to
 their stake. The selection algorithm is an abstract over this document – it is
 up to the hyperchain to define the details.
 
 $$Insert\ some\ nice\ image\ here$$
 
-One of the important concepts of the commitment idea is to be able to rely on
-the parent chain's stability. Therefore we want to treat it as a rigid skeleton
-of the hyperchain which can be achieved by proper blockhash linking. Each
-commitment must declare over which block is the delegating going to compete.
+We define a group of leadership candidates called "delegates". Each delegate
+needs to express their will in participation in the election for the upcoming
+generation by publishing a commitment transaction onto the parent chain. It is
+important to make it clear what is their point of view on the child chain and
+over which block are they going to compete.
 Therefore the commitment must consist of:
 \begin{itemize}
 \item The subject of delegation on the child chain
@@ -41,13 +42,20 @@ Therefore the commitment must consist of:
 \item Singature of the delegate from the child chain
 \end{itemize}
 
+One of the important concepts of the commitment idea is to be able to rely on
+the parent chain's stability. Here we want to treat it as a rigid skeleton
+of the hyperchain which can be achieved by proper blockhash linking. The
+elected leader will be required to publish a key block on the child chain with a
+cryptographic proof (referencing the parent) of their right to lead the
+upcoming generation and publish microblocks.
+
 One dillema that rises at this point is whether should the commitment reference
 the latest keyblock or the microblock of the child chain. Referencing microblock
-on the first sight looks more consistent, but we believe that in reality would
+on the first sight looks more transparent, but we believe that it would
 lead to massive forking (especially when some peers wouldn't receive all of the
 blocks). The problem with referencing keyblock is that the next leader could
 steal the transactions and post them in their microblocks. This however can be
-faced with the smarter feeing strategy: instead of giving the full fee to the
+faced with a smarter feeing strategy: instead of giving the full fee to the
 miner we can split it up and give the bigger part to the next leader that did
 include the previous leader's microblocks in their continuation of the history,
 as it happens in the BitcoinNG
