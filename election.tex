@@ -1,0 +1,25 @@
+\section{Election process and staking mechanism}
+
+We do not want to force any particular mechanisms and rules in this section, but
+rather propose some solutions that would make it easier to plan and implement
+the desired algorithms. This is not up to this document to specify the details.
+
+The most convenient way to organize the election process is to create a smart
+contract on the hyperchain that would manage the stake and evaluate PoF
+penalties. This contract shall be referenced in the protocol and its interface
+should be settled there. It is eligible for it to be adjusted by regular calls on the fly
+– this could save some protocol-level hard forking. If the VM supports it, the
+contract could also forcefully alter the blockchain state (i.e. by using some
+internal Merkle tree framework). We highly recommend to introduce consensus
+changes with a decent delay to ensure that it won't break during a true hard fork.
+
+We propose the following features of a staking contract:
+\begin{itemize}
+\item Leader election
+\item Voting power calculation
+\item Delegates calculation
+\item Voting power delegation
+\item Applying punishments
+\item Withdrawing and depositing the stake
+\item (optional) Controlled hard forking
+\end{itemize}
