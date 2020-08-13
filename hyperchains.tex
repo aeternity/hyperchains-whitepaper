@@ -1,4 +1,5 @@
 \section{Hyperchains}
+\graphicspath{ {./images/} }
 
 The previous approaches had a lot to offer, but considering they cons it is hard
 to scale them in a reasonable way. PoW seems to work well only with big
@@ -26,7 +27,11 @@ depending on the hash of that block and selected with chances proportional to
 their stake. The selection algorithm is an abstract over this document – it is
 up to the hyperchain to define the details.
 
-$$Insert\ some\ nice\ image\ here$$
+\begin{figure}[h]
+	\caption{Component diagram}
+	\centering
+	\includegraphics[scale=0.5]{HyperchainComponent}
+\end{figure}
 
 We define a group of leadership candidates called "delegates". Each delegate
 needs to express their will in participation in the election for the upcoming
