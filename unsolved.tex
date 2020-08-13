@@ -1,24 +1,25 @@
 \section{Derived issues}
 
-While the presented idea seems to cover most of the cases, there are some
-scenarios that may break the stability of the system. However, depending on the
-chosen parent chain and the tweaks of the inner protocol their impact can be
-limited to some acceptable risk.
+While the presented idea seems to cover most of the cases, some
+scenarios may break the system's stability. However, depending on the
+chosen parent chain and the tweaks of the inner protocol, their impact
+can be limited to acceptable risk.
 
 \subsection{Forks of the parent}
+
 Whatever happens to the parent, the similar shall happen to the child. The child
-chain is completely vulnerable to forks of the parent chain and it is quite hard
-to get an agreement on which branch should we continue. Most likely the
-hyperchain would fork as well. On the other hand if the validators manage to
+chain is entirely vulnerable to forks of the parent chain, and it is quite hard
+to get an agreement on which branch should we continue. Most likely, the
+hyperchain would fork as well. On the other hand, if the validators manage to
 decide on one way, it would be technically possible to jump into the other
-branch if the chosen one turns out to be less attractive.
+branch if the chosen one becomes less attractive.
 
 \subsection{Attacks on the parent}
 
-The hyperchain shall never be more secure than the parent. If somebody will
-succeed in for example a 51\% attack on the parent chain, they will also take
-the control of the child chain. Therefore the choice of the parent should be
-done with regards to the security of it.
+The hyperchain shall never be more secure than the parent.
+If somebody succeeds in, for example, a 51\% attack on the parent chain,
+they will also take control of the child chain.
+Therefore the choice of the parent should be made with regards to the security of it.
 
 \subsection{Finalization time}
 

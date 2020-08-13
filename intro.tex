@@ -1,21 +1,21 @@
 \section{Introduction}
 
-One of the most important problems that blockchains need to tackle in order to
+One of the most important problems that blockchains need to tackle to
 maintain a stable and safe infrastructure is the need for a decentralized
-consensus among the participants. This usually reduces to existence of some
+consensus among the participants. This usually reduces to the existence of some
 point of agreement from which everyone should be able to derive some objective
 and consistent truth about the state of the abstracted universe. The most common
 case is that this point defines a certain description of the history, or sets
-the person responsible for dictating it for some period of time. There is a
-global tendency on depending on some random, fair and unpredictable event that
-allows to build up a trustless agreement on the current status of events.
+the person responsible for dictating it for some time. There is a
+global tendency on depending on some random, fair, and unpredictable event that
+allows us to build up a trustless agreement on the current status of events.
 
 Proof of Work (PoW) solutions are traditionally the most popular ones.
 They achieve network security by burning (usually empty) CPU cycles in order to
 randomly hand the power to the users depending on their computational effort.
 This is a slow and costly process that relies on having
-a vast and decentralized network of miners. Proof of Stake (PoS) on the other
-hand is much more energy efficient but its implementation details matter
+a vast and decentralized network of miners. On the other hand, proof of Stake (PoS)
+is much more energy-efficient, but its implementation details matter
 greatly. It could be subject to the nothing-at-stake problem or stake grinding and
 thus eventually degrade to an inelegant PoW solution.
 
@@ -24,7 +24,7 @@ relies on an existing PoW network for providing security. The security of the
 PoW network itself is outside of the scope of this document: it is up to
 the specific hyperchain setup to choose a secure PoW network to use as it
 can never be as secure as the PoW chain. It is worth noting that it should
-be possible to change the PoW system the Hyperchain is using further down
+be possible to change the PoW system the Hyperchain uses further down
 in its lifetime. We will call the PoW chain a parent chain and the PoS-like
 system - a child chain.
 

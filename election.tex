@@ -6,11 +6,11 @@ the desired algorithms. This is not up to this document to specify the details.
 
 The most convenient way to organize the election process is to create a smart
 contract on the hyperchain that would manage the stake and evaluate PoF
-penalties. This contract shall be referenced in the protocol and its interface
+penalties. This contract shall be referenced in the protocol, and its interface
 should be settled there. It is eligible for it to be adjusted by regular calls on the fly
 – this could save some protocol-level hard forking. If the VM supports it, the
-contract could also forcefully alter the blockchain state (i.e. by using some
-internal Merkle tree framework). We highly recommend to introduce consensus
+contract could also forcefully alter the blockchain state (i.e., by using some
+internal Merkle tree framework). We highly recommend introducing consensus
 changes with a decent delay to ensure that it won't break during a true hard fork.
 
 We propose the following features of a staking contract:
