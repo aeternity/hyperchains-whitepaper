@@ -14,7 +14,7 @@ going to be called respectively child and parent chain\cite{hyperchains}.
 The parent chain can be almost any blockchain in the world. In general, we want
 to use some big existing PoW based chains (at the time of writing, preferably
 Bitcoin or Ethereum, but not limited to) to reuse their burned work to maintain
-the stability of the childchain. We would also like to have
+the stability of the child chain. We would also like to have
 PoS-like election system to choose the leaders on the hyperchain. In this case
 however we have a very reliable – and mostly important, unpredictable – source
 of randomness – the state of the parent chain. The idea is not very new
@@ -37,17 +37,17 @@ Therefore the commitment must consist of:
 \begin{itemize}
 \item The subject of delegation on the child chain
 \item The block over the delegate is going to build
-\item Singature of the delegate from the child chain
+\item Signature of the delegate from the child chain
 \end{itemize}
 
 One of the important concepts of the commitment idea is to be able to rely on
 the parent chain's stability. Here we want to treat it as a rigid skeleton
-of the hyperchain which can be achieved by proper blockhash linking. The
+of the hyperchain which can be achieved by proper block hash linking. The
 elected leader will be required to publish a key block on the child chain with a
 cryptographic proof (referencing the parent) of their right to lead the
 upcoming generation and publish microblocks.
 
-One dillema that rises at this point is whether should the commitment reference
+One dilemma that rises at this point is whether should the commitment reference
 the latest keyblock or the microblock of the child chain. Referencing microblock
 on the first sight looks more transparent, but we believe that it would
 lead to massive forking (especially when some peers wouldn't receive all of the

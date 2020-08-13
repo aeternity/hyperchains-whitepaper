@@ -1,16 +1,20 @@
-personal_ws-1.1 en 87 
+personal_ws-1.1 en 114 
 APIs
 AVR
 Aeternity
+BitcoinNG
+BitcoinNG's
 Blockchain
 CTF
 Cybersecurity
 DMA
 EE
+Ethereum
 Github
 GrTrace
 Grzegorz
 HVM
+Hyperchains
 IGDs
 IOMMU
 ISEF
@@ -24,6 +28,8 @@ Linkedin
 MIM
 MISMaP
 Matplotlib
+Merkle
+NXT
 NumPy
 OnionJS
 OpenCV
@@ -33,6 +39,11 @@ PV
 PVH
 PVHVM
 Paravirtualization
+PoF
+PoGF
+PoS
+PoW
+PoWs
 Prolog
 Pwntools
 QEMU
@@ -52,6 +63,10 @@ Whonix
 Xen
 ZFS
 al
+blockchain
+blockchains
+cryptographic
+customizable
 disaggregate
 disaggregates
 disaggregation
@@ -60,10 +75,19 @@ dom
 domU
 et
 favourite
+feeing
 hypercalls
+hyperchain
+hyperchains
+implementational
 ing
 kernelspace
+keyblock
+keyblocks
 libvirt
+microblock
+microblocks
+microforks
 microkernel
 natively
 paravirtualization
@@ -77,10 +101,13 @@ qemu
 qube
 qubes
 spacetimes
+stakers
 th
+trustless
 unsecure
 untrusted
 userspace
+validators
 virtualize
 virtualized
 virtualizing

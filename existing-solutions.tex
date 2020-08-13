@@ -33,7 +33,7 @@ The idea is to create a leadership voting system
 that is triggered with some period of time. Each time the election event occurs
 the new leader is randomly selected among the stakeholders (called delegates).
 The election chance is proportional to the size of the stake. This approach does
-not imply any noticable energetic overhead and therefore is much more friendly for the
+not imply any noticeable energetic overhead and therefore is much more friendly for the
 environment. It also doesn't require users to have powerful computers to be able to
 have some involvement in the decision making.
 
@@ -43,12 +43,12 @@ problem which exploits the lack of any cost of the actual mining. In this case
 there is no downside to staking several branches simultaneously in case of a fork.
 The next thing is the source of random entropy – as it needs to be deterministic
 and distributed it usually comes from the chain itself. This
-makes all of the elections completely predictible and leads to a strategy known
+makes all of the elections completely predictable and leads to a strategy known
 commonly as "stake grinding", where the dishonest leader tries to rearrange the
 transactions to influence the result of the upcoming election. Next issue is the
 "long range attack"\cite{pos_flaws_long}.
 In the very beginning the stake is scattered among a small
-group of delegates that toghether have full control over the chain. After
+group of delegates that together have full control over the chain. After
 some time they can agree and start a concurrent chain from the same genesis
 and go ahead of the main one. This could lead to nasty frauds and would
 destabilize the trust over the chain.

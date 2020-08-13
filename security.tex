@@ -31,7 +31,7 @@ keyblocks is a hard task. On the contrary keyblocks on hyperchains are really,
 really cheap - a malicious leader might flood the network with conflicting
 keyblocks:
 
-$$insert\ some\ image\ (aciiart\ in\ the\ latex\ code)$$
+$$insert\ some\ image\ (ascii\ art\ in\ the\ latex\ code)$$
 % K2a   K2b    K2c   K2d
 % |     |      |     |
 % V     V      V     V
@@ -46,9 +46,9 @@ should be performed with exclusion of the compromised delegate.
 
 In order to notify the network about the generational fork the peers need to announce
 this fact on the parent chain by publishing the fraud commitments along with the
-cryptographical proofs of generational fraud (PoGF). Each commitment has to point to
+cryptographic proofs of generational fraud (PoGF). Each commitment has to point to
 the latest child keyblock considered by the delegates to be
-valid, that is the generation where the fork starts. The commiter
+valid, that is the generation where the fork starts. The committer
 needs also to submit to which fork they want to contribute – if they get elected they
 will must keep building on it (we disallow rollbacks). The voting power should be
 calculated basing on the latest block before the fraud was detected.
@@ -60,7 +60,7 @@ after downtime need to be aware that a generational fork was created and apply
 the appropriate resolution. Some of them may commit to one of the forks and receive a fraud
 notification after they started mining. Therefore we introduce a metric over the
 branches which for conventional reason we are going to call "difficulty". The
-rule to resolve conflicts caused by such dataraces is similar to already
+rule to resolve conflicts caused by such data races is similar to already
 existing PoW strategy "follow the most difficult chain", and the formula goes
 as follows:
 \begin{minipage}{\linewidth}
@@ -70,23 +70,23 @@ as follows:
   difficulty(block) =
     if exists proof of generational fraud on /block/
     then sum of the voting power of delegates
-           that commited to /prev(block)/ +
+           that committed to /prev(block)/ +
          sum of the voting power of delegates
-           that commited to solve the genfork
+           that committed to solve the genfork
     else sum of the voting power of delegates
-           that commited to /prev(block)/
+           that committed to /prev(block)/
 \end{lstlisting}
 \end{minipage}
 
 If two forks have the same difficulty then we prefer the one with lower
-blockhash. This formula ensures that keyblocks pointing to a PoGF are always
+block hash. This formula ensures that keyblocks pointing to a PoGF are always
 strongly preferred over ordinary keyblocks – delegates who detect generational
-forks have higher priority over poorly connected/bootstraping/syncing ones.
+forks have higher priority over poorly connected/bootstrapping/syncing ones.
 
-This solution may look vunerable to situations where the leader doesn't respond
+This solution may look vulnerable to situations where the leader doesn't respond
 or responds with significant delay. To solve these cases we just elect new
-leader stalling the network for a while. To vanish the doubts araising when the
-previous leader reapperas we can assume
+leader stalling the network for a while. To vanish the doubts arising when the
+previous leader reappears we can assume
 finalization after $f$ (implementation dependent) generations.
 
 There is an interesting case where the malicious leader submits a generational
@@ -122,7 +122,7 @@ election. In this scenario the protocol will be able to painfully slash the
 malicious leaders by burning/redistributing their stake. This however may raise
 some problems when the delegated voting is used – the malicious leader may vote
 for their second, empty account that will do the fraud loosing potentially
-nothing in case of compromitation. This scenario can be dealt with allowing only
+nothing in case of getting compromised. This scenario can be dealt with allowing only
 top $k$ stakers to be voted on or slashing \textit{everyone} who supported the
 malicious leader. We leave this implementation dependent as different solutions
 require different security approaches.

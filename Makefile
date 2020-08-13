@@ -1,7 +1,9 @@
 TEX = pdflatex -shell-escape -interaction nonstopmode -halt-on-error -file-line-error
 CHK = chktex -shell-escape -interaction nonstopmode -halt-on-error -file-line-error
-MAIN = whitepaper.tex
-OUT = $(basename $(MAIN)).pdf
+BIB = bibtex
+MAIN = whitepaper
+SRC = $(MAIN).tex
+OUT = $(MAIN).pdf
 SRCS = $(shell find . -name "*.tex")
 TEXTDIR = ./
 TEXT = $(shell find $(TEXTDIR) -name "*.tex")
@@ -16,10 +18,10 @@ check: $(SRCS)
 	! $(CHK) $(MAIN) | grep .
 
 clean :
-	-rm -f *.{aux,log,pdf,toc,out}
+	-rm -f *.{aux,log,pdf,toc,out,bbl,blg}
 
 $(OUT) : $(SRCS)
-	$(TEX) $(MAIN) && $(TEX) $(MAIN)
+	$(TEX) $(SRC) && $(BIB) $(MAIN) && $(TEX) $(SRC) && $(TEX) $(SRC)
 
 %.chk: %.tex
 	aspell \
