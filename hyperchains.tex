@@ -9,8 +9,7 @@ the problem at all or just move it further to another layer of abstraction.
 Here we present a hybrid strategy which will benefit from stability of PoW
 solutions but will offer the scalability of PoS systems. A Hyperchain is a
 special kind of blockchain that sticks to an already existing chain. They are
-going to be called respectively child and parent chain
-\footnote{https://medium.com/@yanislav/hyperchains-secure-cheap-scalable-blockchain-technology-for-everyone-3ddec96a4152}.
+going to be called respectively child and parent chain\cite{hyperchains}.
 
 The parent chain can be almost any blockchain in the world. In general, we want
 to use some big existing PoW based chains (at the time of writing, preferably
@@ -19,8 +18,7 @@ the stability of the childchain. We would also like to have
 PoS-like election system to choose the leaders on the hyperchain. In this case
 however we have a very reliable – and mostly important, unpredictable – source
 of randomness – the state of the parent chain. The idea is not very new
-though – there is already some research made in this direction
-\footnote{https://eprint.iacr.org/2015/1015.pdf}.
+though – there is already some research made in this direction\cite{blockchain_random}.
 
 Having this machinery it seems natural to start a new election each time a
 (key)block was mined on the parent chain. The next leader shall be chosen
@@ -58,8 +56,7 @@ steal the transactions and post them in their microblocks. This however can be
 faced with a smarter feeing strategy: instead of giving the full fee to the
 miner we can split it up and give the bigger part to the next leader that did
 include the previous leader's microblocks in their continuation of the history,
-as it happens in the BitcoinNG
-\footnote{https://arxiv.org/pdf/2001.05082.pdf}.
+as it happens in the BitcoinNG\cite{incentive_bcng}.
 After getting elected the new leader posts a keyblock on the child chain that
 references the point on the parent which proves their right to lead the
 generation. Beside that, they need to reference the microblock from the previous
