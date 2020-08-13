@@ -22,7 +22,11 @@ but also staked tokens. On the other hand this kind of forking is
 not dangerous at all – it may introduce some mess but will be instantly solved
 with the next keyblock.
 
-$$insert\ some\ image$$
+\begin{figure}[h]
+	\caption{Microfork}
+	\centering
+	\includegraphics[scale=0.35]{microfork}
+\end{figure}
 
 \subsubsection{Generational forks}
 
@@ -31,14 +35,14 @@ keyblocks is a hard task. On the contrary keyblocks on hyperchains are really,
 really cheap - a malicious leader might flood the network with conflicting
 keyblocks:
 
-$$insert\ some\ image\ (ascii\ art\ in\ the\ latex\ code)$$
-% K2a   K2b    K2c   K2d
-% |     |      |     |
-% V     V      V     V
-% K1 <-- O <-- O < -- O <-- O 
+\begin{figure}[h]
+	\caption{Generational Fork}
+	\centering
+	\includegraphics[scale=0.35]{genfork}
+\end{figure}
 
-The $K2a$, $K2b$, etc. are keyblocks on the child chain emitted by a malicious
-leader over different microblocks (denoted by the $O$ letter). This
+The $K1a$, $K1b$, etc. are keyblocks on the child chain emitted by a malicious
+leader over different microblocks. This
 effectively splits the network in many parts, as it becomes unclear to which of
 the forks the delegates should commit. To resolve this issue a single leader
 must be agreed upon using some additional mechanism – a new election
@@ -52,6 +56,13 @@ valid, that is the generation where the fork starts. The committer
 needs also to submit to which fork they want to contribute – if they get elected they
 will must keep building on it (we disallow rollbacks). The voting power should be
 calculated basing on the latest block before the fraud was detected.
+
+
+\begin{figure}[h]
+	\caption{Generational Fork Solving}
+	\centering
+	\includegraphics[scale=0.35]{genfraud}
+\end{figure}
 
 Due to network propagation
 delays and connectivity failures some nodes might not notice that a generational
