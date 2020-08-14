@@ -1,10 +1,10 @@
 \section{Security}
 
 This hybrid solution allows us to use the parent chain as a
-reliable protector against most of attacks that target the PoS systems.
+reliable protector against most of the attacks that target the PoS systems.
 \cite{pos_attacks}
-In this section we assume that the parent chain is well secured and every
-user has a decent and reliable access to it.
+In this section, we assume that the parent chain is well secured, and every
+user has decent and reliable access to it.
 
 \subsection{Nothing at stake}
 
@@ -12,15 +12,14 @@ This attack splits into two cases: microforks and generational forks.
 
 \subsubsection{Microforks}
 
-When a malicious leader is elected they can produce blocks without any cost.
+When a malicious leader is elected, they can produce blocks without any cost.
 They are free to create conflicting branches within a single generation.
 
 This case is very similar to BitcoinNG's. We introduce the Proof of Fraud (PoF)
-mechanism to punish the malicious leaders, but in this situation we are able to
-make the penalties much more severe by acting not only on the transaction fees,
-but also staked tokens. On the other hand this kind of forking is
-not dangerous at all – it may introduce some mess but will be instantly solved
-with the next keyblock.
+mechanism to punish the malicious leaders, but in this situation, we can make
+the penalties much more severe by acting not only on the transaction fees
+but also staked tokens. On the other hand, this kind of forking is not dangerous
+at all – it may introduce some mess but will be instantly solved with the next keyblock.
 
 \begin{figure}[h]
 	\caption{Microfork}
@@ -44,18 +43,18 @@ keyblocks:
 The $K1a$, $K1b$, etc. are keyblocks on the child chain emitted by a malicious
 leader over different microblocks. This
 effectively splits the network in many parts, as it becomes unclear to which of
-the forks the delegates should commit. To resolve this issue a single leader
+the forks the delegates should commit. To resolve this issue, a single leader
 must be agreed upon using some additional mechanism – a new election
-should be performed with exclusion of the compromised delegate.
+should be performed with the exclusion of the compromised delegate.
 
-In order to notify the network about the generational fork the peers need to announce
-this fact on the parent chain by publishing the fraud commitments along with the
+To notify the network about the generational fork, the peers need to announce
+this fact on the parent chain by publishing the fraud commitments and the
 cryptographic proofs of generational fraud (PoGF). Each commitment has to point to
 the latest child keyblock considered by the delegates to be
-valid, that is the generation where the fork starts. The committer
-needs also to submit to which fork they want to contribute – if they get elected they
-will must keep building on it (we disallow rollbacks). The voting power should be
-calculated basing on the latest block before the fraud was detected.
+valid, that is the generation where the fork starts. The committer also needs
+to submit to which fork they want to contribute – if they get elected they
+will be required to build on it (we disallow rollbacks). The voting power should be
+calculated based on the latest block before the fraud was detected.
 
 
 \begin{figure}[h]
@@ -65,14 +64,14 @@ calculated basing on the latest block before the fraud was detected.
 \end{figure}
 
 Due to network propagation
-delays and connectivity failures some nodes might not notice that a generational
+delays and connectivity failures, some nodes might not notice that a generational
 fork was created and not respond accordingly. New nodes or the ones catching up
 after downtime need to be aware that a generational fork was created and apply
 the appropriate resolution. Some of them may commit to one of the forks and receive a fraud
-notification after they started mining. Therefore we introduce a metric over the
-branches which for conventional reason we are going to call "difficulty". The
+notification after they started mining. Therefore, we introduce a metric over the
+branches that we are going to call "difficulty" for a conventional reason. The
 rule to resolve conflicts caused by such data races is similar to already
-existing PoW strategy "follow the most difficult chain", and the formula goes
+existing PoW strategy "follow the most difficult chain," and the formula goes
 as follows:
 \begin{minipage}{\linewidth}
 \begin{lstlisting}
@@ -89,39 +88,37 @@ as follows:
 \end{lstlisting}
 \end{minipage}
 
-If two forks have the same difficulty then we prefer the one with lower
+If two forks have the same difficulty, then we prefer the one with lower
 block hash. This formula ensures that keyblocks pointing to a PoGF are always
 strongly preferred over ordinary keyblocks – delegates who detect generational
 forks have higher priority over poorly connected/bootstrapping/syncing ones.
 
 This solution may look vulnerable to situations where the leader doesn't respond
-or responds with significant delay. To solve these cases we just elect new
-leader stalling the network for a while. To vanish the doubts arising when the
-previous leader reappears we can assume
+or responds with significant delay. To solve these cases, we just elect a new
+leader, stalling the network for a while. To vanish the doubts arising when the
+previous leader reappears, we can assume
 finalization after $f$ (implementation dependent) generations.
 
-There is an interesting case where the malicious leader submits a generational
+There is a compelling case where the malicious leader submits a generational
 fork by publishing keyblocks on conflicting microblocks.
 Here we want to prioritize PoGF because the consequences of the forks on
-keyblocks are much more severe than these on microblocks and we would need to
+keyblocks are much more severe than these on microblocks, and we would need to
 solve them anyway.
 
 \subsection{Stake grinding}
 
-Since the RNG depends ultimately on the keyblock hash on the PoW chain it is
+Since the RNG depends ultimately on the keyblock hash on the PoW chain, it is
 impossible to predict its outcomes. One could try to mine the parent chain
 in a special way, but it would require so much computational power that in
-most cases it would be easier just to take the control over it by some 51\%
-attack.
+most cases it would be easier to take control over it by some 51\% attack.
 
 \subsection{Long range attack}
 While it is still possible to perform it, it would be impossible to do it in
 silence and without preparation since the very beginning. The commitments
-guarantee that the information of the delegates is stored on a immutable chain
+guarantee that the information of the delegates is stored on an immutable chain,
 and one would need to announce their will of mining some suspicious blocks during
-the full period of the attack. This would easily expose the will of the attacker
-and would let the others prepare for eventual surprise (by for example
-blacklisting them).
+the full period of the attack. This would quickly expose the intention of the attacker
+and let the others prepare for an eventual surprise (by blacklisting them, for example).
 
 \subsection{Avoiding punishments}
 Depending on the circumstances on the network the transaction fees may vary
@@ -129,11 +126,11 @@ Depending on the circumstances on the network the transaction fees may vary
 case as the risk of fraud detection may be much lesser than expected profit.
 
 One of the most natural ideas is to freeze the stake with some period before the
-election. In this scenario the protocol will be able to painfully slash the
-malicious leaders by burning/redistributing their stake. This however may raise
+election. In this scenario, the protocol will be able to painfully slash the
+malicious leaders by burning/redistributing their stake. However, this may raise
 some problems when the delegated voting is used – the malicious leader may vote
-for their second, empty account that will do the fraud loosing potentially
-nothing in case of getting compromised. This scenario can be dealt with allowing only
+for their second, empty account that will do the fraud losing potentially
+nothing in case of getting compromised. This scenario can be dealt with, allowing only
 top $k$ stakers to be voted on or slashing \textit{everyone} who supported the
-malicious leader. We leave this implementation dependent as different solutions
+malicious leader. We leave this implementation-dependent as different solutions
 require different security approaches.
