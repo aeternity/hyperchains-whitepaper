@@ -12,7 +12,7 @@ The point is to make it hard to dominate the network by a
 single selfish entity. This solution works as long as nobody has over 50\% of the whole
 computational power – in that case they could just fork the chain at any point
 and get ahead of the main history line (this is a serious issue since in most
-protocols the longest chain is considered the proper one). Therefore one needs a
+protocols the most difficult chain is considered the proper one). Therefore one needs a
 lot of participants in the network to make it reasonably safe. Moreover, this
 solution leads to extreme waste of energy and huge costs – according to some
 measurements, the whole blockchain environment burns enough energy to power
@@ -30,7 +30,7 @@ While PoW distributes the leadership by computational power, the PoS does it by
 the so-called stake, which in most cases means the token supply (sometimes decorated
 with some additional tweaks)\cite{peercoin}\cite{cryptocurr_without_pow}.
 The idea is to create a leadership voting system
-that is triggered by some amount of time. Each time the election event occurs,
+that is activated periodically. Each time the election event occurs,
 the new leader is randomly selected among the stakeholders (called delegates).
 The election chance is proportional to the size of the stake. This approach does
 not imply any noticeable energetic overhead and therefore is much more friendly for the
@@ -57,16 +57,14 @@ destabilize the trust over the chain.
 On the other hand, there are multiple approaches to deal with these problems. For instance,
 the CASPER protocol introduces a "wrong voting penalty," which punishes the
 voters that support conflicting forks to deal with nothing at stake\cite{casper}.
-However, there is a PoW mechanism in the background anyway. Another way is to use
-proof of fraud mechanisms known from BitcoinNG\cite{bcng},
-but they are hopeless in a situation where the chain forks over a transaction
-transferring stake between two accounts, and the penalties are not always
-sufficient. Also, it simply doesn't work until the
-conflicting branch is published. NXT deals with long-range attack by forcefully
+However, it is backed by a finality gadget that is located on another blockchain
+anyway. NXT deals with long-range attack by forcefully
 finalizing all blocks that are older than 720 generations\cite{nxt}.
 One must note that this doesn't actually solve the problem, but rather moves it
 away. Moreover, it introduces weak subjectivity since one still needs to trust
-some entity while entering the network for the first time or after a longer downtime.
+some entity while entering the network for the first time or after a longer
+downtime. Ouroboros staking system has managed to reach solid security, but
+at the cost of very high complexity\cite{ouroboros}.
 
 These are only some examples. The general point is that PoS comes with many flaws
 that are being solved by eventually introducing some other ones. This
