@@ -8,7 +8,7 @@ In order to build the pdf ensure you have [latex](https://www.latex-project.org/
 
 Clone the repo:
 ```
-git clone https://github.com/aeternity/hyperchains-whitepaper.git
+git clone https://github.com/aeternity/hyperchains-whitepaper.git && cd hyperchains-whitepaper
 ```
 Build the pdf:
 ```
