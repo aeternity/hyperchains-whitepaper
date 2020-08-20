@@ -23,3 +23,11 @@ We propose the following features of a staking contract:
 \item Withdrawing and depositing the stake
 \item (optional) Controlled hard forking
 \end{itemize}
+
+The system must implement some mechanisms to prevent abuse of the exposed
+interface and it must be resistant to low responsiveness
+of the generation leader. Therefore we highly recommend making some necessary
+calls (like election initiation or reward claiming) be applied automatically
+along with keyblock appearance and be protocol–restricted in order to prevent
+arbitrary calls to them. The contract may be free of any PoF validation and
+contain only the algorithm of issuing a punishment to the current leader.
