@@ -1,17 +1,17 @@
 \section{Election process and staking mechanism}
-
-We do not want to force any particular mechanisms and rules in this section, but
-rather propose some solutions that would make it easier to plan and implement
-the desired algorithms. This is not up to this document to specify the details.
+In this section, rather than prescribe specific mechanisms and rules,
+we simply propose solutions that would facilitate planning and implementation
+of the desired algorithms. It is not up this document to specify the details.
 
 The most convenient way to organize the election process is to create a smart
-contract on the hyperchain that would manage the stake and evaluate PoF
+contract on the hyperchain, which would manage the stake and evaluate PoF
 penalties. This contract shall be referenced in the protocol, and its interface
-should be settled there. It is eligible for it to be adjusted by regular calls on the fly
-– this could save some protocol-level hard forking. If the VM supports it, the
-contract could also forcefully alter the blockchain state (i.e., by using some
+should be specified there. It is advisable that the contract be adjusted by
+regular calls on the fly
+— this could prevent some protocol–level hard forking. If the VM supports it, the
+contract could also forcefully alter the blockchain state (e.g. by using some
 internal Merkle tree framework). We highly recommend introducing consensus
-changes with a decent delay to ensure that it won't break during a true hard fork.
+changes with a decent delay to ensure that it will not break during a true hard fork.
 
 We propose the following features of a staking contract:
 \begin{itemize}
@@ -26,8 +26,8 @@ We propose the following features of a staking contract:
 
 The system must implement some mechanisms to prevent abuse of the exposed
 interface and it must be resistant to low responsiveness
-of the generation leader. Therefore we highly recommend making some necessary
+of the generation leader. Therefore we highly recommend that some necessary
 calls (like election initiation or reward claiming) be applied automatically
-in each keyblock and be protocol–restricted in order to prevent
+in each key block and be protocol–restricted in order to prevent
 arbitrary calls to them. The contract may be free of any PoF validation and
 contain only the algorithm of issuing a punishment to the current leader.
