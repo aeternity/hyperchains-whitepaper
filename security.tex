@@ -1,16 +1,16 @@
 \section{Security}
 
 This hybrid solution allows us to use the parent chain as a
-reliable protector against most of the attacks that target the PoS systems.
-\cite{pos_attacks}
+reliable protector against most of the attacks that target the PoS
+systems\cite{pos_attacks}.
 In this section, we assume that the parent chain is secured well, and every
 user has easy and reliable access to it.
 
 \subsection{Nothing at stake}
 
-This type of attack splits into two cases: microforks and generational forks.
+This type of attack splits into two cases: micro forks and generational forks.
 
-\subsubsection{Microforks}
+\subsubsection{Micro forks}
 
 A malicious leader may produce blocks without any cost.
 They are free to create conflicting branches within a single generation.
@@ -22,7 +22,7 @@ but also staked tokens. On the other hand, this kind of forking is not dangerous
 at all. It may introduce some mess but becomes solved instantly with the next key block.
 
 \begin{figure}[h]
-	\caption{Microfork}
+	\caption{Micro fork}
 	\centering
 	\includegraphics[scale=0.35]{microfork}
 \end{figure}
@@ -44,7 +44,7 @@ The $K1a$, $K1b$, etc. are key blocks on the child chain emitted by a malicious
 leader over different micro blocks. This
 effectively splits the network into many parts, as it becomes unclear to which of
 the forks the delegates should commit. To resolve this issue, a single leader
-must be agreed upon using some additional mechanism – a new election
+must be agreed upon using some additional mechanism — a new election
 should be performed with the exclusion of the compromised delegate.
 
 To notify the network about the generational fork, the peers need to announce
@@ -52,7 +52,7 @@ this fact on the parent chain by publishing fraud commitments and
 cryptographic proofs of generational fraud (PoGF). Each commitment has to point to
 the latest child key block considered valid by delegates or,
  in other words, to the generation where the fork starts. The committer also needs
-to declare to which fork they want to contribute – if they get elected, they
+to declare to which fork they want to contribute — if they get elected, they
 will be required to build on it (we disallow rollbacks). The voting power should be
 calculated based on the latest block before the fraud was detected.
 
@@ -91,7 +91,7 @@ as follows:
 
 If two forks have the same difficulty, then the one with lower block hash
 is selected. This formula ensures that key blocks pointing to a PoGF are always
-strongly preferred over ordinary key blocks – delegates who detect generational
+strongly preferred over ordinary key blocks — delegates who detect generational
 forks have higher priority over poorly connected/bootstrapping/syncing ones.
 
 This solution is vulnerable to situations where the leader does not respond
@@ -111,7 +111,7 @@ be resolved anyway.
 Since the RNG depends ultimately on the key block hash on a PoW chain, it is
 impossible to predict its outcomes. One could try to mine the parent chain
 in a special way, but it would require so much computational power that in
-most cases it would be easier to take control by 51\% attack.
+most cases it would be easier to take control by a 51\% attack.
 
 \subsection{Long–range attack}
 While it is still possible to perform a long–range attack, it would be impossible to do it
@@ -130,7 +130,7 @@ those cases, where the risk of fraud detection is much lesser than expected prof
 One of the most natural ideas is to freeze the stake for some period before the
 election. In this scenario, the protocol is able to painfully slash
 malicious leaders by burning/redistributing their stake. However, this may raise
-some problems when delegated voting is used – a malicious leader may vote
+some problems when delegated voting is used — malicious leader may vote
 for their second, empty account that will commit the fraud, losing potentially
 nothing if compromised. This can be dealt with, allowing only
 top $k$ stakers to be voted on or slashing \textit{everyone} who supported the
