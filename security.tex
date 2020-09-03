@@ -122,6 +122,29 @@ the entire period of the attack. This would quickly expose the intention of the 
 and let the others prepare for a possible upcoming attack
 (by blacklisting them, for example).
 
+\subsection{Overloading parent chain}
+
+Healthy commitment mechanism is the key for a fair election on a hyperchain. If
+some of the delegates get prevented from publishing commitment transactions on
+the parent their chances of becoming a leader will drop to zero regardless of
+their stake. This is a vulnerable point of the system which can be possibly
+exploited. On most blockchains there is a limitation on the number/total size
+of transactions in a single block. A malicious leader could send numerous
+commitments to fill the entire block leaving no place for the others.
+
+This strategy hands the staking value to parent's tokens in some sense. The
+difference is that in this case the financial effort made to boost one's chances
+of election is disposable (as long as the attacker did not mine that block – but
+then they could just reject other commitments). At the time of writing the costs
+of performing such an attack are huge on most blockchains and it is
+almost impossible to sustain it for a longer time. Note that in order to take
+full control over just a single generation the
+attacker would need to invest funds equal to significantly extended transaction
+fee multiplied by the network throughput hoping that every other commitment will
+get superseded by \textit{every} of his spam transaction. If it is not enough,
+performing an election each $k_{> 1}$ blocks would greatly amplify the required
+effort.
+
 \subsection{Avoiding punishments}
 Transaction fees may vary depending on circumstances on the network.
 Consequently, the original penalty system of BitcoinNG is not sufficient in
