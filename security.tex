@@ -122,15 +122,19 @@ the entire period of the attack. This would quickly expose the intention of the 
 and let the others prepare for a possible upcoming attack
 (by blacklisting them, for example).
 
-\subsection{Overloading parent chain}
+\subsection{Overloading parent's block capacity}
 
-Healthy commitment mechanism is the key for a fair election on a hyperchain. If
-some of the delegates get prevented from publishing commitment transactions on
-the parent their chances of becoming a leader will drop to zero regardless of
-their stake. This is a vulnerable point of the system which can be possibly
+Healthy commitment mechanism is the essential part of fair election process on a hyperchain. If
+some of the delegates got prevented from publishing commitment transaction on
+the parent chain their chances to become a leader is dropping to zero regardless of
+their stake. 
+
+That is worth to mention that parent chain's block is exposed as a finite resource from transaction's capacity perspective\cite{bitcoin_scaling}. The delegate's inability to post transaction at the same block can be considered as a "out of service" and usually leads to an alternation of the election results.
+
+This is a vulnerable point of the system which can be possibly
 exploited. On most blockchains there is a limitation on the number/total size
-of transactions in a single block. A malicious leader could send numerous
-commitments to fill the entire block leaving no place for the others.
+of transactions in a single block\cite{avg_txs_per_block}. A malicious leader could send numerous
+transactions with arbitrary payload to fill the entire block capacity and left no place for the others.
 
 This strategy hands the staking value to parent's tokens in some sense. The
 difference is that in this case the financial effort made to boost one's chances
