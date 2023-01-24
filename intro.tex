@@ -1,30 +1,29 @@
 \section{Introduction}
 
-One of the most important problems that blockchains need to tackle to
-maintain a stable and safe infrastructure is the need for a decentralized
-consensus among the participants. This usually reduces to the existence of a
-point of agreement, from which everyone should be able to derive an objective
-and consistent truth about the state of the system. Most commonly,
-such point defines a certain description of the universe's history, or establishes
-the person responsible for dictating it for some time. There is a
-global tendency for depending on some random, fair and unpredictable event that
-allows for building up a trustless agreement on the current status of events.
+One of the most important problems that blockchains need to tackle to maintain a
+stable and safe infrastructure is the need for a decentralized consensus among
+the participants. This usually reduces to the existence of a point of agreement,
+from which everyone should be able to derive an objective and consistent truth
+about the state of the system. Most commonly, such point defines a certain
+description of the universe's history, or establishes the person responsible for
+dictating it for some time. There is a global tendency for depending on some
+random, fair and unpredictable event that allows for building up a trustless
+agreement on the current status of events.
 
-Proof of Work (PoW) solutions are traditionally the most popular.
-They achieve network security by burning (usually empty) CPU cycles in order to
-randomly hand the power to users depending on their computational effort.
-This is a slow and costly process, which relies on having
-a vast and decentralized network of miners. On the other hand, Proof of Stake (PoS)
-is much more energy–efficient, but its implementation details matter
-greatly. It could be subject to the nothing–at–stake problem or stake grinding and
-thus eventually degrade to an inelegant PoW solution.
+Proof of Work (PoW) solutions are traditionally the most popular. They achieve
+network security by burning (usually empty) CPU cycles in order to randomly hand
+the power to users depending on their computational effort. This is a slow and
+costly process, which relies on having a vast and decentralized network of
+miners. On the other hand, Proof of Stake (PoS) is much more energy–efficient,
+but its implementation details matter greatly. It could be subject to the
+nothing–at–stake problem or stake grinding and thus eventually degrade to an
+inelegant PoW solution.
 
-We propose a hybrid approach called hyperchains: PoS systems, which
-rely on existing PoW networks for providing security. The security of the
-PoW network itself is outside of the scope of this document: it is up to
-the specific hyperchain setup to choose a secure PoW network since it
-can never be as secure as the PoW chain. It is worth noting that it ought to
-be possible to change the PoW system used by the hyperchain further down
-in its lifetime. From now on, we will refer to the PoW chain as a parent chain
-and the PoS–like system — as a child chain.
-
+We propose a hybrid approach called hyperchains: PoS systems, which rely on
+existing PoW networks for providing security. The security of the PoW network
+itself is outside of the scope of this document: it is up to the specific
+hyperchain setup to choose a secure PoW network since it can never be as secure
+as the PoW chain. It is worth noting that it ought to be possible to change the
+PoW system used by the hyperchain further down in its lifetime. From now on, we
+will refer to the PoW chain as a parent chain and the PoS–like system — as a
+child chain.

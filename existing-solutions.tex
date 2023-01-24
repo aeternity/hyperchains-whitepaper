@@ -1,74 +1,71 @@
 \section{Existing solutions}
 
-In this section, we describe the existing approaches to the problem along
-with the problems they face and how they attempt to address them.
+In this section, we describe the existing approaches to the problem along with
+the problems they face and how they attempt to address them.
 
 \subsection{Proof of Work}
 
-Proof of Work (or shortly PoW) solves the problem of decision making by forcing the
-users (here called miners) to solve some hard computational puzzle to validate
-(here, mine) blocks\cite{bitcoin}.
-The point is to make it hard to dominate the network by a
-single selfish entity. This solution works as long as nobody holds over 50\% of the whole
-computational power, in which case they could just fork the chain at any point
-and get ahead of the main history line. This is a serious issue since in most
-protocols the most difficult chain is considered the proper one. Therefore one needs a
-lot of participants in the network to make it reasonably safe. Moreover, this
-solution leads to extreme waste of energy and huge costs — according to some
-measurements, the whole blockchain environment burns enough energy to power
-the whole Denmark\cite{bitcoin_energy}.
+Proof of Work (or shortly PoW) solves the problem of decision making by forcing
+the users (here called miners) to solve some hard computational puzzle to
+validate (here, mine) blocks\cite{bitcoin}. The point is to make it hard to
+dominate the network by a single selfish entity. This solution works as long as
+nobody holds over 50\% of the whole computational power, in which case they
+could fork the chain at any point and get ahead of the main history line. This
+is a serious issue since in most protocols the most difficult chain is
+considered the proper one. Therefore one needs a lot of participants in the
+network to make it reasonably safe. Moreover, this solution leads to extreme
+waste of energy and huge costs — according to some measurements, the whole
+blockchain environment burns enough energy to power the whole
+Denmark\cite{bitcoin_energy}.
 
 This idea does not scale well — it is almost impossible to create a public
 network from scratch that would not eventually be dominated by some malicious
 entity. A lot of existing serious blockchains suffer this
-problem\cite{51attack}. On the other hand, a network becomes extremely secure once
-it is popular enough.
+problem\cite{51attack}. On the other hand, a network becomes extremely secure
+once it is popular enough.
 
 \subsection{Proof of Stake}
 
 While PoW distributes the leadership based on computational power, PoS does it
-based on so–called stake, which in most cases means token supply, sometimes
-with additional tweaks\cite{peercoin}\cite{cryptocurr_without_pow}.
-The idea is to create a leadership voting system
-which is activated periodically. Each time an election event occurs,
-the new leader is randomly selected from the stakeholders (called delegates).
-The chance of winning an election is proportional to the size of one's stake.
-This approach does
-not imply any noticeable energetic overhead and therefore is much more friendly to the
-environment. It also does not require users to have powerful computers to be able to
-have some involvement in decision making.
+based on so–called stake, which in most cases means token supply, sometimes with
+additional tweaks\cite{peercoin}\cite{cryptocurr_without_pow}. The idea is to
+create a leadership voting system which is activated periodically. Each time an
+election event occurs, the new leader is randomly selected from the stakeholders
+(called delegates). The chance of winning an election is proportional to the
+size of one's stake. This approach does not imply any noticeable energetic
+overhead and therefore is much more friendly to the environment. It also does
+not require users to have powerful computers to be able to have some involvement
+in decision making.
 
 However, PoS comes with some serious issues. First of all, there is the infamous
-"nothing at stake"\cite{pos_flaws_nothing}
-problem, which exploits the lack of any cost of the actual mining. In this case,
-there is no downside to staking several branches simultaneously in case of a fork.
+"nothing at stake"\cite{pos_flaws_nothing} problem, which exploits the lack of
+any cost of the actual mining. In this case, there is no downside to staking
+several branches simultaneously in case of a fork.
 
-Ensuring that the source of entropy is distributed along the chain,
-makes all of the elections entirely deterministic and predictable leading to a strategy
-known commonly as "stake grinding," where the dishonest leader tries to rearrange the
+Ensuring that the source of entropy is distributed along the chain, makes all of
+the elections entirely deterministic and predictable leading to a strategy known
+commonly as "stake grinding," where the dishonest leader tries to rearrange the
 transactions to influence the result of the upcoming election.
 
-Next issue is the "long–range attack"\cite{pos_flaws_long}.
-In the very beginning, the stake is scattered among a small
-group of delegates that together have full control over the chain. After
-some time, they can cooperate and start a concurrent chain diverging from
-the main one. This could lead to nasty frauds and would
-destabilize trust over the chain.
+Next issue is the "long–range attack"\cite{pos_flaws_long}. In the very
+beginning, the stake is scattered among a small group of delegates that together
+have full control over the chain. After some time, they can cooperate and start
+a concurrent chain diverging from the main one. This could lead to nasty frauds
+and would destabilize trust over the chain.
 
-On the other hand, there are multiple approaches to deal with these problems. For instance,
-to prevent nothing–at–stake, the CASPER protocol introduces a "wrong voting
-penalty," which punishes
-voters who support conflicting forks\cite{casper}.
-However, this solution is backed by a finality gadget, which is located on another blockchain
-anyway. NXT deals with long–range attack by forcefully
-finalizing all blocks that are older than 720 generations\cite{nxt}.
-One must note that this doesn't actually solve the problem, but rather defers
-it. Moreover, it introduces weak subjectivity since one still needs to trust
-some entity while entering the network for the first time or after a longer
-downtime. Ouroboros staking system has managed to reach solid security, but
-at the cost of very high complexity\cite{ouroboros}.
+On the other hand, there are multiple approaches to deal with these problems.
+For instance, to prevent nothing–at–stake, the CASPER protocol introduces a
+"wrong voting penalty," which punishes voters who support conflicting
+forks\cite{casper}. However, this solution is backed by a finality gadget, which
+is located on another blockchain anyway. NXT deals with long–range attack by
+forcefully finalizing all blocks that are older than 720 generations\cite{nxt}.
+We believe that this doesn not actually solve the problem, but rather defers it.
+Moreover, it introduces weak subjectivity since one still needs to trust some
+entity while entering the network for the first time or after a longer downtime.
+Ouroboros staking system has managed to reach solid security, but at the cost of
+very high complexity\cite{ouroboros}.
 
-These are only a few examples. The general point is that PoS comes with many
-problems, which, as they are being solved, eventually introduce some new ones. This
-makes most of the pure PoS networks unreliable, and especially not as reliable
-as mature PoWs.
+Although these are only few examples, the general argument is that PoS comes
+with many problems, which, as they are being solved, eventually introduce new
+ones. This undermines reliability of PoS systems, and especially compared to
+mature PoWs.
