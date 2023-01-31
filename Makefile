@@ -12,7 +12,7 @@ REPL = $(TEXTDIR)/.aspell.en.prepl
 
 .PHONY : all clean splchk
 
-all : $(OUT) check splchk
+all : $(OUT) # check splchk
 
 check: $(SRCS)
 	! $(CHK) $(MAIN) | grep .
@@ -20,7 +20,7 @@ check: $(SRCS)
 clean :
 	-rm -f *.{aux,log,pdf,toc,out,bbl,blg}
 
-$(OUT) : $(SRCS)
+$(MAIN) : $(SRCS)
 	$(TEX) $(SRC) && $(BIB) $(MAIN) && $(TEX) $(SRC) && $(TEX) $(SRC)
 
 %.chk: %.tex

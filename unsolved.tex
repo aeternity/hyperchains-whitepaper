@@ -1,28 +1,38 @@
 \section{Derived issues}
 
-While the presented idea seems to cover the majority of cases, some
-scenarios may break the system's stability. However, depending on the
-chosen parent chain and the tweaks of inner protocol, their impact
-can be limited to an acceptable risk.
+While the presented idea seems to cover the majority of cases, some scenarios
+may break the system's stability. However, depending on the chosen parent chain
+and the tweaks of inner protocol, their impact can be limited to an acceptable
+risk.
 
 \subsection{Forks of the parent}
 
 Whatever happens to the parent, the similar shall happen to the child. The child
 chain is entirely vulnerable to forks of the parent chain, and it is quite hard
-to agree about on which branch to continue. Most likely, the
-hyperchain would fork as well. On the other hand, if the validators manage to
-decide on one branch, it would be technically possible to jump into the other
-if the chosen one becomes less attractive.
+to agree about on which branch to continue. Most likely, the hyperchain would
+fork as well. On the other hand, if the validators manage to decide on one
+branch, it would be technically possible to jump into the other if the chosen
+one becomes less attractive.
 
 \subsection{Attacks on the parent}
 
-The hyperchain can never be more secure than the parent.
-If somebody succeeds in a 51\% attack on the parent chain,
-they will also take control of the child chain.
-Therefore the choice of the parent should be made with regards to its security.
+The hyperchain can never be more secure than the parent. If somebody succeeds in
+a 51\% attack on the parent chain, they will also take control of the child
+chain. Therefore the choice of the parent should be made with regards to its
+security.
 
 \subsection{Finalization time}
 
 Since there is no single correct strategy on how to react to forks, the
 finalization time shall not be shorter on a hyperchain than on the parent chain.
 If the parent key block gets rolled back, so will all of the leader elections.
+
+\subsection{Stake collusion}
+
+While stake distribution may look healthy on the surface, stakers can actually
+collude rather than act as self-serving actors. As a consequence, there may
+emerge a group of delegates whose perceived best interest would be to join a
+cartel and unfairly influence the blockchain. This issue, however, is common to
+all capital-based PoS systems where power is handed by the value staked in.
+Although we do not propose any direct solution to this, a properly tailored
+staking contract may address this issue.

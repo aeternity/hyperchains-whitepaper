@@ -12,5 +12,5 @@ git clone https://github.com/aeternity/hyperchains-whitepaper.git && cd hypercha
 ```
 Build the pdf:
 ```
-make whitepaper.pdf
+make whitepaper
 ```
