@@ -26,3 +26,13 @@ security.
 Since there is no single correct strategy on how to react to forks, the
 finalization time shall not be shorter on a hyperchain than on the parent chain.
 If the parent key block gets rolled back, so will all of the leader elections.
+
+\subsection{Stake collusion}
+
+While stake distribution may look healthy on the surface, stakers can actually
+collude rather than act as self-serving actors. As a consequence, there may
+emerge a group of delegates whose perceived best interest would be to join a
+cartel and unfairly influence the blockchain. This issue, however, is common to
+all capital-based PoS systems where power is handed by the value staked in.
+Although we do not propose any direct solution to this, a properly tailored
+staking contract may address this issue.
