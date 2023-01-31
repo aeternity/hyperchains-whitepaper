@@ -14,11 +14,11 @@ could fork the chain at any point and get ahead of the main history line. This
 is a serious issue since in most protocols the most difficult chain is
 considered the proper one. Therefore one needs a lot of participants in the
 network to make it reasonably safe. Moreover, this solution leads to extreme
-waste of energy and huge costs --- according to some measurements, the whole
+waste of energy and huge costs---according to some measurements, the whole
 blockchain environment burns enough energy to power entire
 Denmark\cite{bitcoin_energy}.
 
-This idea does not scale well --- it is almost impossible to create a public
+This idea does not scale well---it is almost impossible to create a public
 network from scratch that would not eventually be dominated by some malicious
 entity. A lot of existing serious blockchains suffer this
 problem\cite{51attack}. On the other hand, a network becomes extremely secure
@@ -27,7 +27,7 @@ once it is popular enough.
 \subsection{Proof of Stake}
 
 While PoW distributes the leadership based on computational power, PoS does it
-based on so–called stake, which in most cases means token supply, sometimes with
+based on so-called stake, which in most cases means token supply, sometimes with
 additional tweaks\cite{peercoin}\cite{cryptocurr_without_pow}. The idea is to
 create a leadership voting system which is activated periodically. Each time an
 election event occurs, the new leader is randomly selected from the stakeholders
@@ -47,17 +47,17 @@ the elections entirely deterministic and predictable leading to a strategy known
 commonly as "stake grinding," where the dishonest leader tries to rearrange the
 transactions to influence the result of the upcoming election.
 
-Next issue is the "long–range attack"\cite{pos_flaws_long}. In the very
+Next issue is the "long-range attack"\cite{pos_flaws_long}. In the very
 beginning, the stake is scattered among a small group of delegates that together
 have full control over the chain. After some time, they can cooperate and start
 a concurrent chain diverging from the main one. This could lead to nasty frauds
 and would destabilize trust over the chain.
 
 On the other hand, there are multiple approaches to deal with these problems.
-For instance, to prevent nothing–at–stake, the CASPER protocol introduces a
+For instance, to prevent nothing-at-stake, the CASPER protocol introduces a
 "wrong voting penalty," which punishes voters who support conflicting
 forks\cite{casper}. However, this solution is backed by a finality gadget, which
-is located on another blockchain anyway. NXT deals with long–range attack by
+is located on another blockchain anyway. NXT deals with long-range attack by
 forcefully finalizing all blocks that are older than 720 generations\cite{nxt}.
 We believe that this doesn not actually solve the problem, but rather defers it.
 Moreover, it introduces weak subjectivity since one still needs to trust some

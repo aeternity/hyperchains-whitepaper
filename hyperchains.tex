@@ -10,7 +10,7 @@ parent chain, respectively.
 The parent chain can be almost any arbitrary blockchain. In general, we want to
 use some big existing PoW based chains (at the time of writing, preferably
 Bitcoin or Litecoin) to reuse their burned work to maintain the stability of the
-child chain. We also propose a PoS–like election system to choose leaders on the
+child chain. We also propose a PoS-like election system to choose leaders on the
 hyperchain. In this case, however, we employ a reliable and, most importantly,
 unpredictable source of randomness, which is the state of the parent chain. The
 idea is not absolutely novel, as there already exists research into this
@@ -19,8 +19,8 @@ topic\cite{blockchain_random}.
 Following that, it feels natural to start a new election each time a (key)block
 is mined on the parent chain. The next leader shall be chosen depending on the
 hash of that block and selected with chances proportional to their stake. The
-selection algorithm is abstract over this document --- it is up to the
-hyperchain to define the details.
+selection algorithm is abstract over this document---it is up to the hyperchain
+to define the details.
 
 \begin{figure}[b]
      \caption{Hyperchains interface}
