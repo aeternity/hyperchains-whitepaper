@@ -105,9 +105,9 @@ election every $k_{> 1}$th block would greatly amplify the required effort.
 
 \subsection{No commitments}
 
-It may be the case that no one commitments to a key block, or that a miner on
-the parent chain does not include any commitment. We propose that the smart
-contract responsible for handling elections should decide on what happens in
-that case. For example, a ``lazy leader'' scenario may be utilized; the
-previous leader may take over; or the election may be reevaluated with the
-candidates from the previous generation.
+It may be the case that no one publishes a commitment transaction to a key
+block, or that a miner on the parent chain does not include any commitment. We
+propose that the smart contract responsible for handling elections should decide
+on what happens in that case. For example, a ``lazy leader'' scenario may be
+utilized; the previous leader may take over; or the election may be reevaluated
+with the candidates from the previous generation.
