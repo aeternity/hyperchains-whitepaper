@@ -5,14 +5,14 @@ the problems they face and how they attempt to address them.
 
 \subsection{Proof of Work}
 
-Proof of Work (PoW) addresses the problem of decision making by forcing the
+Proof of Work (PoW) addresses the problem of decision-making by forcing the
 users (here called miners) to solve some hard computational puzzle to validate
 (here, mine) blocks\cite{bitcoin}. The point is to make it hard to dominate the
 network by a single selfish entity. This approach works as long as nobody holds
 over 50\% of the whole computational power, in which case they could fork the
 chain at any point and get ahead of the main history line. This is a serious
 issue since in most protocols the most difficult chain is considered the proper
-one. Therefore one needs a lot of participants in the network to make it
+one. Therefore, one needs a lot of participants in the network to make it
 reasonably safe. Moreover, this approach leads to extreme waste of energy and
 huge costs---according to some measurements, the whole blockchain environment
 burns enough energy to power entire Denmark\cite{bitcoin_energy}.
@@ -27,14 +27,14 @@ once it is popular enough.
 
 While PoW distributes the leadership based on computational power, PoS does it
 based on so-called stake, which in most cases means token supply, sometimes with
-additional tweaks\cite{peercoin}\cite{cryptocurr_without_pow}. The idea is to
+additional tweaks\cite{peercoin,cryptocurr_without_pow}. The idea is to
 create a leadership voting system which is activated periodically. Each time an
 election event occurs, the new leader is randomly selected from the stakeholders
 (called delegates). The chance of winning an election is proportional to the
 size of one's stake. This approach does not incur any noticeable energetic
 overhead and therefore is much more friendly to the environment. It also does
 not require users to have powerful computers to be able to have some involvement
-in decision making.
+in decision-making.
 
 However, PoS comes with some serious issues. First of all, there is the infamous
 ``nothing at stake''\cite{pos_flaws_nothing} problem, which exploits the lack of
@@ -44,8 +44,8 @@ introducing a ``slashing'' mechanism to burn stake of the
 attacker\cite{eth_slashing}. However, that does not prevent the attack itself,
 but only decreases incentives to do it.
 
-Ensuring that the source of entropy is distributed along the chain, makes all of
-the elections entirely deterministic and predictable leading to a strategy known
+Ensuring that the source of entropy is distributed along the chain, makes all
+elections entirely deterministic and predictable leading to a strategy known
 commonly as ``stake grinding,'' where the dishonest leader tries to rearrange the
 transactions to influence the result of the upcoming election.
 
