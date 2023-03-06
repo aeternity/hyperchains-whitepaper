@@ -7,9 +7,8 @@
 
 \newcommand{\blockchain}{{\ae}ternity blockchain}
 \newcommand{\aet}{{\ae}ternity}
-\newcommand{\Aet}{{\AE}ternity}
 
-\title{\huge \Aet\ Hyperchains \\[0.5em]
+\title{\huge \aet\ Hyperchains \\[0.5em]
   \large Recycling power of blockchains
   \\[1em] v1.2.0 }
 
@@ -24,10 +23,11 @@
 \usepackage[draft]{todonotes}   % notes showed
 
 \usepackage{hyperref}
-\usepackage{graphics}
+\usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{svg}
 \usepackage{csquotes}
+\usepackage{color}
 
 \usepackage{geometry}
 \geometry{margin=1in}
@@ -61,20 +61,20 @@
   Blockchains rely on decentralized consensus between miners. Several ways of
   achieving it in a safe, provable, and fair manner have emerged. The oldest
   approach dating back to Satoshi Nakamoto's whitepaper, known as Proof of Work
-  (PoW) implemented in several cryptocurrencies is extremely expensive and
-  leads to ridiculous energy waste. Cheaper algorithms based on Proof of Stake (PoS)
-  promise similar security to PoW, but are usually prone to exploitation. We
-  propose a novel hybrid between PoW and PoS based on BitcoinNG, which combines
-  advantages of both without acquiring their drawbacks.
+  (PoW) implemented in numerous cryptocurrencies is extremely expensive and
+  leads to severe energy waste. Cheaper algorithms based on Proof of Stake
+  (PoS) promise similar security to PoW, but are usually prone to exploitation.
+  We propose a novel hybrid between PoW and PoS based on BitcoinNG, which
+  combines advantages of both without acquiring their drawbacks.
 \end{abstract}
 
-\input{intro.tex}
-\input{existing-solutions.tex}
-\input{hyperchains.tex}
-\input{election.tex}
-\input{security.tex}
-\input{unsolved.tex}
-\input{conclusion.tex}
+\input{intro}
+\input{existing-solutions}
+\input{hyperchains}
+\input{election}
+\input{security}
+\input{unsolved}
+\input{conclusion}
 
 \bibliographystyle{acm} \bibliography{bibliography}
 
