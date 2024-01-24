@@ -233,7 +233,7 @@ To achieve this, we envision a CC system that incorporates the fundamental princ
 Developing this CC system is an ongoing process, requiring careful consideration of each design choice's technical and practical implications. The objective is to strike a balance between the innovation necessary for the HyperChain model and the stability and efficiency of traditional PoS systems
 
 
-![hyperchain diagram](images/Periodically%20Syncing%20HyperChains.png)
+![hyperchain diagram](images/PeriodicallySyncingHyperChains.png)
 
 
 
