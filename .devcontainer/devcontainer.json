@@ -1,0 +1,19 @@
+{
+    "name": "Markdown to LaTeX",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "yzhang.markdown-all-in-one",
+                "james-yu.latex-workshop"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            }
+        }
+    },
+    "postCreateCommand": "echo 'Dev container ready!'",
+    "remoteUser": "root"
+}
