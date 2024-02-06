@@ -153,20 +153,18 @@ In addition to the parent chain's block hash, the PRNG is also seeded with the s
 In our proposed model for HyperChains, we introduce a novel synchronization strategy between the parent and child chains. This approach is characterized by a semi-lock-step movement, where the generations on the PC and CC are aligned to be approximately equal in duration, measured in wall-clock time. This synchronization method is crucial for maintaining a harmonious and efficient relationship between the two chains, ensuring that they operate in tandem while retaining a degree of independence.
 The synchronization of chain speeds between the Parent Chain (PC) and the Child Chain (CC) is crucial. However, there may be instances where the speeds of these chains deviate from their intended pace. To address this, our HyperChain system incorporates mechanisms to adjust the synchronization parameters, ensuring that the PC and CC remain effectively aligned.
 
+One of the key parameters in maintaining this synchronization is the 'child generation length' (CGL), which dictates how quickly the CC moves in relation to the PC. If we observe that the chain speeds are diverging – for instance, if the CC is processing too quickly or slowly compared to the PC – we might need to adjust CGL. Altering this parameter would effectively recalibrate the pace of the CC, bringing it back into harmony with the PC.
 
-One of the key parameters in maintaining this synchronization is the 'generation offset' (GOff), which dictates how quickly the CC moves in relation to the PC. If we observe that the chain speeds are diverging – for instance, if the CC is processing too quickly or slowly compared to the PC – we might need to adjust GOff. Altering this parameter would effectively recalibrate the pace of the CC, bringing it back into harmony with the PC.
-
-
-Another approach to managing speed deviations is to modify the length of a single PC or CC generation. Extending the duration of a generation can be a viable solution to synchronization issues. For example, if the CC moves too rapidly, lengthening its generation time could slow it down to match the PC's pace more closely. Conversely, shortening the generation time is generally less favorable, as it could lead to increased volatility and instability in the synchronization process.
+Extending the duration of a generation can be a viable solution to synchronization issues. For example, if the CC moves too rapidly, lengthening its generation time could slow it down to match the PC's pace more closely. Conversely, shortening the generation time is generally less favorable, as it could lead to increased volatility and instability in the synchronization process.
 
 
 Our system proposes a structured mechanism for proposing, validating, and (automatically) voting on these adjustments to ensure that any such adjustments are made judiciously and with consensus. This democratic approach involves several steps:
 
 
-Proposal Submission: Stakeholder nodes in the HyperChain network that observe a deviation can submit proposals for adjusting GOff or the generation length as a special transaction.
+Proposal Submission: Stakeholder nodes in the HyperChain network that observe a deviation can submit proposals for adjusting CGL  as a special transaction.
 Validation: Once a proposal is submitted, it undergoes a validation process. This stage involves other stakers confirming or denying that they observe a deviation.
 Voting Process: After validation, the proposed change is automatically voted on among stakeholders.
-Implementation: If the proposal is approved through voting, the adjustments are implemented at a given generation.
+Implementation: If the proposal is approved through voting, the adjustments are implemented at a given (or the next) generation.
 
 
 This structured approach to managing chain speed deviations ensures that any necessary adjustments are made automatically based on consensus and a clear understanding of the network. It reinforces the adaptability and resilience of the HyperChain system, allowing it to respond effectively to changing operational dynamics.
@@ -391,11 +389,10 @@ Implementation (if applicable):
 Discuss how the proposed solution can be implemented.
 Include any practical considerations, challenges, or recommendations for implementation.
 
-Introduce a generation length `GL` (in the rest of the document, let's assume it
-is 10), and a generation offset `GOff` (in the rest of the document, assume it
-is 5) that describe how long a generation is on the Parent Chain, and how
-quickly the Child Chain moves in relation to the Parent Chain. (`GOff` = 5
+Introduce a generation length for both the parent chain `PGL` (in the rest of the document, let's assume it is 10), and the child chain `CGL`. The `CGL` in this paper is initial 50, five times the amout of the parent chain. This means that after producing 50 blocks on the child chain, we expect to have progressed one parent chain generation.
+(We may refer to this speed as `GOff` = 5, which
 means there are 5 times as many blocks on the child chain).
+We will adapt the child generation length via a voting strategy. Each child chain can observe the parent chain and obeserve whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child generation longer or shorter is accepted. Changing the generation length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
 
 
 Also consider a constant number of blocks on the parent chain that represents
@@ -423,12 +420,6 @@ generation, the current stake distribution is recorded, etc.
 
 If the chains runs at about the same relative speed this can then be repeated
 forever; with pinning actions happening as often as the rewards incentivize it.
-
-
-If chain speeds deviate we might have to adjust `GOff` or we could make a
-single PC/CC generation longer (shorter is probably a worse option). There
-should be a mechanism for proposing, validating, and voting about such
-adjustments.
 
 
 ## CC design
