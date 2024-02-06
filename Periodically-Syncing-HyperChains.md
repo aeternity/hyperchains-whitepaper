@@ -248,6 +248,110 @@ The synchronization of the Parent Chain (PC) and the Child Chain (CC) is a criti
 ### Step 1: Simulating Chain Speed Variability
 The first step in our simulation process is implementing a program that models the PC and CC operating at different speeds. The goal is to observe whether the two chains can remain effectively synchronized over a prolonged period, spanning 10 million blocks. This simulation will test the chains under stable conditions and introduce variability in the speed of block production. For example, one chain might gradually slow down compared to the other. This test will help us understand the robustness of our synchronization mechanism under dynamic conditions and whether it can adapt to changes in chain speeds over time.
 
+Given a parent chain (PC) with a block time of approximately 10s and a goal of a child chain block time of 1s we configure our child chain as follows:
+```json
+  {
+    'ParentChain': "ParentChain",
+    'ParentGeneration': 10,
+    'ParentFinality': 5,
+    'LeaderPool': [ {'Leader': "validator1",
+                     'Stake': 100
+                    }
+                  ],
+    'StartBlock': 100,
+    'ChildGeneration': 100,
+    'BlockTime': 1000
+  }
+```
+
+```mermaid
+sequenceDiagram
+    participant Validator3
+    participant Validator2
+    participant Validator1
+    participant ChildChain
+    participant ParentChain
+
+    Note over Validator1,ChildChain: LeaderPool: [{ "validator1", 100 }]
+
+    Note over ParentChain: Block 100
+    Note over ParentChain: ...
+    Note over ParentChain: Block 105
+    ParentChain--xValidator1: See HashPC100
+    ParentChain--xValidator1: See Height 105 (SB+F)
+    Note over Validator1,ChildChain: RandomSeed = PC100
+
+    rect rgb(140, 240, 140)
+      note right of ChildChain: CG1
+      Validator1->>+ChildChain: Produce block 1
+      Note over ChildChain: Block 1
+      Note over ChildChain: Blocks ...
+      Validator2-->>+ChildChain: Stake 100
+      Validator3-->>+ChildChain: Stake 50
+      Note over ParentChain: Block 110
+      Note over ChildChain: Blocks ...
+      Validator1->>+ChildChain: Produce block 100
+      Note over ChildChain: Block 100
+      ParentChain--xValidator1: See HashPC110
+      ParentChain--xValidator1: See Height 115 (2*SB+F)
+      Note over Validator1,ChildChain: LeaderPool:<br/> [{ "validator1", 100 }], <br/>NextLeaderPool:<br/> [{ "validator1", 100 },<br/> { "validator2", 100 },<br/> { "validator1", 50 }]
+    end
+```
+
+In generation 2 on the child chain we still use the original leader pool.
+```mermaid
+sequenceDiagram
+    participant Validator3
+    participant Validator2
+    participant Validator1
+    participant ChildChain
+    participant ParentChain
+
+    Note over Validator1,ChildChain: RandomSeed = PC110
+    rect rgb(150, 250, 150)
+    note right of ChildChain: CG2
+    Validator1->>+ChildChain: Produce block 101
+    Note over ChildChain: Block 101
+    Note over ParentChain: Block 120
+    Validator1->>+ChildChain: Produce block 200
+    Note over ChildChain: Block 200
+    ParentChain--xValidator1: See HashPC120
+    ParentChain--xValidator1: See Height 125 (3*SB+F)
+    Note over Validator1,ChildChain: L={1:100, 2:100, 3:50}
+    Note over Validator1,ChildChain: LeaderPool:<br/> [{ "validator1", 100 },<br/> { "validator2", 100 },<br/> { "validator1", 50 }]
+    end
+```
+In generation 3 on the child chain we start using the new leader pool.
+
+```mermaid
+sequenceDiagram
+    participant Validator3
+    participant Validator2
+    participant Validator1
+    participant ChildChain
+    participant ParentChain
+
+    Note over Validator1,ChildChain: RandomSeed = PC120
+    rect rgb(150, 250, 150)
+    note right of ChildChain: CG3
+    Validator2->>+ChildChain: Produce block 200
+    Note over ChildChain: Block 200
+    Validator3->>+ChildChain: Produce block 201
+    Note over ChildChain: Block 201
+    Validator2->>+ChildChain: Produce block 202
+    Note over ChildChain: Block 202
+    Validator1->>+ChildChain: Produce block 203
+    Note over ChildChain: Block 203
+    Note over ChildChain: Blocks ...
+    Validator1->>+ChildChain: Produce block 299
+    Note over ChildChain: Block 299
+    Note over ParentChain: Block 130
+    ParentChain--xValidator1: See HashPC130
+    ParentChain--xValidator1: See Height 135 (4*SB+F)
+    Note over Validator1,ChildChain: L={1:100, 2:100, 3:50}
+    end
+```
+
 ### Step 2: Testing with Non-Productive Stakers
 The second step focuses on simulating the behavior of stakers who do not produce blocks. In a real-world scenario, there might be stakers who, for various reasons, fail to fulfill their block production responsibilities. This part of the simulation aims to assess the impact of such inactive stakers on the overall functionality and security of the HyperChain. It will help us identify potential risks and formulate strategies to mitigate them, ensuring the system's smooth operation even when faced with participant inactivity.
 We also need to simulate slow stakers and how to decide when and how other stakers should be allowed to take over validation.
