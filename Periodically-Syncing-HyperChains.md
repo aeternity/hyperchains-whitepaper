@@ -127,21 +127,34 @@ Once a leader is chosen, there is a deterministic way to choose subsequent leade
 
 ```mermaid
 sequenceDiagram
-  participant PC as Parent Chain
+  participant S as Stakeholder/Validator
   participant CC as Child Chain
-  participant S as Stakeholder
-
-  CC->>PC: Reference Points
-  loop every election cycle
-    CC->>CC: Election Points
-    CC->>PC: Connection to Reference Point
- end
- Note right of PC: Finality Zone
- CC->>PC: Leader Activation
-    loop for each stakeholder
-        S->>CC: Influence on Election
+  participant PC as Parent Chain
+  
+  rect rgb(10,60,10) 
+    note over CC: CG(1)
+    note over PC: PG(1)
+      loop for each stakeholder
+        S->>CC: Stake for CG(3)
     end
-     Note left of CC: Stakeholders influence future elections through staking
+    Note left of CC: Stakeholders influence future CG(3) election through staking
+  end
+
+  rect rgb(20,80,20) 
+    note over CC: CG(2)
+    note over PC: PG(2)
+    S->>CC: Validate block
+    note over CC: Transactions
+    Note over PC: Finality Zone
+    PC->>CC: Seed for Leader Election
+ end
+
+ rect rgb(30,100,30) 
+  note over CC: CG(3)
+  note over PC: PG(3)
+  S->>CC: New leaders from CG(1) stake
+
+end
 
 ```
 
