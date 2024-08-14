@@ -23,7 +23,7 @@ For example, a rather naive implementation seems to work well if we have few sta
 [{thomas,0.7957},{erik,0.1053},{hans,0.099}]
 ```
 If thomas has 80 percent of the coins and hans and erik 10 percent each, then with a client generation length of 10000 blocks, we
-spot that thomas gets around 8000 of them and hans and erik betwwn 932 and 1053. We need criteria to determine whether this is good enough.
+spot that thomas gets to produce around 8000 of those blocks and hans and erik between 932 and 1053. We need criteria to determine whether this is good enough.
 
 But even if this might be good enough, what about a situation in which we have 100 users that have a very small stake.
 Do they get chosen at all? What if the generation length is 100, do they then get chosen reasonably well in 10 generations of 100 long?.
