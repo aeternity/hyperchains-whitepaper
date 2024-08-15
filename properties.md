@@ -98,4 +98,8 @@ Here we also have some more statistic properties to test and one needs to think 
 
 1. The mechanism dealing with non-productive stakers does not violate the other properties.(Possibly with distribution of leaders if we penalize.)
 
+## Parent chain compatibility
+
+1. The child-chain should be able to extract the necessary information from the parent chain. API testing.
+
 
