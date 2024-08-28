@@ -3,7 +3,7 @@
 Contains one keyblock and possibly one microblock
 
 ### Keyblock
-A placeholder block indicating the leader that should produce microblocks in this generation.
+A placeholder block indicating the leader that should produce a microblock.
 
 ### Microblock
 A block with transactions.
