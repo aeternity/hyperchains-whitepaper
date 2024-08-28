@@ -77,9 +77,6 @@ Validators eligible to become producers due to staking tokens
 ### Leader List
 Producers chosen to act as leaders during an epoch
 
-### Block Production
-The act of creation of a block done by the producer
-
 ### Node Operators (Staked and non-staked validators)
 All participants running a CC node are node operators.
 
@@ -102,6 +99,10 @@ The amount of tokens deposited by delegators representing the selection weight o
 
 ### Leader Election
 The weighted random selection of leader from among eligible validators based on the amount to tokens staked in a staking contract.
+
+### Block Production
+The act of creation of a block done by the producer
+
 
 ### Block Reward
 Tokens minted and/or transferred to staking contract to reward successful block production.
