@@ -227,7 +227,7 @@ sequenceDiagram
 
 ### Pinning format
 
-The transaction posted to the PC is a hash of the following data drived from a specific block on the CC:
+The transaction posted to the PC is a hash of the following data derived from a specific block on the CC:
 - The block hash
 - The block height
 - The epoch in which that block appears
