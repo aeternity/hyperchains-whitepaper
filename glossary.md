@@ -1,5 +1,7 @@
 # Glossary
 
+## Chains
+
 ### Child Chain (CC)
 A proof of stake blockchain that is one half of a hyperchain.
 The child chain is loosely connected to a parent chain.
@@ -10,6 +12,8 @@ The child chain uses the parent chain as a source of entropy and for "pinning".
 Any blockchain that is "the other" half of a hyperchain.
 The parent chain has no knowledge of the child chain.
 
+## Blocks
+
 ### CC Block
 Contains one keyblock and possibly one microblock.
 
@@ -18,6 +22,8 @@ A placeholder block indicating the leader that should produce a microblock.
 
 ### Microblock
 A block with transactions.
+
+## Epochs
 
 ### Child Chain Epoch
 Period of time represented in blocks during which validators are pre-selected to produce blocks and after which the state of the CC can be pinned to the PC.
@@ -63,6 +69,7 @@ gantt
     ... :c4, 2024-01-21, 6d
 ```
 
+## Actors
 
 ### Validator Pool
 Validators eligible to become producers due to staking tokens
@@ -88,20 +95,30 @@ Validator that produces a block.
 ### Delegator
 Wallet/account that deposits tokens into staking contract on behalf of validator in order to increase the stake. Does not run a node or have further interaction with CC or PC.
 
+## Actions & Events
+
 ### Stake
 The amount of tokens deposited by delegators representing the selection weight of the validator to be chosen as a leader.
 
-### Staking Contract
-Contract used by validator to represent the validator's stake, the ID and stake amount of delegators, and contains the functions for withdrawal of rewards.
+### Leader Election
+The weighted random selection of leader from among eligible validators based on the amount to tokens staked in a staking contract.
 
 ### Block Reward
 Tokens minted and/or transferred to staking contract to reward successful block production.
 
 ### Pinning Reward
 Tokens minted and/or transferred to staking contract to reward successful pinning operation.
+### Halting
+A situation when no more blocks are produced (due to all stakers being inactive). This creates a problem for the HC creator to recover the HC and resume the block production. Some possible solutions are proposed.
 
-### Leader Election
-The weighted random selection of leader from among eligible validators based on the amount to tokens staked in a staking contract.
+### Termination
+Willful end of a hyperchain
+
+## On-Chain Protocol Components
+
+### Staking Contract
+Contract used by validator to represent the validator's stake, the ID and stake amount of delegators, and contains the functions for withdrawal of rewards.
+
 
 ### Leader Election Contract
 Election rules defined at contract level (as opposed to consensus level). Likely not part of v1.0.
@@ -109,8 +126,3 @@ Election rules defined at contract level (as opposed to consensus level). Likely
 ### Genesis Accounts
 Accounts in which HC tokens are generated during the first block of CC.
 
-### Halting
-A situation when no more blocks are produced (due to all stakers being inactive). This creates a problem for the HC creator to recover the HC and resume the block production. Some possible solutions are proposed.
-
-### Termination
-Willful end of a hyperchain
