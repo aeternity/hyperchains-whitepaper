@@ -29,6 +29,32 @@ The number of blocks on the parent chain that indicates which parent chain block
 ### Staking Cycle
 Contains 4 epochs: staking epoch, leader (s)election epoch, block production + pinning epoch, payout epoch. Represents minimum duration during which tokens are locked into staking contract.
 
+
+```mermaid
+gantt
+    dateFormat  YYYY-MM-DD
+    axisFormat  %W cycle
+    tickInterval 1week
+
+    section CC Epoch 1
+    Staking          :a1, 2024-01-01, 5d
+    section CC Epoch 2
+    Leader Election  :b1, 2024-01-01, 5d
+    Staking          :b1, 2024-01-07, 5d
+    section CC Epoch 3
+    Block Production :c1, 2024-01-01, 5d
+    Leader Election  :b2, 2024-01-07, 5d
+    Staking          :c1, 2024-01-14, 5d
+    section CC Epoch 4
+
+    Payout           :d1, 2024-01-01, 5d
+
+    section CC Epoch 5
+    Block Production :c1, 2024-01-01, 5d
+    section Payout Epoch
+    Payout           :d1, 2024-01-01, 5d
+```
+
 ### Validator Pool
 Validators eligible to become producers due to staking tokens
 
