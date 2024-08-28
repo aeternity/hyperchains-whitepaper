@@ -1,6 +1,17 @@
 # Glossary
+
+### Child Chain (CC)
+A proof of stake blockchain that is one half of a hyperchain.
+The child chain is loosely connected to a parent chain.
+That is, the parent chain has no knowledge of the child chain but the child chain is dependent on the parent chain.
+The child chain uses the parent chain as a source of entropy and for "pinning".
+
+### Parent Chain (PC)
+Any blockchain that is "the other" half of a hyperchain.
+The parent chain has no knowledge of the child chain.
+
 ### CC Block
-Contains one keyblock and possibly one microblock
+Contains one keyblock and possibly one microblock.
 
 ### Keyblock
 A placeholder block indicating the leader that should produce a microblock.
@@ -8,8 +19,12 @@ A placeholder block indicating the leader that should produce a microblock.
 ### Microblock
 A block with transactions.
 
-### Epoch
+### Child Chain Epoch
 Period of time represented in blocks during which validators are pre-selected to produce blocks and after which the state of the CC can be pinned to the PC.
+the unqualified "Epoch" may be assuemd to refer to a child chain epoch.
+
+### Parent Chain Epoch
+The number of blocks on the parent chain that indicates which parent chain block will be used as the source of entropy for leader election.
 
 ### Staking Cycle
 Contains 4 epochs: staking epoch, leader (s)election epoch, block production + pinning epoch, payout epoch. Represents minimum duration during which tokens are locked into staking contract.
@@ -33,10 +48,10 @@ Producer chosen to produce the current block
 Block producer at the end of epoch that is allowed to collect a reward for pinning on the parent chain and posting the proof back on the child chain.
 
 ### Producers
-Validator that produces a block
+Validator that produces a block.
 
 ### Delegator
-Wallet that deposits tokens into staking contract on behalf of validator in order to increase the stake. Does not run a node or have further interaction with CC or PC.
+Wallet/account that deposits tokens into staking contract on behalf of validator in order to increase the stake. Does not run a node or have further interaction with CC or PC.
 
 ### Stake
 The amount of tokens deposited by delegators representing the selection weight of the validator to be chosen as a leader.
