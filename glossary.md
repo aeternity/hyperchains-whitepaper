@@ -2,15 +2,16 @@
 
 ## Chains
 
+### Hyperchain (HC)
+A hybrid blockchain technology consisting of two blockchains: a delegated proof of stake (DPoS) child chain (CC) and a proof of work (PoW) parent chain (PC) where the child chain periodically synchronizes with the parent chain.
+
+As a PoW secured DPoS, a hyperchain benefits from the scalability advantages of a DPoS blockchain with the security advantages of a PoW blockchain.
+
 ### Child Chain (CC)
-A proof of stake blockchain that is one half of a hyperchain.
-The child chain is loosely connected to a parent chain.
-That is, the parent chain has no knowledge of the child chain but the child chain is dependent on the parent chain.
-The child chain uses the parent chain as a source of entropy and for "pinning".
+A Delegated Proof of Stake blockchain that is one half of a hyperchain. The CC is configurable by the initiator and loosely connected to the parent chain. The child chain uses the parent chain as a source of entropy and for "pinning," but the parent chain has no knowledge of the child chain.
 
 ### Parent Chain (PC)
-Any blockchain that is "the other" half of a hyperchain.
-The parent chain has no knowledge of the child chain.
+Any PoW blockchain that fulfills the role of "the other half" of a hyperchain by providing entropy for the CC and allowing for the pinning of data from the CC. The parent chain functions independently from and has no knowledge of the child chain.
 
 ## Blocks
 
