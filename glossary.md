@@ -71,6 +71,9 @@ gantt
 
 ## Actors
 
+### Initiator
+The user who configures and launches the hyperchain.
+
 ### Validator Pool
 Validators eligible to become producers due to staking tokens
 
