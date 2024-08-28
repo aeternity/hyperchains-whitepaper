@@ -37,23 +37,32 @@ gantt
     tickInterval 1week
 
     section CC Epoch 1
-    Staking          :a1, 2024-01-01, 5d
+    Staking          :a1, 2024-01-01, 6d
+
     section CC Epoch 2
-    Leader Election  :b1, 2024-01-01, 5d
-    Staking          :b1, 2024-01-07, 5d
+    Leader Election  :b1, 2024-01-01, 6d
+    Staking          :a2, 2024-01-07, 6d
+
     section CC Epoch 3
-    Block Production :c1, 2024-01-01, 5d
-    Leader Election  :b2, 2024-01-07, 5d
-    Staking          :c1, 2024-01-14, 5d
+    Block Production :c1, 2024-01-01, 6d
+    Leader Election  :b2, 2024-01-07, 6d
+    Staking          :c1, 2024-01-14, 6d
     section CC Epoch 4
-
-    Payout           :d1, 2024-01-01, 5d
-
+    Payout           :d1, 2024-01-01, 6d
+    Block Production :c2, 2024-01-07, 6d
+    Leader Election  :b3, 2024-01-14, 6d
+    Staking          :a1, 2024-01-21, 6d
     section CC Epoch 5
-    Block Production :c1, 2024-01-01, 5d
-    section Payout Epoch
-    Payout           :d1, 2024-01-01, 5d
+    Payout           :d2, 2024-01-07, 6d
+    Block Production :c3, 2024-01-14, 6d
+    Leader Election  :b4, 2024-01-21, 6d
+    section CC Epoch 6
+    Payout           :d3, 2024-01-14, 6d
+    Block Production :c4, 2024-01-21, 6d
+    section CC Epoch 7
+    ... :c4, 2024-01-21, 6d
 ```
+
 
 ### Validator Pool
 Validators eligible to become producers due to staking tokens
