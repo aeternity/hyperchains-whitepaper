@@ -130,8 +130,8 @@ sequenceDiagram
   participant S as Stakeholder/Validator
   participant CC as Child Chain
   participant PC as Parent Chain
-  
-  rect rgb(10,60,10) 
+
+  rect rgb(10,60,10)
     note over CC: CG(1)
     note over PC: PG(1)
       loop for each stakeholder
@@ -140,7 +140,7 @@ sequenceDiagram
     Note left of CC: Stakeholders influence future CG(3) election through staking
   end
 
-  rect rgb(20,80,20) 
+  rect rgb(20,80,20)
     note over CC: CG(2)
     note over PC: PG(2)
     S->>CC: Validate block
@@ -149,7 +149,7 @@ sequenceDiagram
     PC->>CC: Seed for Leader Election
  end
 
- rect rgb(30,100,30) 
+ rect rgb(30,100,30)
   note over CC: CG(3)
   note over PC: PG(3)
   S->>CC: New leaders from CG(1) stake
@@ -225,7 +225,19 @@ sequenceDiagram
 
 ```
 
+### Pinning format
 
+The transaction posted to the PC is a hash of the following data derived from a specific block on the CC:
+- The block hash
+- The block height
+- The epoch in which that block appears
+
+This hash is posted to the PC.
+When the transaction has been added to the PC and the PC block in which it is accepted gets final,
+then a reward can be obtained and in that reward post, the components above are included as well as the PC block hash and PC tx hash.
+Any CC verifier can then validate that this is a block on the CC that is elegiable to be used for pinning (too old blocks are not).
+The CC verifier can compute the same hash, retrieve the PC transaction by tx hash provided and compare that indeed this transacation contains that right hash.
+The CC verifier can verify that the block in which the hash appears is finite. If so, the reward and therefore pinning is valid.
 
 
 ## Child Chain
