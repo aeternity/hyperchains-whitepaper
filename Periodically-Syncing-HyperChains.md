@@ -239,6 +239,39 @@ Any CC verifier can then validate that this is a block on the CC that is elegiab
 The CC verifier can compute the same hash, retrieve the PC transaction by tx hash provided and compare that indeed this transacation contains that right hash.
 The CC verifier can verify that the block in which the hash appears is finite. If so, the reward and therefore pinning is valid.
 
+### Third party pinning
+
+In the above, it is assumed that the last leader has posted the pinning transaction on the parent chain.
+In that way, the last leader knows the transaction hash of the pinning transaction, can follow it and knows in which block it
+appears on the parent chain.
+
+But there is no demand to post a pinning transaction, hence the last leader may not find the reward attractive enough to
+do so. At the same time, another child chain account (not necessary a stakeholder, but just anyone), could have interest
+in pinning the child chain to assure value on chain.
+
+We would like this third party to be able to post the pinning transaction, tell the last leader about it and have the last leader
+collect its reward. The incentive for doing that is most likely large enough to not ignore this possibility.
+
+Any third party can compute the necessary valid pinning transaction and can post it on chain. After that, however, it needs
+to communicate the tx-hash obtained from the parent chain to the last leader.
+There are a number of possibilities to do so, which all require a bit of engineering. We should choose one of them as default.
+(Note that although the public key of the last leader is known, the actual node's IP address is not a-priory known).
+
+1. Each leader uses AENS names to post a URL on which it can be contacted for such tx-hashes
+2. The third party can do a spend tx to the last leader with specific payload: "PIN#TxHash".
+3. The child chain could have a special pin contract that third party can create a call tx for including the tx-hash of parent chain.
+
+The advantage with solution 2 and 3 is that the transaction is automatically gossiped and that there is even an onchain trace.
+A contract would have to be able to store multiple tx-hashes per epoch, to have last leader collect one of them that is valid and final.
+Contract calls are more expensive than spend transactions.
+
+The first alternative does not cost any additional child tokens for the third party, but partly reveals leaders privacy
+(the advertised URL need not at all be the same as the node URL and therefore attacks to it may not be equally harmful
+as blocking the node). Disadvantage that it is not gossiped and that if the last leader cannot produce the block, but another leader can,
+then the pin is possibly gone missing.
+
+The contract solution is more flexible than a spend, for example could the last leader do a payback of the reward or part of it when
+using a third party tx-hash.
 
 ## Child Chain
 Addressing the operational specifics of running the Child Chain (CC) in the HyperChain framework presents a complex and evolving challenge. The design of the CC, as proposed, diverges from the traditional model of an Aeternity (AE) node using a Proof of Stake (PoS) consensus mechanism. This deviation is driven by the unique requirements and objectives of the HyperChain system, which necessitates a more specialized approach to chain management and consensus.
