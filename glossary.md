@@ -19,7 +19,7 @@ Any PoW blockchain that fulfills the role of "the other half" of a hyperchain by
 Contains one keyblock and possibly one microblock.
 
 ### Keyblock
-A placeholder block indicating the leader that should produce a microblock.
+A block containing the state tree hashes and indicating which leader should produce a microblock.
 
 ### Microblock
 A block with transactions.
@@ -75,20 +75,26 @@ gantt
 ### Initiator
 The user who configures and launches the hyperchain.
 
+### Node Operators (Staked and non-staked validators)
+All participants running a CC node are node operators.
+
+
+### Pinner (Pinning Leader)
+Block producer at the end of epoch that is allowed to collect a reward for pinning on the parent chain and posting the proof back on the child chain.
+
+### Validator
+A node that acts on behalf of a staking contract to produce new block and validate the chain up till the previous block.
+
+
 ### Validator Pool
 Validators eligible to become producers due to staking tokens
 
 ### Leader List
 Producers chosen to act as leaders during an epoch
 
-### Node Operators (Staked and non-staked validators)
-All participants running a CC node are node operators.
-
 ### Leader
 Producer chosen to produce the current block
 
-### Pinner (Pinning Leader)
-Block producer at the end of epoch that is allowed to collect a reward for pinning on the parent chain and posting the proof back on the child chain.
 
 ### Producers
 Validator that produces a block.
@@ -113,8 +119,10 @@ Tokens minted and/or transferred to staking contract to reward successful block 
 
 ### Pinning Reward
 Tokens minted and/or transferred to staking contract to reward successful pinning operation.
+
 ### Halting
-A situation when no more blocks are produced (due to all stakers being inactive). This creates a problem for the HC creator to recover the HC and resume the block production. Some possible solutions are proposed.
+A situation when no more blocks are produced (due to all producers being inactive).
+This creates a problem for the HC creator to recover the HC and resume the block production.
 
 ### Termination
 Willful end of a hyperchain
@@ -126,7 +134,7 @@ Contract used by validator to represent the validator's stake, the ID and stake 
 
 
 ### Leader Election Contract
-Election rules defined at contract level (as opposed to consensus level). Likely not part of v1.0.
+Election rules defined at contract level (as opposed to consensus level).
 
 ### Genesis Accounts
 Accounts in which HC tokens are generated during the first block of CC.
