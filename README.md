@@ -4,6 +4,7 @@ The specification of the aeternity's hyperchains protocol.
 
 In [Periodically-Syncing-HyperChains.md](Periodically-Syncing-HyperChains.md) we describe the latest (as of 2024) version of Hyperchains.
 
+In the [glossary](glossary.md) we describe the terms used in periodically syncing hyperchians, these terms should be used in the whitepaper, the code and the configuration as well as when discussing hyperchains in the foorum and chat.
 
 ## Build
 
