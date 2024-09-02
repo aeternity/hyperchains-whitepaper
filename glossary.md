@@ -108,14 +108,20 @@ The staking contract, its owner, the validator node and its operator.
 
 ```mermaid
 graph TD
-    A([👤 Staking Contract Owner]) -->|Manages| B[(📜 Staking Contract)]
-    A -->|Probably same as| G([👤 Producer Node Operator])
-    C([👤 Staker/Delegator]) -->|Deposits Tokens| B
-    B[(📜 Staking Contract)] -->|Represents Stake| D{{🗃️ Validator Pool}}
-    D{{🗃️ Validator Pool}} -->|Eligible for Selection| E([🔍 Validator])
-    E([🔍 Validator]) -->|May Become| F[[🖥️ Producer Node/Leader]]
-    E -->|Validates and Produces Blocks| F
+    %% Define graph direction
+    direction LR
+
+    %% Nodes and relationships
     G([👤 Producer Node Operator]) -->|Operates| F[[🖥️ Producer Node/Leader]]
+    A([👤 Delegate/Staking Contract Owner]) -->|Manages| B[(📜 Staking Contract)]
+    A -->|Probably same as| G
+    C([👤 Staker/Delegator]) -->|Deposits Tokens| B
+    B[(📜 Staking Contract)] -->|Represents Stake| D
+    B'[(📜 Other Staking Contracts)] -->|Represents Stake| D
+    D{{🗃️ Validator Pool}} -->|Eligible for Selection| D'
+    D'{{🗃️ Leader List}} -->|Used for Selecting| E([🔍 Validator])
+    E([🔍 Validator]) -->|May Become| F[[🖥️ Producer Node/Leader]]
+    F -->|Validates and Produces Blocks| F
 
 ```
 
