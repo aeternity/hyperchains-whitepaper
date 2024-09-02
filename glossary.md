@@ -102,6 +102,9 @@ Validator that produces a block.
 ### Delegator
 Wallet/account that deposits tokens into staking contract on behalf of validator in order to increase the stake. Does not run a node or have further interaction with CC or PC.
 
+## Delegate
+The staking contract, its owner, the validator node and its operator.
+
 ## Actions & Events
 
 ### Stake
