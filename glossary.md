@@ -101,9 +101,24 @@ Validator that produces a block.
 
 ### Delegator
 Wallet/account that deposits tokens into staking contract on behalf of validator in order to increase the stake. Does not run a node or have further interaction with CC or PC.
+Also sometimes called a staker.
 
 ## Delegate
 The staking contract, its owner, the validator node and its operator.
+
+```mermaid
+graph TD
+    A([👤 Staking Contract Owner]) -->|Manages| B[(📜 Staking Contract)]
+    A -->|Probably same as| G([👤 Producer Node Operator])
+    C([👤 Staker/Delegator]) -->|Deposits Tokens| B
+    B[(📜 Staking Contract)] -->|Represents Stake| D{{🗃️ Validator Pool}}
+    D{{🗃️ Validator Pool}} -->|Eligible for Selection| E([🔍 Validator])
+    E([🔍 Validator]) -->|May Become| F[[🖥️ Producer Node/Leader]]
+    E -->|Validates and Produces Blocks| F
+    G([👤 Producer Node Operator]) -->|Operates| F[[🖥️ Producer Node/Leader]]
+
+```
+
 
 ## Actions & Events
 
