@@ -150,7 +150,7 @@ sequenceDiagram
  end
 
  rect rgb(30,100,30)
-  note over CC: block production epoch
+  note over CC: block production epoch 3
   note over PC: PE(3)
   S->>CC: New leaders from epoch 1 stake
 
