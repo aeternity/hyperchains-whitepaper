@@ -132,17 +132,17 @@ sequenceDiagram
   participant PC as Parent Chain
 
   rect rgb(10,60,10)
-    note over CC: CG(1)
-    note over PC: PG(1)
+    note over CC: Staking epoch 1
+    note over PC: PE(1)
       loop for each stakeholder
-        S->>CC: Stake for CG(3)
+        S->>CC: Stake for Block production epoch
     end
-    Note left of CC: Stakeholders influence future CG(3) election through staking
+    Note left of CC: Stakeholders influence future CC epoch 3 election through staking
   end
 
   rect rgb(20,80,20)
-    note over CC: CG(2)
-    note over PC: PG(2)
+    note over CC: election epoch 2
+    note over PC: PE(2)
     S->>CC: Validate block
     note over CC: Transactions
     Note over PC: Finality Zone
@@ -150,9 +150,9 @@ sequenceDiagram
  end
 
  rect rgb(30,100,30)
-  note over CC: CG(3)
-  note over PC: PG(3)
-  S->>CC: New leaders from CG(1) stake
+  note over CC: block production epoch
+  note over PC: PE(3)
+  S->>CC: New leaders from epoch 1 stake
 
 end
 
