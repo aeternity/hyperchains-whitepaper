@@ -181,6 +181,19 @@ Implementation: If the proposal is approved through voting, the adjustments are 
 
 This structured approach to managing chain speed deviations ensures that any necessary adjustments are made automatically based on consensus and a clear understanding of the network. It reinforces the adaptability and resilience of the HyperChain system, allowing it to respond effectively to changing operational dynamics.
 
+## Consensus and Contracts
+
+We implement part of the child chain by means of one or more smart contracts that will be deployed in the genesis block.
+For example, there will be a staking contract that keeps track of the stakers at each height. Updates to these contracts is
+performed by contract calls, which makes the state of the contracts visible on-chain. 
+
+The main contract must be aware of the four staking cycles and keeps track of those four cycles independently.
+At the end of a child epoch, the state is updated and the epochs shift taking the correct parameters into account.
+
+The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
+During the next epoch, votes can be collected and the result is again posted in the last block of that epoch. 
+If there is a majority vote for the same speed change, then the epoch thereafter will have that demanded new epoch length.
+
 
 ## Pinning
 We introduce a strategic mechanism to establish and maintain the synchronization between the Child Chain (CC) and the Parent Chain (PC), known as the 'pinning action.' This method serves as a crucial link, ensuring the CC is securely anchored to the state of the PC, thereby leveraging its security attributes.
