@@ -111,7 +111,6 @@ Related but a different problem is detecting whether the leader candidate is act
 The parent chain may fork. That is, your chain follows a blockchain fork that is later considered the wrong fork, and your chain needs to handle that.
 These problems need to be addressed. Most likely, by posting transactions to the parent chain to show evidence that that chain is followed. This has a cost involved: the cost of posting transactions. It also introduces the problem of synchronization. If one posts a transaction to the parent chain, then only after a while is this visible to everyone and can be used to take action.
 
-‘
 
 
 # Overview of Proposed Solution
@@ -158,15 +157,15 @@ end
 
 ```
 
-After each generation on the child chain, a critical process involves the pseudo-random number generator (PRNG), which is central to the leader selection mechanism in the HyperChain system. The PRNG is seeded with specific data points to ensure a fair and unbiased selection process. The first of these data points is the block hash from the corresponding generation on the parent chain. By using this block hash as a seed, we ensure that the leader selection process on the child chain is intrinsically linked to the state of the parent chain, thereby leveraging the security and stability of the parent chain's consensus mechanism.
-In addition to the parent chain's block hash, the PRNG is also seeded with the staking power data from the end of the previous generation on the child chain. This inclusion is a strategic measure designed to prevent late manipulation of staking power. By fixing the staking power data at the end of each generation, we establish a cutoff point that safeguards against any last-minute changes in stake distributions that could skew the leader election process. This dual-seeding approach of the PRNG — combining the parent chain's block hash and the child chain's staking power data — creates a robust and tamper-resistant mechanism for leader selection, upholding the principles of fairness and decentralization foundational to blockchain technology.
+After each epoch on the child chain, a critical process involves the pseudo-random number generator (PRNG), which is central to the leader selection mechanism in the HyperChain system. The PRNG is seeded with specific data points to ensure a fair and unbiased selection process. The first of these data points is the block hash from the corresponding epoch on the parent chain. By using this block hash as a seed, we ensure that the leader selection process on the child chain is intrinsically linked to the state of the parent chain, thereby leveraging the security and stability of the parent chain's consensus mechanism.
+In addition to the parent chain's block hash, the PRNG is also seeded with the staking power data from the end of the previous epoch on the child chain. This inclusion is a strategic measure designed to prevent late manipulation of staking power. By fixing the staking power data at the end of each epoch, we establish a cutoff point that safeguards against any last-minute changes in stake distributions that could skew the leader election process. This dual-seeding approach of the PRNG — combining the parent chain's block hash and the child chain's staking power data — creates a robust and tamper-resistant mechanism for leader selection, upholding the principles of fairness and decentralization foundational to blockchain technology.
 
 
 ## Periodic Syncing
-In our proposed model for HyperChains, we introduce a novel synchronization strategy between the parent and child chains. This approach is characterized by a semi-lock-step movement, where the generations on the PC and CC are aligned to be approximately equal in duration, measured in wall-clock time. This synchronization method is crucial for maintaining a harmonious and efficient relationship between the two chains, ensuring that they operate in tandem while retaining a degree of independence.
+In our proposed model for HyperChains, we introduce a novel synchronization strategy between the parent and child chains. This approach is characterized by a semi-lock-step movement, where the epochs on the PC and CC are aligned to be approximately equal in duration, measured in wall-clock time. This synchronization method is crucial for maintaining a harmonious and efficient relationship between the two chains, ensuring that they operate in tandem while retaining a degree of independence.
 The synchronization of chain speeds between the Parent Chain (PC) and the Child Chain (CC) is crucial. However, there may be instances where the speeds of these chains deviate from their intended pace. To address this, our HyperChain system incorporates mechanisms to adjust the synchronization parameters, ensuring that the PC and CC remain effectively aligned.
 
-One of the key parameters in maintaining this synchronization is the 'child generation length' (CGL), which dictates how quickly the CC moves in relation to the PC. If we observe that the chain speeds are diverging – for instance, if the CC is processing too quickly or slowly compared to the PC – we might need to adjust CGL. Altering this parameter would effectively recalibrate the pace of the CC, bringing it back into harmony with the PC.
+One of the key parameters in maintaining this synchronization is the 'child epoch length' (CEL), which dictates how quickly the CC moves in relation to the PC. If we observe that the chain speeds are diverging – for instance, if the CC is processing too quickly or slowly compared to the PC – we might need to adjust CEL. Altering this parameter would effectively recalibrate the pace of the CC, bringing it back into harmony with the PC.
 
 Extending the duration of a generation can be a viable solution to synchronization issues. For example, if the CC moves too rapidly, lengthening its generation time could slow it down to match the PC's pace more closely. Conversely, shortening the generation time is generally less favorable, as it could lead to increased volatility and instability in the synchronization process.
 
@@ -174,7 +173,7 @@ Extending the duration of a generation can be a viable solution to synchronizati
 Our system proposes a structured mechanism for proposing, validating, and (automatically) voting on these adjustments to ensure that any such adjustments are made judiciously and with consensus. This democratic approach involves several steps:
 
 
-Proposal Submission: Stakeholder nodes in the HyperChain network that observe a deviation can submit proposals for adjusting CGL  as a special transaction.
+Proposal Submission: Stakeholder nodes in the HyperChain network that observe a deviation can submit proposals for adjusting CEL  as a special transaction.
 Validation: Once a proposal is submitted, it undergoes a validation process. This stage involves other stakers confirming or denying that they observe a deviation.
 Voting Process: After validation, the proposed change is automatically voted on among stakeholders.
 Implementation: If the proposal is approved through voting, the adjustments are implemented at a given (or the next) generation.
@@ -308,14 +307,14 @@ Given a parent chain (PC) with a block time of approximately 10s and a goal of a
 ```json
   {
     'ParentChain': "ParentChain",
-    'ParentGeneration': 10,
+    'ParentEpoch': 10,
     'ParentFinality': 5,
     'LeaderPool': [ {'Leader': "validator1",
                      'Stake': 100
                     }
                   ],
     'StartBlock': 100,
-    'ChildGeneration': 100,
+    'ChildEpoch': 100,
     'BlockTime': 1000
   }
 ```
@@ -354,7 +353,7 @@ sequenceDiagram
     end
 ```
 
-In generation 2 on the child chain we still use the original leader pool.
+In epoch 2 on the child chain we still use the original leader pool.
 ```mermaid
 sequenceDiagram
     participant Validator3
@@ -377,7 +376,7 @@ sequenceDiagram
     Note over Validator1,ChildChain: LeaderPool:<br/> [{ "validator1", 100 },<br/> { "validator2", 100 },<br/> { "validator1", 50 }]
     end
 ```
-In generation 3 on the child chain we start using the new leader pool.
+In epoch 3 on the child chain we start using the new leader pool.
 
 ```mermaid
 sequenceDiagram
@@ -447,10 +446,10 @@ Implementation (if applicable):
 Discuss how the proposed solution can be implemented.
 Include any practical considerations, challenges, or recommendations for implementation.
 
-Introduce a generation length for both the parent chain `PGL` (in the rest of the document, let's assume it is 10), and the child chain `CGL`. The `CGL` in this paper is initial 50, five times the amout of the parent chain. This means that after producing 50 blocks on the child chain, we expect to have progressed one parent chain generation.
-(We may refer to this speed as `GOff` = 5, which
-means there are 5 times as many blocks on the child chain).
-We will adapt the child generation length via a voting strategy. Each child chain can observe the parent chain and obeserve whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child generation longer or shorter is accepted. Changing the generation length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
+Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amout of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
+(We may refer to this speed as `EOff` = 10, which
+means there are 10 times as many blocks on the child chain).
+We will adapt the child epoch length via a voting strategy. Each child chain can observe the parent chain and obeserve whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child epoch longer or shorter is accepted. Changing the epoch length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
 
 
 Also consider a constant number of blocks on the parent chain that represents
@@ -465,15 +464,15 @@ should go into the initial setup, and be part of the PRNG for electing leaders
 for the first CC generation.
 
 
-At the end of the first CC generation the current state of the stake
-distribution is recorded - to be used in the third generation! The correct
+At the end of the first CC epoch (the staking epoch) the current state of the stake
+distribution is recorded - to be used in the third epoch (block production and pinning epoch)! The correct
 block hash is fetched from the PC and fed into the PRNG for electing leaders
 (still) together with the initial stake distribution.
 
 
-At the end of the second generation _normal_ operation commences. PRNG is fed
+At the end of the second epoch (the leader (s)election epoch) _normal_ operation commences. PRNG is fed
 the correct block hash from PC and the stake distribution at the end of last
-generation, the current stake distribution is recorded, etc.
+epoch (the payout epoch), the current stake distribution is recorded, etc.
 
 
 If the chains runs at about the same relative speed this can then be repeated
