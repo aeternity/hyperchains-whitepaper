@@ -350,7 +350,7 @@ sequenceDiagram
     Note over Validator1,ChildChain: RandomSeed = PC100
 
     rect rgb(140, 240, 140)
-      note right of ChildChain: CG1
+      note right of ChildChain: CE1
       Validator1->>+ChildChain: Produce block 1
       Note over ChildChain: Block 1
       Note over ChildChain: Blocks ...
@@ -401,7 +401,7 @@ sequenceDiagram
 
     Note over Validator1,ChildChain: RandomSeed = PC120
     rect rgb(150, 250, 150)
-    note right of ChildChain: CG3
+    note right of ChildChain: CE3
     Validator2->>+ChildChain: Produce block 200
     Note over ChildChain: Block 200
     Validator3->>+ChildChain: Produce block 201
