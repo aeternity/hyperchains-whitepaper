@@ -193,6 +193,16 @@ At the end of a child epoch, the state is updated and the epochs shift taking th
 The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
 During the next epoch, votes can be collected and the result is again posted in the last block of that epoch. 
 If there is a majority vote for the same speed change, then the epoch thereafter will have that demanded new epoch length.
+Concrete proposal:
+Any leader can add a contract call transaction `increase_epoch_length(N)` or `decrease_epoch_length(N)` with N a positive integer (`> 0` and `<` some sensible max).
+The contract state counts these for the ongoing production epoch and at the end of the production epoch some weighted average of increases and decreases.
+```
+FORMULA HERE
+```
+At the end of that epoch this results in a proposed change for the next production epoch, in which leaders vote on it by a contract call (yes or no).
+If accepted, then the production epoch thereafter starts with this new epoch length.
+
+
 
 
 ## Pinning
