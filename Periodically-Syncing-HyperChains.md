@@ -181,6 +181,29 @@ Implementation: If the proposal is approved through voting, the adjustments are 
 
 This structured approach to managing chain speed deviations ensures that any necessary adjustments are made automatically based on consensus and a clear understanding of the network. It reinforces the adaptability and resilience of the HyperChain system, allowing it to respond effectively to changing operational dynamics.
 
+## Consensus and Contracts
+
+We implement part of the child chain by means of one or more smart contracts that will be deployed in the genesis block.
+For example, there will be a staking contract that keeps track of the stakers at each height. Updates to these contracts is
+performed by contract calls, which makes the state of the contracts visible on-chain. 
+
+The main contract must be aware of the four staking cycles and keeps track of those four cycles independently.
+At the end of a child epoch, the state is updated and the epochs shift taking the correct parameters into account.
+
+The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
+During the next epoch, votes can be collected and the result is again posted in the last block of that epoch. 
+If there is a majority vote for the same speed change, then the epoch thereafter will have that demanded new epoch length.
+Concrete proposal:
+Any leader can add a contract call transaction `increase_epoch_length(N)` or `decrease_epoch_length(N)` with N a positive integer (`> 0` and `<` some sensible max).
+The contract state counts these for the ongoing production epoch and at the end of the production epoch some weighted average of increases and decreases.
+```
+FORMULA HERE
+```
+At the end of that epoch this results in a proposed change for the next production epoch, in which leaders vote on it by a contract call (yes or no).
+If accepted, then the production epoch thereafter starts with this new epoch length.
+
+
+
 
 ## Pinning
 We introduce a strategic mechanism to establish and maintain the synchronization between the Child Chain (CC) and the Parent Chain (PC), known as the 'pinning action.' This method serves as a crucial link, ensuring the CC is securely anchored to the state of the PC, thereby leveraging its security attributes.
@@ -337,7 +360,7 @@ sequenceDiagram
     Note over Validator1,ChildChain: RandomSeed = PC100
 
     rect rgb(140, 240, 140)
-      note right of ChildChain: CG1
+      note right of ChildChain: CE1
       Validator1->>+ChildChain: Produce block 1
       Note over ChildChain: Block 1
       Note over ChildChain: Blocks ...
@@ -388,7 +411,7 @@ sequenceDiagram
 
     Note over Validator1,ChildChain: RandomSeed = PC120
     rect rgb(150, 250, 150)
-    note right of ChildChain: CG3
+    note right of ChildChain: CE3
     Validator2->>+ChildChain: Produce block 200
     Note over ChildChain: Block 200
     Validator3->>+ChildChain: Produce block 201
