@@ -9,39 +9,49 @@ Addressing the risk of complete history rewrite attacks is another crucial aspec
 A noteworthy advancement presented in this paper is the pre-emptive leader election mechanism for the child chain. This innovation allows for more rapid finalization on the child chain, significantly increasing the speed and efficiency of transaction processing and consensus achievement. By enabling leader elections in advance, the system ensures swift and reliable finality, which is vital for the smooth operation of blockchain applications.
 
 
-
-<!--  # Regenerate this -->
-
 # Table of Contents
-Abstract	1
-Table of Contents	2
-Introduction	3
-The history of HyperChains	4
-2017 Whitepaper: Laying the Groundwork for æternity's Blockchain Innovation	5
-2020 Whitepaper: Advanced Developments in æternity Blockchain	6
-HyperChains evolution	6
-Periodically Syncing HyperChains	8
-Problem Statement	9
-Overview of Proposed Solution	10
-Future Leader Election	10
-Periodic Syncing	12
-Pinning	13
-Child Chain	14
-Methodology	16
-Simulation	16
-Step 1: Simulating Chain Speed Variability	16
-Step 2: Testing with Non-Productive Stakers	16
-Step 3: Evaluating the Use of Micro-Blocks	16
-Step 4: Assessing Resistance to Long-Term Attacks	17
-Review	17
-In Depth Description of Proposed Solution	18
-Technical Details	18
-CC design	19
-Open questions:	19
-Benefits and Advantages	20
-Challenges and Limitations	20
-Conclusion	20
-References	20
+<!--  # Regenerate this -->
+- [Periodically Syncing HyperChains](#periodically-syncing-hyperchains)
+  - [Abstract](#abstract)
+- [Table of Contents](#table-of-contents)
+- [Introduction](#introduction)
+- [The history of HyperChains](#the-history-of-hyperchains)
+  - [2017 Whitepaper: Laying the Groundwork for æternity's Blockchain Innovation](#2017-whitepaper-laying-the-groundwork-for-æternitys-blockchain-innovation)
+  - [2020 Whitepaper: Advanced Developments in æternity Blockchain](#2020-whitepaper-advanced-developments-in-æternity-blockchain)
+  - [HyperChains evolution](#hyperchains-evolution)
+  - [Periodically Syncing HyperChains](#periodically-syncing-hyperchains-1)
+- [Problem Statement](#problem-statement)
+- [Overview of Proposed Solution](#overview-of-proposed-solution)
+  - [Future Leader Election](#future-leader-election)
+  - [Periodic Syncing](#periodic-syncing)
+  - [Consensus and Contracts](#consensus-and-contracts)
+  - [Pinning](#pinning)
+    - [Pinning format](#pinning-format)
+    - [Third party pinning](#third-party-pinning)
+  - [Child Chain](#child-chain)
+- [Methodology](#methodology)
+  - [Simulation](#simulation)
+    - [Step 1: Simulating Chain Speed Variability](#step-1-simulating-chain-speed-variability)
+    - [Step 2: Testing with Non-Productive Stakers](#step-2-testing-with-non-productive-stakers)
+    - [Step 3: Evaluating the Use of Micro-Blocks](#step-3-evaluating-the-use-of-micro-blocks)
+    - [Step 4: Assessing Resistance to Long-Term Attacks](#step-4-assessing-resistance-to-long-term-attacks)
+  - [Review](#review)
+    - [Community Feedback](#community-feedback)
+    - [Expert Review](#expert-review)
+    - [Continual Improvement](#continual-improvement)
+- [In Depth Description of Proposed Solution](#in-depth-description-of-proposed-solution)
+  - [Technical Details](#technical-details)
+    - [Epochs](#epochs)
+    - [Future Leader Election](#future-leader-election-1)
+      - [Staking Cycle Structure](#staking-cycle-structure)
+      - [Staking Contract Details](#staking-contract-details)
+    - [CC design](#cc-design)
+  - [Open questions:](#open-questions)
+- [Benefits and Advantages](#benefits-and-advantages)
+- [Challenges and Limitations](#challenges-and-limitations)
+- [Conclusion](#conclusion)
+- [References](#references)
+
 
 # Introduction
 By Satoshi Nakamoto's introduction of Bitcoin in 2008 [11], the inception of blockchain technology marked a shift in digital transactions, establishing a decentralized framework for secure and transparent exchanges. The Proof-of-Work (PoW) consensus mechanism was central to this innovation, a groundbreaking approach that enabled a trustless and distributed ledger. PoW operates on a simple yet robust principle: it grants the right to add new blocks to the chain to those who expend computational energy to solve complex cryptographic puzzles. This method ensured security against fraudulent activities and laid the groundwork for the subsequent development of blockchain technology.
@@ -185,13 +195,13 @@ This structured approach to managing chain speed deviations ensures that any nec
 
 We implement part of the child chain by means of one or more smart contracts that will be deployed in the genesis block.
 For example, there will be a staking contract that keeps track of the stakers at each height. Updates to these contracts is
-performed by contract calls, which makes the state of the contracts visible on-chain. 
+performed by contract calls, which makes the state of the contracts visible on-chain.
 
 The main contract must be aware of the four staking cycles and keeps track of those four cycles independently.
 At the end of a child epoch, the state is updated and the epochs shift taking the correct parameters into account.
 
 The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
-During the next epoch, votes can be collected and the result is again posted in the last block of that epoch. 
+During the next epoch, votes can be collected and the result is again posted in the last block of that epoch.
 If there is a majority vote for the same speed change, then the epoch thereafter will have that demanded new epoch length.
 Concrete proposal:
 Any leader can add a contract call transaction `increase_epoch_length(N)` or `decrease_epoch_length(N)` with N a positive integer (`> 0` and `<` some sensible max).
@@ -461,14 +471,9 @@ The feedback and review process is not a one-time but an ongoing effort. As the 
 After doing the needed experiments and simulations, present the suggested solution in detail-.
 * Provide detailed explanations, diagrams, or models as necessary.
 ## Technical Details
-If applicable, provide technical specifications, algorithms, or detailed information about the proposed solution.
-Include any relevant code snippets, diagrams, or charts.
 
 
-Implementation (if applicable):
-Discuss how the proposed solution can be implemented.
-Include any practical considerations, challenges, or recommendations for implementation.
-
+### Epochs
 Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amout of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
 (We may refer to this speed as `EOff` = 10, which
 means there are 10 times as many blocks on the child chain).
@@ -501,8 +506,41 @@ epoch (the payout epoch), the current stake distribution is recorded, etc.
 If the chains runs at about the same relative speed this can then be repeated
 forever; with pinning actions happening as often as the rewards incentivize it.
 
+### Future Leader Election
 
-## CC design
+The "leader election contract" is set up by the chain initiator.
+This contract allows participants to register for leader selection by depositing
+a minimum staking amount, referred to as `MINIMUM_STAKE`.
+Participants may choose to deposit more than the minimum to cover potential penalties,
+which could otherwise disqualify them from being elected as a leader.
+
+The contract provides `deposit` and `withdraw` functions to adjust the deposited amount.
+
+You can not withdraw funds if the deposited balance would go under `MINIMUM_STAKE`
+if you have tokens at stake.
+
+#### Staking Cycle Structure
+A staking cycle consists of four distinct epochs:
+
+1. **Staking Epoch**: Participants register and adjust their stakes.
+2. **Leader Election Epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
+3. **Block Production Epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
+4. **Payout Epoch**: Rewards are distributed based on block production results.
+
+#### Staking Contract Details
+- The staking contract includes a `tokens_at_stake` field, representing the number of
+tokens staked for the upcoming block production epoch.
+- During the staking epoch, this value is set based on delegator's deposits.
+- At the end of the leader election epoch, the leader election contract creates a leader
+ schedule using a hash from the parent chain and the `tokens_at_stake` data for all eligible staking contracts.
+- The leader election contract stores each validator's `tokens_at_stake`.
+
+
+During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
+below `MINIMUM_STAKE`.)
+
+
+### CC design
 
 
 Exactly how the CC is designed is very much unclear. It needs to be able to
@@ -514,7 +552,6 @@ Stake has to be translated to a notion of difficulty/weight in order to make
 selecting a harder/heavier fork possible.
 
 
-All of this sounds like problems that are common to PoS?!
 
 
 ## Open questions:
@@ -529,22 +566,20 @@ All of this sounds like problems that are common to PoS?!
 
 
 # Benefits and Advantages
-Clearly outline the benefits and advantages of adopting the proposed solution.
-Compare it with existing solutions or alternative approaches.
+
 The proposed solution enables piggybacking one chains consensus on the consensus of a different chain. Compared to earlier proposals, this solution needs not have the chains in lock step. Hence the child chain can have a larger transaction throughput than the parent chain is so demanded. The solution makes it also more economic in the cost of posting transactions to the parent chain. Not only may we need less transactions, we also can postpone generating such a transaction until the reward on the child chain is beneficial for posting such transaction.
 
 # Challenges and Limitations
-Acknowledge any challenges or limitations associated with the proposed solution.
-Discuss potential risks and how they can be mitigated.
 Risks to address:
-Parent chain miner has any influence on leader election
-Stakeholders can manipulate leader election
-Non-active leader causes non-progression for chain
-Leader can ignore switch to new leader, taking over control
-Parent chain can cause total stop for progress child chain
-Child chain cannot keep up with transaction cost of parent chain
-The child chain gets out of sync with the parent chain
-Ability to withstand long-range attacks
+
+* Parent chain miner has any influence on leader election
+* Stakeholders can manipulate leader election
+* Non-active leader causes non-progression for chain
+* Leader can ignore switch to new leader, taking over control
+* Parent chain can cause total stop for progress child chain
+* Child chain cannot keep up with transaction cost of parent chain
+* The child chain gets out of sync with the parent chain
+* Ability to withstand long-range attacks
 
 
 # Conclusion
@@ -552,28 +587,40 @@ Summarize the key points discussed in the whitepaper.
 Restate the significance of the problem and the proposed solution.
 
 # References
-Cite all the sources, studies, and references used in the whitepaper.
 
 
 
-2017 Whitepaper - The original whitepaper.
-Repository: https://github.com/aeternity/whitepaper
-2020 Whitepaper - Draft that reflects the current state.
-Repository: https://github.com/aeternity/white-paper
+* 2017 aeternity Whitepaper - The original whitepaper. Repository: https://github.com/aeternity/whitepaper
+* 2020 aeternity Whitepaper - Draft that reflects the current state. Repository: https://github.com/aeternity/white-paper
 
 [1] Bentov, I., Gabizon, A., and Mizrahi, A. Cryptocurrencies without proof of work.
+
 [2] Bonneau, J., Clark, J., and Goldfeder, S. On bitcoin as a public randomness source.
+
 [3] Buterin, V., and Griffith, V. Casper the friendly finality gadget.
+
 [4] DEIRMENTZOGLOU, E., PAPAKYRIAKOPOULOS, G., and PATSAKIS, C. A survey on long-range attacks forproof of stake protocols.
+
 [5] Dickman, T. Pow 51% attack cost.
+
 [6] Eyal, I., Gencer, A. E., Sirer, E. G., and van Renesse, R. Bitcoin-ng: A scalable blockchain protocol.
+
 [7] Kiayias, A., Russell, A., David, B., and Oliynykov, R. Ouroboros: A provably secure proof-ofstake blockchain protocol.
+
 [8] King, S., and Nadal, S. Ppcoin: Peer-to-peer crypto-currency with proof-of-stake.
+
 [9] Lee, T. B. Bitcoin’s insane energy consumption, explained, 2017.
+
 [10] Malahov, Y. G. Hyperchains — secure, cheap & scalable blockchain technology for everyone, 2016.
+
 [11] Nakamoto, S. Bitcoin: A peer-to-peer electronic cash system.
+
 [12] Niu, J., Wang, Z., Gai, F., and Feng, C. Incentive analysis of bitcoin-ng, revisited.
+
 [13] Nxt community. Nxt whitepaper, 2016.
+
 [14] Sharma, A. Understanding proof of stake through it’s flaws. part 2 — ‘nothing’s at stake’, 2018.
+
 [15] Sharma, A. Understanding proof of stake through it’s flaws. part 3 — ‘long range attacks’, 2018.
+
 [16] Urisaz, Radoslaw et all. Æternity Hyperchains, https://github.com/aeternity/hyperchains-whitepaper/releases/download/1.0.0/whitepaper.pdf, 2020.
