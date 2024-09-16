@@ -483,10 +483,10 @@ After doing the needed experiments and simulations, present the suggested soluti
 
 
 ### Epochs
-Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amout of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
+Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amount of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
 (We may refer to this speed as `EOff` = 10, which
 means there are 10 times as many blocks on the child chain).
-We will adapt the child epoch length via a voting strategy. Each child chain can observe the parent chain and obeserve whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child epoch longer or shorter is accepted. Changing the epoch length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
+We will adapt the child epoch length via a voting strategy. Each child chain can observe the parent chain and observe whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child epoch longer or shorter is accepted. Changing the epoch length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
 
 
 Also consider a constant number of blocks on the parent chain that represents
@@ -667,9 +667,9 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
       - Each validator monitors the transaction pool for incoming "Vote" transactions. When a validator observes that a fork has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that fork.
 
    2. **Creating the "Finalize" Transaction**:
-      - Once a quorum is detected, the validator creates a "Finalize" transaction. This is a standard spend transaction, but it includes additional data in the payload to prove that consensus has been reached.
-      - The payload contains:
-        - **Type**: `"finalize"` — Indicates that this transaction is a finalization message.
+      - Once a quorum is detected, the validator creates a "Finalize" transaction. This is a contract
+      call to the election contract `finalize_epoch`.
+      - The arguments are:
         - **Epoch**: The epoch number for which the finalization is being done.
         - **Chosen Fork**: The block hash of the chosen fork.
         - **Validator**: The address of the validator creating the finalization transaction.
@@ -677,30 +677,14 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
           - The block hash they voted for.
           - The validator’s address.
           - The validator’s signature.
-        - **Signature**: A digital signature from the validator creating the finalization transaction to ensure authenticity.
+      - The call is obviously signed by validator creating the finalization transaction to ensure authenticity, as with any transaction/contract call. This is the same validator that is
+      producing the block so the transaction will not be refused. A correct call should give a reward.
+      an illegal call can be challenged and result in a penalty.
 
-      By including the votes of other validators in the payload, the finalization transaction serves as verifiable proof that a quorum has been reached.
+      By including the votes of other validators the call serves as verifiable proof that a quorum has been reached.
+      - This call is recorded in the final block of the epoch.
 
-   3. **Example Structure of a "Finalize" Transaction**:
-
-      The payload for a "Finalize" transaction might look like this:
-
-      ```plaintext
-      finalize|epoch:42|chosen_fork:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|votes:[{vote:abc123def456ghi789, validator:ak_1, signature:sg_1}, {vote:abc123def456ghi789, validator:ak_2, signature:sg_2}, ...]|signature:sg_final
-      ```
-
-      - **Votes**: A list of vote entries from other validators, each proving that they voted for the chosen fork. The signatures of these votes are critical for proving that a sufficient number of validators agreed on the fork. If this doesn't fit in a spend transaction payload we might have to use the election contract
-      to store some of this information.
-
-   4. **Broadcasting the "Finalize" Transaction**:
-      - The validator broadcasts the "Finalize" transaction to the network. This transaction is added to the transaction pool like any other transaction.
-      - Other validators and nodes validate this transaction by:
-        - Verifying that the total stake represented by the votes in the payload is at least two-thirds of the total stake.
-        - Checking the validity of each included vote by verifying the signature against the voting validator's public key.
-        - Ensuring that the finalization transaction itself is correctly signed by the validator who created it.
-      - This transaction is then recorded in the final block of the epoch.
-
-   5. **Updating Local States**:
+   3. **Updating Local States**:
       - Upon verifying the "Finalize" transaction, all validators update their local state to reflect the chosen fork as the correct chain.
       - The network then proceeds to the next epoch based on this agreed-upon state.
 
