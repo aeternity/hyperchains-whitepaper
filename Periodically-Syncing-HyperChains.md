@@ -45,6 +45,15 @@ A noteworthy advancement presented in this paper is the pre-emptive leader elect
     - [Future Leader Election](#future-leader-election-1)
       - [Staking Cycle Structure](#staking-cycle-structure)
       - [Staking Contract Details](#staking-contract-details)
+    - [End of Epoch Fork Resolution](#end-of-epoch-fork-resolution)
+      - [Objectives](#objectives)
+      - [BFT Voting Process](#bft-voting-process)
+      - [Detailed Transaction Encoding](#detailed-transaction-encoding)
+      - [Timeouts](#timeouts)
+        - [Setting Timeouts](#setting-timeouts)
+        - [Handling Scenarios Where a Majority is Not Reached](#handling-scenarios-where-a-majority-is-not-reached)
+        - [Handling Minority Vote in Finalization](#handling-minority-vote-in-finalization)
+        - [Handling Double Voting](#handling-double-voting)
     - [CC design](#cc-design)
   - [Open questions:](#open-questions)
 - [Benefits and Advantages](#benefits-and-advantages)
@@ -539,6 +548,196 @@ tokens staked for the upcoming block production epoch.
 During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
 below `MINIMUM_STAKE`.)
 
+
+
+### End of Epoch Fork Resolution
+
+A Byzantine Fault Tolerant (BFT) voting mechanism is proposed to allow validators
+ to reach consensus on the correct fork.
+
+#### Objectives
+
+The main objectives of this proposal are:
+
+1. **Utilize Existing Mechanisms**: Implement the BFT voting process using existing transaction types (spend transactions) to avoid protocol changes.
+2. **Ensure Security and Decentralization**: Provide a secure method for validators to propose and vote on forks without relying on centralized authorities.
+3. **Maintain Efficiency**: Use minimal overhead to keep transaction costs low while ensuring robust consensus.
+
+#### BFT Voting Process
+
+The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase leverages spend transactions to encode necessary information, enabling validators to communicate and reach consensus.
+
+1. **Proposal Phase**:
+    - At the end of each epoch, a designated validator (e.g., the last validator) initiates the fork selection process by broadcasting a "Fork Proposal" transaction. This transaction is a standard spend transaction with an encoded payload that contains the details of the proposed fork.
+    - The transaction is added to the transaction pool, making it visible to all validators.
+
+2. **Voting Phase**:
+    - Validators monitor the transaction pool for "Fork Proposal" transactions. Upon detecting a proposal, they verify the details and decide whether to support the proposed fork.
+    - Validators create "Vote" transactions, which are also spend transactions with an encoded payload indicating their vote for a particular fork. These transactions are broadcast to the network and added to the transaction pool.
+
+3. **Finalization Phase**:
+    - If a validator observes that a particular fork has received more than two-thirds of the total stake in votes, they generate a "Commit" transaction, indicating their support for the final decision.
+    - Once a quorum is reached, validators create "Finalize" transactions to confirm the chosen fork. The finalization messages are broadcast to the network, signaling that consensus has been reached.
+
+#### Detailed Transaction Encoding
+
+1. **Fork Proposal Transaction**
+
+   A Fork Proposal transaction is a standard spend transaction with a minimal amount, sent from the validator to themselves or another validator, containing the proposal details in the payload.
+
+   **Structure of Fork Proposal Transaction:**
+
+  ```plaintext
+   fork_proposal|epoch:42|block_hash:abc123def456ghi789|block_height:100000|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...|justification:Chosen for stability
+  ```
+
+   - **Type**: `"fork_proposal"` indicates the transaction is a fork proposal.
+   - **Epoch**: The epoch number for which the proposal is made.
+   - **Block Hash**: The hash of the proposed fork head.
+   - **Block Height**: The block height of the proposed fork. (Maybe not necessary given epoch)
+   - **Validator**: The public address of the proposing validator.
+   - **Signature**: The validator’s digital signature to ensure authenticity.
+   - **Justification**: Optional reasoning for selecting the fork.
+
+   **Example of Fork Proposal Creation:**
+
+  ```erlang
+    %%% NOTE very much pseudo code
+   create_fork_proposal_transaction(ValidatorPrivateKey, ProposedBlockHash, ProposedBlockHeight) ->
+    % Create the payload with proposal details
+    Payload = io_lib:format(
+        "fork_proposal|epoch:~p|block_hash:~s|block_height:~p|validator:~s|signature:~s|justification:Chosen for stability",
+        [
+            get_current_epoch_number(),
+            ProposedBlockHash,
+            ProposedBlockHeight,
+            get_validator_address(ValidatorPrivateKey),
+            sign_data(ValidatorPrivateKey, ProposedBlockHash ++ integer_to_list(ProposedBlockHeight))
+        ]
+    ),
+
+    % Create the spend transaction with minimal amount
+    SpendTx = create_spend_transaction(
+        get_validator_address(ValidatorPrivateKey), % Sender
+        get_validator_address(ValidatorPrivateKey), % Recipient: Send to self or another validator
+        0.01,                                       % Minimal transaction amount
+        Payload                                      % Payload with proposal details
+    ),
+
+    % Broadcast the spend transaction
+    broadcast_transaction(SpendTx).
+
+  ```
+
+2. **Voting and Commit Transactions**
+
+   Validators use spend transactions to cast their votes and commit to the final decision. Each transaction includes an encoded payload specifying the vote or commit.
+
+   **Vote Payload Example:**
+
+   ```plaintext
+   vote|epoch:42|block_hash:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   ```
+
+   - **Type**: `"vote"` indicates the transaction is a vote.
+   - **Epoch**: The epoch number being voted on.
+   - **Block Hash**: The block hash for which the vote is cast.
+   - **Validator**: The address of the voting validator.
+   - **Signature**: The digital signature of the validator.
+
+   **Commit Payload Example:**
+
+   ```plaintext
+   commit|epoch:42|block_hash:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   ```
+
+   - **Type**: `"commit"` indicates the transaction is a commit.
+   - **Other fields**: Same as the vote transaction.
+
+   Validators create and broadcast these transactions, using the transaction pool to share their votes and commits.
+
+3. **Finalization Process**
+
+   - Once the network detects that a quorum has been reached (two-thirds of the total stake), validators generate a "Finalize" transaction.
+   - This transaction is a standard spend transaction that confirms the chosen fork.
+   - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch.
+
+
+   1. **Detecting Quorum**:
+      - Each validator monitors the transaction pool for incoming "Vote" transactions. When a validator observes that a fork has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that fork.
+
+   2. **Creating the "Finalize" Transaction**:
+      - Once a quorum is detected, the validator creates a "Finalize" transaction. This is a standard spend transaction, but it includes additional data in the payload to prove that consensus has been reached.
+      - The payload contains:
+        - **Type**: `"finalize"` — Indicates that this transaction is a finalization message.
+        - **Epoch**: The epoch number for which the finalization is being done.
+        - **Chosen Fork**: The block hash of the chosen fork.
+        - **Validator**: The address of the validator creating the finalization transaction.
+        - **Votes Proof**: A list of votes from other validators, each containing:
+          - The block hash they voted for.
+          - The validator’s address.
+          - The validator’s signature.
+        - **Signature**: A digital signature from the validator creating the finalization transaction to ensure authenticity.
+
+      By including the votes of other validators in the payload, the finalization transaction serves as verifiable proof that a quorum has been reached.
+
+   3. **Example Structure of a "Finalize" Transaction**:
+
+      The payload for a "Finalize" transaction might look like this:
+
+      ```plaintext
+      finalize|epoch:42|chosen_fork:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|votes:[{vote:abc123def456ghi789, validator:ak_1, signature:sg_1}, {vote:abc123def456ghi789, validator:ak_2, signature:sg_2}, ...]|signature:sg_final
+      ```
+
+      - **Votes**: A list of vote entries from other validators, each proving that they voted for the chosen fork. The signatures of these votes are critical for proving that a sufficient number of validators agreed on the fork. If this doesn't fit in a spend transaction payload we might have to use the election contract
+      to store some of this information.
+
+   4. **Broadcasting the "Finalize" Transaction**:
+      - The validator broadcasts the "Finalize" transaction to the network. This transaction is added to the transaction pool like any other transaction.
+      - Other validators and nodes validate this transaction by:
+        - Verifying that the total stake represented by the votes in the payload is at least two-thirds of the total stake.
+        - Checking the validity of each included vote by verifying the signature against the voting validator's public key.
+        - Ensuring that the finalization transaction itself is correctly signed by the validator who created it.
+      - This transaction is then recorded in the final block of the epoch.
+
+   5. **Updating Local States**:
+      - Upon verifying the "Finalize" transaction, all validators update their local state to reflect the chosen fork as the correct chain.
+      - The network then proceeds to the next epoch based on this agreed-upon state.
+
+#### Timeouts
+
+To implement a robust BFT voting mechanism, it's essential to establish clear rules for timeouts, handle situations where a majority is not reached, and address scenarios where a validator might ignore some votes and create a minority vote in the finalization. Here's how we can approach these challenges:
+
+##### Setting Timeouts
+
+We can define timeouts for each phase of the voting process. These timeouts should be possible to configure
+(within some bounds) when initializing a hyperchain.
+
+- **Proposal Timeout**: A predefined period (e.g., 10 seconds) within which validators can submit their fork proposals. After this period, no new proposals are accepted.
+
+- **Voting Timeout**: A defined period (e.g., 30 seconds) for validators to submit their votes for a fork proposal. This time window allows all validators to observe the proposals and cast their votes. The timeout duration can be set based on the expected network latency and block production time.
+
+- **Finalization Timeout**: A specified period (e.g., 20 seconds) after the voting phase ends, within which a validator must create and broadcast the "Finalize" transaction. If no finalization occurs within this period, the network takes predefined corrective actions. (The new leader in the next epoch just runs with his preferred fork.)
+
+##### Handling Scenarios Where a Majority is Not Reached
+
+If a quorum (two-thirds of the total stake) is not reached within the voting timeout
+the new leader in the next epoch builds on his preferred fork.
+
+##### Handling Minority Vote in Finalization
+
+If a validator ignores some votes and attempts to create a minority vote in the finalization process, the following steps can be taken:
+
+- **Reject Invalid Finalization Transactions**: Validators must verify the "Finalize" transaction against the recorded votes in the transaction pool. If the transaction does not include votes representing at least two-thirds of the total stake, it is considered invalid, and validators should ignore it.
+
+- **Slashing Penalties for Malicious Behavior**: If a validator is found to have created a minority "Finalize" transaction deliberately (i.e., one that lacks sufficient proof of a majority), they can be penalized through slashing. This involves reducing the validator's stake (the deposit in the election contract) and if the
+deposit is less than the minimum temporarily banning them from participating in future consensus rounds.
+
+##### Handling Double Voting
+
+If a double vote, two or more voting transaction by the same validator on two different forks in the same epoch,
+is detected, anyone can submit the two signed transactions to the election contract for a reward and resulting
+in a penalty for the offending validator.
 
 ### CC design
 
