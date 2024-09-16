@@ -15,7 +15,7 @@ jobs:
       with:
         root_file: whitepaper.tex
     - name: Deploy
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: whitepaper.pdf
         path: whitepaper.pdf
