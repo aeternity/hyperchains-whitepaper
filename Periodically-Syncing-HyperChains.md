@@ -637,15 +637,18 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
 
    Validators use spend transactions to cast their votes and commit to the final decision. Each transaction includes an encoded payload specifying the vote or commit.
 
+   Thy also vote on adjusting the next epoch length see [Epochs](#epochs).
+
    **Vote Payload Example:**
 
    ```plaintext
-   vote|epoch:42|block_hash:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   vote|epoch:42|block_hash:abc123def456ghi789|+2|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
    ```
 
    - **Type**: `"vote"` indicates the transaction is a vote.
    - **Epoch**: The epoch number being voted on.
    - **Block Hash**: The block hash for which the vote is cast.
+   - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
    - **Validator**: The address of the voting validator.
    - **Signature**: The digital signature of the validator.
 
@@ -662,9 +665,9 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
 
 3. **Finalization Process**
 
-   - Once the network detects that a quorum has been reached (two-thirds of the total stake), validators generate a "Finalize" transaction.
-   - This transaction is a standard spend transaction that confirms the chosen fork.
-   - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch.
+   - Once the current validator detects that a quorum has been reached (two-thirds of the total stake), the validators generate a `finalize_epoch` call transaction.
+   - This transaction is a call to the leader election contract that confirms the chosen fork.
+   - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch. Ignoring any fork they previously thought was good.
 
 
    1. **Detecting Quorum**:
@@ -676,9 +679,13 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
       - The arguments are:
         - **Epoch**: The epoch number for which the finalization is being done.
         - **Chosen Fork**: The block hash of the chosen fork.
+        - **new_epoch_length**: The length of the next epoch calculated by multiplying submitted deltas
+                                by staking percentage rounded towards 0 + current length.
+        - **pc_root_hash**: The root hash at PC the given PC height that is used as seed for leader     election.
         - **Validator**: The address of the validator creating the finalization transaction.
-        - **Votes Proof**: A list of votes from other validators, each containing:
+        - **Votes Proof**: A list of votes from other validators, each containing their transaction payloads.
           - The block hash they voted for.
+          - The epoch length deltas.
           - The validator’s address.
           - The validator’s signature.
       - The call is obviously signed by validator creating the finalization transaction to ensure authenticity, as with any transaction/contract call. This is the same validator that is
@@ -773,6 +780,12 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
    would change the outcome. This is so that it is not an attack to send in a late vote for the majority
    outcome and then slash the validator for not including it.
    - **Penalty**: The validator's stake is partially slashed, and they are penalized with a temporary ban from participating in leader elections or block production if their deposit stakes fall below the minimum.
+
+4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+
+5. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+
+6. **Submitting an incorrect block**: This is a minor event. It should probably just be ignored with no penalty.
 
 #### Submitting Proof of Wrongdoings
 
