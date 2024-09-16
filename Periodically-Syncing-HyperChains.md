@@ -54,6 +54,10 @@ A noteworthy advancement presented in this paper is the pre-emptive leader elect
         - [Handling Scenarios Where a Majority is Not Reached](#handling-scenarios-where-a-majority-is-not-reached)
         - [Handling Minority Vote in Finalization](#handling-minority-vote-in-finalization)
         - [Handling Double Voting](#handling-double-voting)
+    - [Rewards and Penalties](#rewards-and-penalties)
+      - [Rewards](#rewards)
+      - [Penalties and Slashable Events](#penalties-and-slashable-events)
+      - [Submitting Proof of Wrongdoings](#submitting-proof-of-wrongdoings)
     - [CC design](#cc-design)
   - [Open questions:](#open-questions)
 - [Benefits and Advantages](#benefits-and-advantages)
@@ -722,6 +726,68 @@ deposit is less than the minimum temporarily banning them from participating in 
 If a double vote, two or more voting transaction by the same validator on two different forks in the same epoch,
 is detected, anyone can submit the two signed transactions to the election contract for a reward and resulting
 in a penalty for the offending validator.
+
+### Rewards and Penalties
+
+Incentives are critical for maintaining the network's security, fairness, and proper functioning.
+
+#### Rewards
+
+Rewards are provided to validators for performing key roles in the network, such as block production, validation, and pinning.
+
+1. **Block Production and Validation:**
+
+   Validators who produce or validate blocks receive rewards, which include:
+   - **Transaction Fees**: The validator collects all transaction fees from the transactions included in the block they produce.
+   - **Block Reward**: An additional reward, configurable at chain initialization, paid to the validator for each successfully produced and validated block. This reward serves as a further incentive for validators to participate actively in the network and is paid out during the payout cycle.
+
+   These rewards are credited to the validator's account at the end of the payout cycle, ensuring a consistent reward schedule.
+
+2. **Pinning Reward:**
+
+   Pinning is a process where a validator or participant securely anchors the hyperchain to the PC, leveraging the security attributes of the PC. The network rewards validators for performing pinning actions.
+
+   - **Reward Mechanism**: A validator selected to perform the pinning action for each generation is rewarded for successfully completing it. The reward is paid out in the subsequent payout cycle.
+   - **Cumulative Reward Strategy**: If the selected validator fails to perform the pinning, the reward for the next block is increased, creating a stronger incentive for subsequent validators to complete the pinning. Once the pinning is performed, the reward resets to its base level.
+
+   This cumulative reward mechanism encourages participation in pinning when the reward outweighs
+   the transactio fee of the PC.
+
+#### Penalties and Slashable Events
+
+Penalties are enforced to deter malicious actions or protocol violations. Slashable events are actions that result in the forfeiture of a validator's stake, reputation, or other penalties to maintain network integrity and fairness. Any participant can submit proof of such wrongdoing, ensuring a decentralized and fair enforcement mechanism.
+
+1. **Producing Two Versions of a Block at a Specific Height (Double-Spending Attack):**
+
+   - **Definition**: A validator produces two different blocks at the same height, effectively attempting a double-spending attack or creating ambiguity in the chain.
+   - **Penalty**: The validator's stake is slashed (partially or entirely), and they are barred from participating in future leader elections for a specified period. The network may also burn a portion of their stake as a deterrent to others.
+
+2. **Double Voting:**
+
+   - **Definition**: A validator casts multiple votes for different forks or outcomes in a single voting phase. This action is considered malicious and undermines the voting process.
+   - **Penalty**: The validator's stake is slashed, and their voting rights are suspended for one or more epochs. The network may also distribute the slashed amount among honest validators as a reward for maintaining integrity.
+
+3. **Ignoring Votes:**
+
+   - **Definition**: A validator deliberately ignores valid votes when creating a "Finalize" transaction, attempting to force a minority or incorrect outcome. This is only an offense if the ignored votes
+   would change the outcome. This is so that it is not an attack to send in a late vote for the majority
+   outcome and then slash the validator for not including it.
+   - **Penalty**: The validator's stake is partially slashed, and they are penalized with a temporary ban from participating in leader elections or block production if their deposit stakes fall below the minimum.
+
+#### Submitting Proof of Wrongdoings
+
+Any participant can submit proof of a validator's wrongdoing by creating a special "Proof of Misconduct" call to the election contract. This call includes:
+
+- **Evidence**: Detailed evidence of the wrongdoing, such as signed conflicting blocks or votes, omitted votes, or any verifiable proof. (The format for this has to be specified by the contract.)
+- **Reporter Address**: The address of the participant submitting the proof.
+- **Signature**: The digital signature of the reporter to ensure authenticity.
+
+Upon receiving a valid "Proof of Misconduct" transaction, the network:
+1. Verifies the evidence provided against the public chain data.
+2. If verified, applies the specified penalties to the offending validator.
+3. Rewards the reporter with a portion of the slashed stake.
+
+
 
 ### CC design
 
