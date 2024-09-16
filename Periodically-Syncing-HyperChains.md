@@ -514,7 +514,10 @@ a minimum staking amount, referred to as `MINIMUM_STAKE`.
 Participants may choose to deposit more than the minimum to cover potential penalties,
 which could otherwise disqualify them from being elected as a leader.
 
-The contract provides `top_up` and `withdraw` functions to adjust the deposited amount.
+The contract provides `deposit` and `withdraw` functions to adjust the deposited amount.
+
+You can not withdraw funds if the deposited balance would go under `MINIMUM_STAKE`
+if you have tokens at stake.
 
 #### Staking Cycle Structure
 A staking cycle consists of four distinct epochs:
@@ -533,7 +536,8 @@ tokens staked for the upcoming block production epoch.
 - The leader election contract stores each validator's `tokens_at_stake`.
 
 
-During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract).
+During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
+below `MINIMUM_STAKE`.)
 
 
 ### CC design
