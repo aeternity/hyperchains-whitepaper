@@ -603,35 +603,6 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
    - **Signature**: The validator’s digital signature to ensure authenticity.
    - **Justification**: Optional reasoning for selecting the fork.
 
-   **Example of Fork Proposal Creation:**
-
-  ```erlang
-    %%% NOTE very much pseudo code
-   create_fork_proposal_transaction(ValidatorPrivateKey, ProposedBlockHash, ProposedBlockHeight) ->
-    % Create the payload with proposal details
-    Payload = io_lib:format(
-        "fork_proposal|epoch:~p|block_hash:~s|block_height:~p|validator:~s|signature:~s|justification:Chosen for stability",
-        [
-            get_current_epoch_number(),
-            ProposedBlockHash,
-            ProposedBlockHeight,
-            get_validator_address(ValidatorPrivateKey),
-            sign_data(ValidatorPrivateKey, ProposedBlockHash ++ integer_to_list(ProposedBlockHeight))
-        ]
-    ),
-
-    % Create the spend transaction with minimal amount
-    SpendTx = create_spend_transaction(
-        get_validator_address(ValidatorPrivateKey), % Sender
-        get_validator_address(ValidatorPrivateKey), % Recipient: Send to self or another validator
-        0.01,                                       % Minimal transaction amount
-        Payload                                      % Payload with proposal details
-    ),
-
-    % Broadcast the spend transaction
-    broadcast_transaction(SpendTx).
-
-  ```
 
 2. **Voting and Commit Transactions**
 
