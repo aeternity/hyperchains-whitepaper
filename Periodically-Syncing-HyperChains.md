@@ -45,6 +45,19 @@ A noteworthy advancement presented in this paper is the pre-emptive leader elect
     - [Future Leader Election](#future-leader-election-1)
       - [Staking Cycle Structure](#staking-cycle-structure)
       - [Staking Contract Details](#staking-contract-details)
+    - [End of Epoch Fork Resolution](#end-of-epoch-fork-resolution)
+      - [Objectives](#objectives)
+      - [BFT Voting Process](#bft-voting-process)
+      - [Detailed Transaction Encoding](#detailed-transaction-encoding)
+      - [Timeouts](#timeouts)
+        - [Setting Timeouts](#setting-timeouts)
+        - [Handling Scenarios Where a Majority is Not Reached](#handling-scenarios-where-a-majority-is-not-reached)
+        - [Handling Minority Vote in Finalization](#handling-minority-vote-in-finalization)
+        - [Handling Double Voting](#handling-double-voting)
+    - [Rewards and Penalties](#rewards-and-penalties)
+      - [Rewards](#rewards)
+      - [Penalties and Slashable Events](#penalties-and-slashable-events)
+      - [Submitting Proof of Wrongdoings](#submitting-proof-of-wrongdoings)
     - [CC design](#cc-design)
   - [Open questions:](#open-questions)
 - [Benefits and Advantages](#benefits-and-advantages)
@@ -474,10 +487,10 @@ After doing the needed experiments and simulations, present the suggested soluti
 
 
 ### Epochs
-Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amout of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
+Introduce an epoch length for both the parent chain `PEL` (in the rest of the document, let's assume it is 10), and the child chain `CEL`. The `CEL` in this paper is initial 100, ten times the amount of the parent chain. This means that after producing 100 blocks on the child chain, we expect to have progressed one parent chain epoch.
 (We may refer to this speed as `EOff` = 10, which
 means there are 10 times as many blocks on the child chain).
-We will adapt the child epoch length via a voting strategy. Each child chain can observe the parent chain and obeserve whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child epoch longer or shorter is accepted. Changing the epoch length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
+We will adapt the child epoch length via a voting strategy. Each child chain can observe the parent chain and observe whether the child chain seems to produce its blocks too fast or too slow. A proposal can be submitted to the child chain on which all stake holders can vote. By two third majority, the vote to make a child epoch longer or shorter is accepted. Changing the epoch length is under consensus in this way. (How much longer or shorter is provided by a standard function that makes sure we see a smooth adjustment).
 
 
 Also consider a constant number of blocks on the parent chain that represents
@@ -538,6 +551,226 @@ tokens staked for the upcoming block production epoch.
 
 During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
 below `MINIMUM_STAKE`.)
+
+
+
+### End of Epoch Fork Resolution
+
+A Byzantine Fault Tolerant (BFT) voting mechanism is proposed to allow validators
+ to reach consensus on the correct fork.
+
+#### Objectives
+
+The main objectives of this proposal are:
+
+1. **Utilize Existing Mechanisms**: Implement the BFT voting process using existing transaction types (spend transactions) to avoid protocol changes.
+2. **Ensure Security and Decentralization**: Provide a secure method for validators to propose and vote on forks without relying on centralized authorities.
+3. **Maintain Efficiency**: Use minimal overhead to keep transaction costs low while ensuring robust consensus.
+
+#### BFT Voting Process
+
+The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase leverages spend transactions to encode necessary information, enabling validators to communicate and reach consensus.
+
+1. **Proposal Phase**:
+    - At the end of each epoch, a designated validator (e.g., the last validator) initiates the fork selection process by broadcasting a "Fork Proposal" transaction. This transaction is a standard spend transaction with an encoded payload that contains the details of the proposed fork.
+    - The transaction is added to the transaction pool, making it visible to all validators.
+
+2. **Voting Phase**:
+    - Validators monitor the transaction pool for "Fork Proposal" transactions. Upon detecting a proposal, they verify the details and decide whether to support the proposed fork.
+    - Validators create "Vote" transactions, which are also spend transactions with an encoded payload indicating their vote for a particular fork. These transactions are broadcast to the network and added to the transaction pool.
+
+3. **Finalization Phase**:
+    - If a validator observes that a particular fork has received more than two-thirds of the total stake in votes, they generate a "Commit" transaction, indicating their support for the final decision.
+    - Once a quorum is reached, validators create "Finalize" transactions to confirm the chosen fork. The finalization messages are broadcast to the network, signaling that consensus has been reached.
+
+#### Detailed Transaction Encoding
+
+1. **Fork Proposal Transaction**
+
+   A Fork Proposal transaction is a standard spend transaction with a minimal amount, sent from the validator to themselves or another validator, containing the proposal details in the payload.
+
+   **Structure of Fork Proposal Transaction:**
+
+  ```plaintext
+   fork_proposal|epoch:42|block_hash:abc123def456ghi789|block_height:100000|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...|justification:Chosen for stability
+  ```
+
+   - **Type**: `"fork_proposal"` indicates the transaction is a fork proposal.
+   - **Epoch**: The epoch number for which the proposal is made.
+   - **Block Hash**: The hash of the proposed fork head.
+   - **Block Height**: The block height of the proposed fork. (Maybe not necessary given epoch)
+   - **Validator**: The public address of the proposing validator.
+   - **Signature**: The validator’s digital signature to ensure authenticity.
+   - **Justification**: Optional reasoning for selecting the fork.
+
+
+2. **Voting and Commit Transactions**
+
+   Validators use spend transactions to cast their votes and commit to the final decision. Each transaction includes an encoded payload specifying the vote or commit.
+
+   Thy also vote on adjusting the next epoch length see [Epochs](#epochs).
+
+   **Vote Payload Example:**
+
+   ```plaintext
+   vote|epoch:42|block_hash:abc123def456ghi789|+2|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   ```
+
+   - **Type**: `"vote"` indicates the transaction is a vote.
+   - **Epoch**: The epoch number being voted on.
+   - **Block Hash**: The block hash for which the vote is cast.
+   - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
+   - **Validator**: The address of the voting validator.
+   - **Signature**: The digital signature of the validator.
+
+   **Commit Payload Example:**
+
+   ```plaintext
+   commit|epoch:42|block_hash:abc123def456ghi789|validator:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   ```
+
+   - **Type**: `"commit"` indicates the transaction is a commit.
+   - **Other fields**: Same as the vote transaction.
+
+   Validators create and broadcast these transactions, using the transaction pool to share their votes and commits.
+
+3. **Finalization Process**
+
+   - Once the current validator detects that a quorum has been reached (two-thirds of the total stake), the validators generate a `finalize_epoch` call transaction.
+   - This transaction is a call to the leader election contract that confirms the chosen fork.
+   - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch. Ignoring any fork they previously thought was good.
+
+
+   1. **Detecting Quorum**:
+      - Each validator monitors the transaction pool for incoming "Vote" transactions. When a validator observes that a fork has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that fork.
+
+   2. **Creating the "Finalize" Transaction**:
+      - Once a quorum is detected, the validator creates a "Finalize" transaction. This is a contract
+      call to the election contract `finalize_epoch`.
+      - The arguments are:
+        - **Epoch**: The epoch number for which the finalization is being done.
+        - **Chosen Fork**: The block hash of the chosen fork.
+        - **new_epoch_length**: The length of the next epoch calculated by multiplying submitted deltas
+                                by staking percentage rounded towards 0 + current length.
+        - **pc_root_hash**: The root hash at PC the given PC height that is used as seed for leader     election.
+        - **Validator**: The address of the validator creating the finalization transaction.
+        - **Votes Proof**: A list of votes from other validators, each containing their transaction payloads.
+          - The block hash they voted for.
+          - The epoch length deltas.
+          - The validator’s address.
+          - The validator’s signature.
+      - The call is obviously signed by validator creating the finalization transaction to ensure authenticity, as with any transaction/contract call. This is the same validator that is
+      producing the block so the transaction will not be refused. A correct call should give a reward.
+      an illegal call can be challenged and result in a penalty.
+
+      By including the votes of other validators the call serves as verifiable proof that a quorum has been reached.
+      - This call is recorded in the final block of the epoch.
+
+   3. **Updating Local States**:
+      - Upon verifying the "Finalize" transaction, all validators update their local state to reflect the chosen fork as the correct chain.
+      - The network then proceeds to the next epoch based on this agreed-upon state.
+
+#### Timeouts
+
+To implement a robust BFT voting mechanism, it's essential to establish clear rules for timeouts, handle situations where a majority is not reached, and address scenarios where a validator might ignore some votes and create a minority vote in the finalization. Here's how we can approach these challenges:
+
+##### Setting Timeouts
+
+We can define timeouts for each phase of the voting process. These timeouts should be possible to configure
+(within some bounds) when initializing a hyperchain.
+
+- **Proposal Timeout**: A predefined period (e.g., 10 seconds) within which validators can submit their fork proposals. After this period, no new proposals are accepted.
+
+- **Voting Timeout**: A defined period (e.g., 30 seconds) for validators to submit their votes for a fork proposal. This time window allows all validators to observe the proposals and cast their votes. The timeout duration can be set based on the expected network latency and block production time.
+
+- **Finalization Timeout**: A specified period (e.g., 20 seconds) after the voting phase ends, within which a validator must create and broadcast the "Finalize" transaction. If no finalization occurs within this period, the network takes predefined corrective actions. (The new leader in the next epoch just runs with his preferred fork.)
+
+##### Handling Scenarios Where a Majority is Not Reached
+
+If a quorum (two-thirds of the total stake) is not reached within the voting timeout
+the new leader in the next epoch builds on his preferred fork.
+
+##### Handling Minority Vote in Finalization
+
+If a validator ignores some votes and attempts to create a minority vote in the finalization process, the following steps can be taken:
+
+- **Reject Invalid Finalization Transactions**: Validators must verify the "Finalize" transaction against the recorded votes in the transaction pool. If the transaction does not include votes representing at least two-thirds of the total stake, it is considered invalid, and validators should ignore it.
+
+- **Slashing Penalties for Malicious Behavior**: If a validator is found to have created a minority "Finalize" transaction deliberately (i.e., one that lacks sufficient proof of a majority), they can be penalized through slashing. This involves reducing the validator's stake (the deposit in the election contract) and if the
+deposit is less than the minimum temporarily banning them from participating in future consensus rounds.
+
+##### Handling Double Voting
+
+If a double vote, two or more voting transaction by the same validator on two different forks in the same epoch,
+is detected, anyone can submit the two signed transactions to the election contract for a reward and resulting
+in a penalty for the offending validator.
+
+### Rewards and Penalties
+
+Incentives are critical for maintaining the network's security, fairness, and proper functioning.
+
+#### Rewards
+
+Rewards are provided to validators for performing key roles in the network, such as block production, validation, and pinning.
+
+1. **Block Production and Validation:**
+
+   Validators who produce or validate blocks receive rewards, which include:
+   - **Transaction Fees**: The validator collects all transaction fees from the transactions included in the block they produce.
+   - **Block Reward**: An additional reward, configurable at chain initialization, paid to the validator for each successfully produced and validated block. This reward serves as a further incentive for validators to participate actively in the network and is paid out during the payout cycle.
+
+   These rewards are credited to the validator's account at the end of the payout cycle, ensuring a consistent reward schedule.
+
+2. **Pinning Reward:**
+
+   Pinning is a process where a validator or participant securely anchors the hyperchain to the PC, leveraging the security attributes of the PC. The network rewards validators for performing pinning actions.
+
+   - **Reward Mechanism**: A validator selected to perform the pinning action for each generation is rewarded for successfully completing it. The reward is paid out in the subsequent payout cycle.
+   - **Cumulative Reward Strategy**: If the selected validator fails to perform the pinning, the reward for the next block is increased, creating a stronger incentive for subsequent validators to complete the pinning. Once the pinning is performed, the reward resets to its base level.
+
+   This cumulative reward mechanism encourages participation in pinning when the reward outweighs
+   the transactio fee of the PC.
+
+#### Penalties and Slashable Events
+
+Penalties are enforced to deter malicious actions or protocol violations. Slashable events are actions that result in the forfeiture of a validator's stake, reputation, or other penalties to maintain network integrity and fairness. Any participant can submit proof of such wrongdoing, ensuring a decentralized and fair enforcement mechanism.
+
+1. **Producing Two Versions of a Block at a Specific Height (Double-Spending Attack):**
+
+   - **Definition**: A validator produces two different blocks at the same height, effectively attempting a double-spending attack or creating ambiguity in the chain.
+   - **Penalty**: The validator's stake is slashed (partially or entirely), and they are barred from participating in future leader elections for a specified period. The network may also burn a portion of their stake as a deterrent to others.
+
+2. **Double Voting:**
+
+   - **Definition**: A validator casts multiple votes for different forks or outcomes in a single voting phase. This action is considered malicious and undermines the voting process.
+   - **Penalty**: The validator's stake is slashed, and their voting rights are suspended for one or more epochs. The network may also distribute the slashed amount among honest validators as a reward for maintaining integrity.
+
+3. **Ignoring Votes:**
+
+   - **Definition**: A validator deliberately ignores valid votes when creating a "Finalize" transaction, attempting to force a minority or incorrect outcome. This is only an offense if the ignored votes
+   would change the outcome. This is so that it is not an attack to send in a late vote for the majority
+   outcome and then slash the validator for not including it.
+   - **Penalty**: The validator's stake is partially slashed, and they are penalized with a temporary ban from participating in leader elections or block production if their deposit stakes fall below the minimum.
+
+4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+
+5. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+
+6. **Submitting an incorrect block**: This is a minor event. It should probably just be ignored with no penalty.
+
+#### Submitting Proof of Wrongdoings
+
+Any participant can submit proof of a validator's wrongdoing by creating a special "Proof of Misconduct" call to the election contract. This call includes:
+
+- **Evidence**: Detailed evidence of the wrongdoing, such as signed conflicting blocks or votes, omitted votes, or any verifiable proof. (The format for this has to be specified by the contract.)
+- **Reporter Address**: The address of the participant submitting the proof.
+- **Signature**: The digital signature of the reporter to ensure authenticity.
+
+Upon receiving a valid "Proof of Misconduct" transaction, the network:
+1. Verifies the evidence provided against the public chain data.
+2. If verified, applies the specified penalties to the offending validator.
+3. Rewards the reporter with a portion of the slashed stake.
+
 
 
 ### CC design
