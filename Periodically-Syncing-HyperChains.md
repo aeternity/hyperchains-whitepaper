@@ -544,10 +544,10 @@ We are concerned about the following:
 This leads to a design with of a staking cycle that consists of four distinct phases:
 
 1. **Staking epoch**: Participants register and adjust their stakes.
-   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is refered to as s<sub>n<sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
+   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is refered to as s<sub>n</sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
 
 2. **Leader Election epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
-   In the leader election phase we retrieve the last hash of a parent chain epoch to be used as a seed later on. For CE<sub>n</sub> we store the last blockhash of PE<sub>n-1</sub> as seed for later schedule computation.
+   In the leader election phase we retrieve the last hash of a parent chain epoch to be used as a seed later on. For CE<sub>n</sub> we store the last blockhash of PE<sub>n-2</sub> as seed for later schedule computation.
    Note that effectively at this moment we know the schedule for block production 2 epochs ahead. Among others, future stakers now can be more attentive.
 3. **Block Production epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
    The schedule for CE<sub>n</sub> block production is based upon the stake set s<sub>n-5</sub> produced in CE<sub>n-5</sub> and the seed from the last block of PE<sub>n-4</sub>
@@ -569,39 +569,40 @@ The risk of re-using the schedule for the first 4 epochs is at most that one of 
 
 
 The start of the chain looks as follows (wait until parent start height is final):
+
 epoch 1 (CE<sub>1</sub>):
 - **Staking epoch** use the configured stake
-- **Leader Election Epoch** use `parent_start_height` for entropy
-- **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub>and `parent_start_height` for entropy
+- **Leader Election Epoch** ensure finality of `parent_start_height`
+- **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** no actions
 
 epoch 2 (CE<sub>2</sub>):
 - **Staking epoch** staking distribution s<sub>1</sub> from staking during block producing epoch CE<sub>1</sub>
-- **Leader Election Epoch** use `parent_start_height` for entropy
+- **Leader Election Epoch** ensure finality of `parent_start_height`
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>1</sub> block production epoch
 
 epoch 3 (CE<sub>3</sub>):
 - **Staking epoch** staking distribution s<sub>2</sub> from staking during block producing CE<sub>2</sub>
-- **Leader Election Epoch** use **last hash of PE<sub>1</sub>**  for entropy
+- **Leader Election Epoch** ensure finality of **last hash of PE<sub>1</sub>**
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>2</sub>* block production epoch
 
 epoch 4 (CE<sub>4</sub>):
 - **Staking epoch** staking distribution s<sub>3</sub> from staking during block producing epoch CE<sub>3</sub>
-- **Leader Election Epoch** use **last block of PE<sub>2</sub>*** for entropy
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>2</sub>***
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>3</sub> block production epoch
 
 epoch 5 (CE<sub>5</sub>):
 - **Staking epoch** staking distribution s<sub>4</sub> from staking during block producing CE<sub>4</sub>
-- **Leader Election Epoch** use **last block of PE<sub>3</sub>*** for entropy
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>3</sub>***
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and **last block of PE<sub>1</sub>** for entropy
 - **Payout Epoch** use results of CE<sub>4</sub> block production epoch
 
 epoch 6 (CE<sub>6</sub>):
 - **Staking epoch** staking distribution s<sub>5</sub> from staking during block producing CE<sub>5</sub>
-- **Leader Election Epoch** use **last block of PE<sub>4</sub>*** for entropy
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>4</sub>***
 - **Block Producer Epoch** use the schedule based upon **s<sub>1</sub>** and **last block of PE<sub>2</sub>** for entropy
 - **Payout Epoch** use results of epoch 5 block production epoch
 
@@ -609,7 +610,7 @@ and for the Nth epoch:
 
 epoch N (CE<sub>n</sub>):
 - **Staking epoch** staking distribution s<sub>n-1</sub> from staking during block producing CE<sub>n-1</sub>
-- **Leader Election Epoch** use **last block of PE<sub>n-2</sub>*** for entropy
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>n-2</sub>***
 - **Block Producer Epoch** use the schedule based upon **s<sub>n-5</sub>** and **last block of PE<sub>n-4</sub>** for entropy
 - **Payout Epoch** use results of epoch n-1 block production epoch
 
