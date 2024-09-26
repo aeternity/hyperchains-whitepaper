@@ -590,28 +590,28 @@ epoch 3 (CE<sub>3</sub>):
 
 epoch 4 (CE<sub>4</sub>):
 - **Staking epoch** staking distribution s<sub>3</sub> from staking during block producing epoch CE<sub>3</sub>
-- **Leader Election Epoch** ensure finality of **last block of PE<sub>2</sub>***
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>2</sub>**
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>3</sub> block production epoch
 
 epoch 5 (CE<sub>5</sub>):
 - **Staking epoch** staking distribution s<sub>4</sub> from staking during block producing CE<sub>4</sub>
-- **Leader Election Epoch** ensure finality of **last block of PE<sub>3</sub>***
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>3</sub>**
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and **last block of PE<sub>1</sub>** for entropy
 - **Payout Epoch** use results of CE<sub>4</sub> block production epoch
 
 epoch 6 (CE<sub>6</sub>):
 - **Staking epoch** staking distribution s<sub>5</sub> from staking during block producing CE<sub>5</sub>
-- **Leader Election Epoch** ensure finality of **last block of PE<sub>4</sub>***
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>4</sub>**
 - **Block Producer Epoch** use the schedule based upon **s<sub>1</sub>** and **last block of PE<sub>2</sub>** for entropy
 - **Payout Epoch** use results of epoch 5 block production epoch
 
 and for the Nth epoch:
 
 epoch N (CE<sub>n</sub>):
-- **Staking epoch** staking distribution s<sub>n-1</sub> from staking during block producing CE<sub>n-1</sub>
-- **Leader Election Epoch** ensure finality of **last block of PE<sub>n-2</sub>***
-- **Block Producer Epoch** use the schedule based upon **s<sub>n-5</sub>** and **last block of PE<sub>n-4</sub>** for entropy
+- **Staking epoch** staking distribution s<sub>max(n-1, 0)</sub> from staking during block producing CE<sub>max(n-1, 0)</sub>
+- **Leader Election Epoch** ensure finality of **last block of PE<sub>max(n-2, 0)</sub>**
+- **Block Producer Epoch** use the schedule based upon **s<sub>max(n-5, 0)</sub>** and **last block of PE<sub>max(n-4, 0)</sub>** for entropy
 - **Payout Epoch** use results of epoch n-1 block production epoch
 
 
