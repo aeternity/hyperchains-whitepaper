@@ -533,12 +533,78 @@ You can not withdraw funds if the deposited balance would go under `MINIMUM_STAK
 if you have tokens at stake.
 
 #### Staking Cycle Structure
-A staking cycle consists of four distinct epochs:
 
-1. **Staking Epoch**: Participants register and adjust their stakes.
-2. **Leader Election Epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
-3. **Block Production Epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
-4. **Payout Epoch**: Rewards are distributed based on block production results.
+Each epoch needs a schedule of producers. These producers are randomly selected from registered stakers.
+We are concerned about the following:
+- To prevent stakers to influence the schedule, the staking distribution should be known before the seed of the random selection is known.
+- The seed should be final (that is it should be guaranteed not to disappear from the parent chain due to forking)
+- The seed should be known before the actual schedule needs to be computed, otherwise the child chain is stuck
+- The stakers should actually do work, so only after the work is done, their rewards for doing the work is paid out.
+
+This leads to a design with of a staking cycle that consists of four distinct phases:
+
+1. **Staking Phase**: Participants register and adjust their stakes.
+   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE(n) is refered to as s(n).  The initial stake as configured for the child chain is s(0).
+
+2. **Leader Election Phase**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
+   In the leader election phase we retrieve the last hash of a parent chain epoch to be used as a seed later on. For CE(n) we store the last blockhash of PE(n-2) as seed for later schedule computation.
+   Note that effectively at this moment we know the schedule for block production 2 epochs ahead. Among others, stakers now can be more attentive.
+3. **Block Production Phase**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
+   The schedule for CE(n) block production is based upon the stake set in CE(n-4) and the seed from the last block of PE(n-2).
+4. **Payout Phase**: Rewards are distributed based on block production results.
+
+Note that each child epoch has all of these characteristics, viz. child epoch nine is the payout  phase from a cycle
+that started in a staking phase in the past (child epoch four as we will see).
+But it also starts a new staking epoch for future block production.
+
+However, we do have a different situation at the start.
+For example, when starting the chain, there cannot be a payouts, since there's nothing produced.
+Luckily the initial stakers are part of the configuration/contract when starting the chain. Thus it is fine to take the configured parent start height
+as the first block to take entropy from. But since we have unknown seeds for a while, we decide to start by replaying the schedule
+based upon the start height block hash and the configured initial stake 3 times.
+
+Alternative solutions would have been to take parent hashes before the start height, since the parent is alive for a while before we start a child chain. The disadvantage there is that it might be confusing for the manual validator of hashes on parent chain that we use hashes before the start height.
+Another alternative would be to use the start height and initial staking to compute a random schedule that is 3 epochs long and then use the right part for each of the first four epochs. Disadvantage then is that we need another validation logic for the first 4 epochs.
+The risk of re-using the schedule for the first 3 epochs is at most that one of the initial stakers gets a bit of an advantage.
+
+
+The start of the chain looks as follows (wait until parent start height is final):
+epoch 1 (CE1):
+- **Staking epoch** use the configured stake
+- **Leader Election Epoch** use `parent_start_height` for entropy
+- **Block Producer Epoch** use the schedule based upon configured stake and `parent_start_height` for entropy
+- **Payout Epoch** no actions
+
+epoch 2 (CE2):
+- **Staking epoch** staking distribution s1 from staking during block producing epoch CE(1)
+- **Leader Election Epoch** use `parent_start_height` for entropy
+- **Block Producer Epoch** use the schedule based upon configured stake and `parent_start_height` for entropy
+- **Payout Epoch** use results of CE(1) block production epoch
+
+epoch 3 (CE3):
+- **Staking epoch** staking distribution s2 from staking during block producing CE(2)
+- **Leader Election Epoch** use **last hash of PE(1)**  for entropy
+- **Block Producer Epoch** use the schedule based upon configured stake and `parent_start_height` for entropy
+- **Payout Epoch** use results of CE(2) block production epoch
+
+epoch 4 (CE4):
+- **Staking epoch** staking distribution s3 from staking during block producing epoch CE(3)
+- **Leader Election Epoch** use **last block of PE(2)** for entropy
+- **Block Producer Epoch** use the schedule based upon configured stake and `parent_start_height` for entropy
+- **Payout Epoch** use results of CE(3) block production epoch
+
+epoch 5 (CE5):
+- **Staking epoch** staking distribution s5 from staking during block producing CE(4)
+- **Leader Election Epoch** use **last block of PE(3)** for entropy
+- **Block Producer Epoch** use **s1** stake distribution and **last block of PE(1)** for entropy
+- **Payout Epoch** use results of epoch 4 block production epoch
+
+epoch 6 (approx PE2):
+- **Staking epoch** staking distribution s6 from staking during block producing CE(5)
+- **Leader Election Epoch** use **last block of PE(4)** for entropy
+- **Block Producer Epoch** use **s2** stake distribution and **last block of PE(2)** for entropy
+- **Payout Epoch** use results of epoch 4 block production epoch
+
 
 #### Staking Contract Details
 - The staking contract includes a `tokens_at_stake` field, representing the number of
