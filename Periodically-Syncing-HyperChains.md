@@ -553,7 +553,7 @@ This leads to a design with of a staking cycle that consists of four distinct ph
    The schedule for CE<sub>n</sub> block production is based upon the stake set s<sub>n-5</sub> produced in CE<sub>n-5</sub> and the seed from the last block of PE<sub>n-4</sub>
 4. **Payout epoch**: Rewards are distributed based on block production results.
 
-Note that each child epoch has all of these characteristics, viz. child epoch nine is the payout  phase from a cycle
+Note that each child epoch has all of these characteristics, viz. child epoch nine is the payout  phase for a cycle
 that started in a staking phase in the past (child epoch four as we will see).
 But it also starts a new staking epoch for future block production.
 
