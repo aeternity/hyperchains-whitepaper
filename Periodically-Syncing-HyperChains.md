@@ -627,6 +627,172 @@ tokens staked for the upcoming block production epoch.
 During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
 below `MINIMUM_STAKE`.)
 
+### Consensus Details
+
+#### Producer diagram
+
+```mermaid
+graph TD
+    start["Node is started"]
+    producer{"Are you in the schedule"}
+    n0["Have: Staking distribution
+    Random seed from ParentChain"]
+    n1["Build: Producer Schedule
+    mix stakers following the random seed and one known algorithm"]
+    n2["Have: Start of Epoch Timestamp"]
+    n3["Start an Epoch"]
+
+    n4["Start a Timeslot"]
+    n5["From producer schedule Choose producer"]
+    n6{"Is it your time slot"}
+    n7["Keep collecting gossip 'blocks'"]
+    n8{"Look if you have single complete chain"}
+    n9["Produce a 'block'"]
+    n10["Choose best fork
+    See fork diagram"]
+    n11["Fill slots with blanks
+    if first block is missing, its a blank too"]
+    n12{"Is it the last block of the epoch"}
+    lastp["Last block:Initialize Voting etc"]
+    last{"Is it the last block"}
+    vote["Vote on speed and fork"]
+
+    start --> n3
+
+    n0 --> n1
+    n1 --> n2
+    n3 --> n0
+    n2 --> producer
+    producer -->|NO|go_to_observer_diagram
+    producer -->|YES| n4
+
+    n4 --> n5
+    n5 --> n6
+    n6 -->|NO| last
+    n6 -->|YES| n8
+
+    n7 --> |Throw away invalid blocks| n7
+    n7 --> |Timeslot end| n4
+
+
+    n8 -->|YES| n9
+    n8 -->|MULTIPLE FORK| n10
+    n8 -->|INCOMPLETE| n11
+
+    n9 --> n12
+    n11 --> n9
+    n10 --> n9
+    n12 -->|NO| n4
+    n12 -->|YES| lastp
+
+    lastp --> n3
+
+    last -->|YES| vote
+    last -->|NO| n7
+    vote --> n3
+
+ ```
+
+#### Observer Diagram
+
+```mermaid
+graph TD
+    start["Node is started"]
+
+    start --> observer
+
+    observer --> |valid block:add| observer
+    observer --> |invalid block| invalid
+
+    invalid --> |Penalty offense| penalty
+    invalid --> |No penalty| observer
+    penalty --> |Post proof of missconduct| observer
+
+ ```
+
+
+#### Fork Diagram
+
+```mermaid
+graph TD
+    n19["To choose the best fork
+    count the 'holes' of each fork"]
+    n20{"Is there a single fork with fewest 'holes'"}
+    bad_chain{"Are there multiple full chains?"}
+    penalty["Prepare proof of all 'double' blocks in same slot.
+     Post proof of missconduct.
+     Fill all 'double' blocks with 'holes' "]
+    n21["Prefer chain with holes late"]
+    done["pick that fork"]
+
+
+    n19 --> n20
+    n20 --> |YES| done
+    n20 --> |NO| bad_chain
+    bad_chain --> |YES| penalty
+    penalty --> done
+    bad_chain --> |NO| n21
+    n21 --> done
+ ```
+
+
+#### More...
+```mermaid
+graph TD
+    n13["Unsolved or un-placed problems"]
+    n14["Gossiped block is too late"]
+    n15["Network split?"]
+    n16["Lasting multiple epochs?"]
+    n17["No majority can't finish the epoch"]
+    n18["Malicious or bad nodes"]
+    n19["How to choose the best fork?"]
+    n20["Pick 1 with fewest holes"]
+    n21["Prefer chain with holes late"]
+    n22["Can a producer do multiple blocks in a slot\nNO!"]
+    n23["How to detect?"]
+    n24["Act?"]
+    n25["Producer timing Design decisions"]
+    n26["How long to wait?"]
+    n27["Prefer to gossip early?"]
+    n28["But prefer to build complete chain!\nHow to incentivize?"]
+
+
+
+    n13 --> n14
+    n13 --> n15
+    n15 --> n16
+    n15 --> n17
+    n13 --> n18
+    n10 --> n19
+    n19 --> n20
+    n19 --> n21
+    n13 --> n22
+    n15 --> n23
+    n15 --> n24
+    n8 --> n25
+    n25 --> n26
+    n25 --> n27
+    n27 --> n28
+
+ ```
+
+```mermaid
+graph TD
+
+    n29["Attacks?"]
+    n30["Double spend"]
+    n31["Halt"]
+    n32["Take over\n* Force majority while not having majority stake"]
+    n34["Penalties\nhttps://ethereum.org/en/developers/docs/consensus-mechanisms/pos/#crypto-economic-security"]
+    n35["Extra end of epoch logic"]
+
+
+    n29 --> n30
+    n29 --> n31
+    n29 --> n32
+    n13 --> n34
+    n13 --> n35
+ ```
 
 
 ### End of Epoch Fork Resolution
