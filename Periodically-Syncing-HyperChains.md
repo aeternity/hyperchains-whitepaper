@@ -45,6 +45,11 @@ A noteworthy advancement presented in this paper is the pre-emptive leader elect
     - [Future Leader Election](#future-leader-election-1)
       - [Staking Cycle Structure](#staking-cycle-structure)
       - [Staking Contract Details](#staking-contract-details)
+    - [Consensus Details](#consensus-details)
+      - [Producer diagram](#producer-diagram)
+      - [Observer Diagram](#observer-diagram)
+      - [Fork Diagram](#fork-diagram)
+      - [More...](#more)
     - [End of Epoch Fork Resolution](#end-of-epoch-fork-resolution)
       - [Objectives](#objectives)
       - [BFT Voting Process](#bft-voting-process)
@@ -717,6 +722,8 @@ graph TD
 
  ```
 
+See [Penalties and Slashable Events](#penalties-and-slashable-events).
+
 
 #### Fork Diagram
 
@@ -976,7 +983,7 @@ Rewards are provided to validators for performing key roles in the network, such
    - **Cumulative Reward Strategy**: If the selected validator fails to perform the pinning, the reward for the next block is increased, creating a stronger incentive for subsequent validators to complete the pinning. Once the pinning is performed, the reward resets to its base level.
 
    This cumulative reward mechanism encourages participation in pinning when the reward outweighs
-   the transactio fee of the PC.
+   the transaction fee of the PC.
 
 #### Penalties and Slashable Events
 
@@ -999,12 +1006,13 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
    outcome and then slash the validator for not including it.
    - **Penalty**: The validator's stake is partially slashed, and they are penalized with a temporary ban from participating in leader elections or block production if their deposit stakes fall below the minimum.
 
-4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+4. **Submitting an incorrect block, or not submitting a block in time**: If a block producer's block has been replaced by holes more than 50% of the time during one epoch.
 
-5. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+5. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
 
-6. **Submitting an incorrect block**: This is a minor event. It should probably just be ignored with no penalty.
+6. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
 
+ 
 #### Submitting Proof of Wrongdoings
 
 Any participant can submit proof of a validator's wrongdoing by creating a special "Proof of Misconduct" call to the election contract. This call includes:
