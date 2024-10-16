@@ -637,25 +637,27 @@ graph TD
     producer{"Are you in the schedule"}
     n0["Have: Staking distribution
     Random seed from ParentChain"]
-    n1["Build: Producer Schedule
+    n3["Build: Producer Schedule
     mix stakers following the random seed and one known algorithm"]
-    n2["Have: Start of Epoch Timestamp"]
-    n3["Start an Epoch"]
+    n1["Have: Start of Epoch Timestamp"]
+    n2["Start an Epoch"]
 
     n4["Start a Timeslot"]
     n5["From producer schedule Choose producer"]
     n6{"Is it your time slot"}
     n7["Keep collecting gossip 'blocks'"]
     n8{"Look if you have single complete chain"}
-    n9["Produce a 'block'"]
+    n12["Produce a 'block'"]
     n10["Choose best fork
     See fork diagram"]
     n11["Fill slots with blanks
     if first block is missing, its a blank too"]
-    n12{"Is it the last block of the epoch"}
-    lastp["Last block:Initialize Voting etc"]
+    n9{"Is it the last block of the epoch"}
+    lastp["Last block:Voting 3x blocktime block"]
     last{"Is it the last block"}
+    voting{"Is voting stared"}
     vote["Vote on speed and fork"]
+    become_last_leader{"Are you the next leader"}
 
     start --> n3
 
@@ -679,17 +681,22 @@ graph TD
     n8 -->|MULTIPLE FORK| n10
     n8 -->|INCOMPLETE| n11
 
-    n9 --> n12
+    n9 -->|NO| n12
     n11 --> n9
     n10 --> n9
     n12 -->|NO| n4
-    n12 -->|YES| lastp
+    n9 -->|YES| lastp
 
     lastp --> n3
 
-    last -->|YES| vote
+    last -->|YES| voting
+    voting -->|YES| vote
+    voting -->|NO| become_last_leader
     last -->|NO| n7
     vote --> n3
+    become_last_leader -->|YES| lastp
+    become_last_leader -->|No| voting
+    
 
  ```
 
