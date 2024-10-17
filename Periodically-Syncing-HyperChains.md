@@ -1039,7 +1039,29 @@ and it most likely has to have a sense of time.
 Stake has to be translated to a notion of difficulty/weight in order to make
 selecting a harder/heavier fork possible.
 
+## Block time specification
 
+The hyperchain blocktime is defined as the time between each keyblock being produced.
+The specifics on how nodes should deal with this bocktime are provided here.
+
+Important terminology in this setting are
+ - block production time: The time it takes to produce both a micro block and a keyblock from a given transaction mempool. This is not a constant, but some kind of maximum worst case can be determined, since a micro block has a maximum gas limit and gas is related to computation time.
+ - block latency: time it takes for a block to be gossiped from the producer to any other node. Clearly latency is not a constant but depends on the network conditions.
+ - Block timestamp is the UTC timestamp in milliseconds that is part of each keyblock (header)
+ - `T0` (start time) is Block timestamp of block 1 in the hyperchain (block 0 is the genesis block).
+ - `EpochT0(N)` refers to the Block timestamp of the first block of epoch N (`T0` is `EpochT0(1)`).
+
+Important properties are
+ - Blocktime should be larger or equal to block production time + block latency time. Since the blocktime is configured, some experimentation must be done by the creator of a hypderchain to make sure the network and hardware has the capability to fulfil this property.
+ - Minimum block timestamp: The timestamp of the Nth block in epoch E should be larger or equal to `(N-1)*EpochT0(E)`. The minimum block timestamp of the first block of an epoch is `T0 + (height-1) * blocktime`.
+ - Maximum block timestamp: The timestamp of the Nth block in Epoch E should be smaller or equal to `(N-1)*EpochT0(E) + block production time + (block latency / 2)`. For this to work under consensus, these two values must therefore be configured instead of the blocktime(??). Alternative, we use 2/3th of the blocktime, which is easier.
+
+The idea between the above values is that a node can start preparing an empty block, micro block and keyblock before the actual minimum block timestamp is due. It will get informed on a kind of maximum block production time that that took and can then wait until the deadline minus the expected production time for the previous keyblock to arrive. If nothing arrives, the empty block solution can be submitted. If a block does arrive, it can produce a new block on top of it and submit.
+
+PICTURE HERE with normal operation (keyblock comes with little delay), with late arrival and with no arrival.
+
+There is one quirck in here. If we ever get stuck on not having a parent seed to build upon, then the timing is completely off. We will have block timestamp requirements for times in the past.
+To avoid this, we set a new epoch timestamp. Not sure this is a good idea, but the only was to recover if all our work on making epochs longer etc does not work any more....
 
 
 ## Open questions:
