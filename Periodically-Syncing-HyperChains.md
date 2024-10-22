@@ -1069,7 +1069,36 @@ Important properties are
 
 The idea between the above values is that a node can start preparing an empty block, micro block and keyblock before the actual minimum block timestamp is due. It will get informed on a kind of maximum block production time that that took and can then wait until the deadline minus the expected production time for the previous keyblock to arrive. If nothing arrives, the empty block solution can be submitted. If a block does arrive, it can produce a new block on top of it and submit.
 
-PICTURE HERE with normal operation (keyblock comes with little delay), with late arrival and with no arrival.
+```mermaid
+gantt
+    dateFormat  x
+    axisFormat %S%L
+    title Hyperchain Blocktime (3s) and Block Production/Latency Flow (ms UTC)
+
+    section Block times
+    Block Time N: done, block_time, 0, 3000
+    Block Time N+1: done, block_time, 3000, 6000
+    Block Production Time: done, production_time, 0, 500
+    Block Latency Time: done, latency_time, 500, 3000
+    Minimum Block Timestamp N: milestone, min_block_timestamp, 0, 0
+    Maximum Block Timestamp N: milestone, max_block_timestamp, 1750, 1750
+    Minimum Block Timestamp N+1: milestone, min_block_timestamp, 3000, 3000
+    Block N Arrival Cutoff: milestone, keyblock_arrived, 3750, 3750
+    Maximum Block Timestamp N+1: milestone, keyblock_arrived, 4750, 4750
+
+    section Normal Operation
+    Block Production N: done, production_start, 1250, 1750
+    Bock Timestamp N: milestone, min_block_timestamp, 1750, 1750
+    Block Gossip (Latency): done, gossip_start, 1750, 3250
+    Block Production N+1: done, production_start, 4250, 4750
+
+    section Late or No Block Arrival
+    Block Production: done, late_production_start, 1250, 1750
+    Block Gossip (Latency): done, late_gossip_start, 1750, 4750
+    Block Production Hole N: crit, late_process_start, 3750, 4250
+    Block Production N+1: crit, late_process_start, 4250, 4750
+    Next Block Ready: milestone, late_keyblock_arrived, 2800, 0
+```
 
 There is one quirck in here. If we ever get stuck on not having a parent seed to build upon, then the timing is completely off. We will have block timestamp requirements for times in the past.
 To avoid this, we set a new epoch timestamp. Not sure this is a good idea, but the only was to recover if all our work on making epochs longer etc does not work any more....
