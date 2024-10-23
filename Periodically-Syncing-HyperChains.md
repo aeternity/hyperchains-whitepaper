@@ -75,7 +75,8 @@ A noteworthy advancement presented in this paper is the pre-emptive leader elect
       - [Penalties and Slashable Events](#penalties-and-slashable-events)
       - [Submitting Proof of Wrongdoings](#submitting-proof-of-wrongdoings)
     - [CC design](#cc-design)
-  - [Open questions:](#open-questions)
+  - [Block time specification](#block-time-specification)
+    - [Block timing algorithm](#block-timing-algorithm)
 - [Benefits and Advantages](#benefits-and-advantages)
 - [Challenges and Limitations](#challenges-and-limitations)
 - [Conclusion](#conclusion)
@@ -712,7 +713,7 @@ graph TD
     vote --> n3
     become_last_leader -->|YES| lastp
     become_last_leader -->|No| voting
-    
+
 
  ```
 
@@ -1023,7 +1024,7 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
 
 6. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
 
- 
+
 #### Submitting Proof of Wrongdoings
 
 Any participant can submit proof of a validator's wrongdoing by creating a special "Proof of Misconduct" call to the election contract. This call includes:
@@ -1053,19 +1054,21 @@ selecting a harder/heavier fork possible.
 ## Block time specification
 
 The hyperchain blocktime is defined as the time between each keyblock being produced.
-The specifics on how nodes should deal with this bocktime are provided here.
+The specifics on how nodes should deal with this blocktime are provided here.
 
 Important terminology in this setting are
- - block production time: The time it takes to produce both a micro block and a keyblock from a given transaction mempool. This is not a constant, but some kind of maximum worst case can be determined, since a micro block has a maximum gas limit and gas is related to computation time.
- - block latency: time it takes for a block to be gossiped from the producer to any other node. Clearly latency is not a constant but depends on the network conditions.
- - Block timestamp is the UTC timestamp in milliseconds that is part of each keyblock (header)
- - `T0` (start time) is Block timestamp of block 1 in the hyperchain (block 0 is the genesis block).
- - `EpochT0(N)` refers to the Block timestamp of the first block of epoch N (`T0` is `EpochT0(1)`).
+ - blocktime: The average time between block timestamps in ms. E.g. 3000 ms. This is configured when setting up the hyperchain.
+ - block production time: The time (in ms) it takes to produce both a micro block and a keyblock from a given transaction mempool. The real production time is not a constant, but some kind of maximum worst case can be determined, since a micro block has a maximum gas limit and gas is related to computation time. This should be configured when setting up the hyperchain and is indicative of the minimum hardware requirements for a producer on the chain. E.g 500 ms.
+ - block latency: 2x the time it takes for a block to be gossiped from the producer to any other node. Clearly latency is not a constant but depends on the network conditions. The configuration constant (used for further calculations) is calculated as `blocktime - block production time`. E.g 3000 - 500 = 2500 ms.
+ - Block timestamp: is the UTC timestamp in milliseconds that is part of each keyblock (header)
+ - timestamp(N): same as Block timestamp for a specific keyblock at height N.
+ - `T0` (start time) is (the block timestamp of block 1) - "Maximum block timestamp" in the hyperchain (block 0 is the genesis block).
+ - `EpochT0(E)` refers to the Block timestamp of the first block of epoch E (`T0` is `EpochT0(1)`).
+ - Minimum block timestamp: The timestamp of the Nth block in epoch E should be larger or equal to `(N-1) *  blocktime + EpochT0(E)`. The minimum block timestamp of the first block of an epoch is `T0 + (height-1) * blocktime`.
+ - Maximum block timestamp: The timestamp of the Nth block in Epoch E should be smaller or equal to `(N-1) * blocktime + EpochT0(E) + block production time + (block latency / 2)`.
 
 Important properties are
- - Blocktime should be larger or equal to block production time + block latency time. Since the blocktime is configured, some experimentation must be done by the creator of a hypderchain to make sure the network and hardware has the capability to fulfil this property.
- - Minimum block timestamp: The timestamp of the Nth block in epoch E should be larger or equal to `(N-1)*EpochT0(E)`. The minimum block timestamp of the first block of an epoch is `T0 + (height-1) * blocktime`.
- - Maximum block timestamp: The timestamp of the Nth block in Epoch E should be smaller or equal to `(N-1)*EpochT0(E) + block production time + (block latency / 2)`. For this to work under consensus, these two values must therefore be configured instead of the blocktime(??). Alternative, we use 2/3th of the blocktime, which is easier.
+ - Blocktime should be larger or equal to block production time + block latency time. Since the blocktime is configured, some experimentation must be done by the creator of a hyperchain to make sure the network and hardware has the capability to fulfill this property.
 
 The idea between the above values is that a node can start preparing an empty block, micro block and keyblock before the actual minimum block timestamp is due. It will get informed on a kind of maximum block production time that that took and can then wait until the deadline minus the expected production time for the previous keyblock to arrive. If nothing arrives, the empty block solution can be submitted. If a block does arrive, it can produce a new block on top of it and submit.
 
@@ -1073,7 +1076,7 @@ The idea between the above values is that a node can start preparing an empty bl
 gantt
     dateFormat  x
     axisFormat %S%L
-    title Hyperchain Blocktime (3s) and Block Production/Latency Flow (ms UTC)
+    title Hyperchain Blocktime (3000ms) and Block Production/Latency Flow (ms UTC)
 
     section Block times
     Block Time N: done, block_time, 0, 3000
@@ -1081,6 +1084,7 @@ gantt
     Block Production Time: done, production_time, 0, 500
     Block Latency Time: done, latency_time, 500, 3000
     Minimum Block Timestamp N: milestone, min_block_timestamp, 0, 0
+    Start Block N production: milestone, max_block_timestamp, 1250, 1250
     Maximum Block Timestamp N: milestone, max_block_timestamp, 1750, 1750
     Minimum Block Timestamp N+1: milestone, min_block_timestamp, 3000, 3000
     Block N Arrival Cutoff: milestone, keyblock_arrived, 3750, 3750
@@ -1097,20 +1101,26 @@ gantt
     Block Gossip (Latency): done, late_gossip_start, 1750, 4750
     Block Production Hole N: crit, late_process_start, 3750, 4250
     Block Production N+1: crit, late_process_start, 4250, 4750
-    Next Block Ready: milestone, late_keyblock_arrived, 2800, 0
 ```
 
-There is one quirck in here. If we ever get stuck on not having a parent seed to build upon, then the timing is completely off. We will have block timestamp requirements for times in the past.
+There is one quirk in here. If we ever get stuck on not having a parent seed to build upon, then the timing is completely off. We will have block timestamp requirements for times in the past.
 To avoid this, we set a new epoch timestamp. Not sure this is a good idea, but the only was to recover if all our work on making epochs longer etc does not work any more....
 
+### Block timing algorithm
 
-## Open questions:
- - How do we make sure that pinning actions are not censored?! Maybe we let the
-   staker that is allowed to do the pinning be the staker that builds the
-   penultimate block of the generation?!
- - The exact design of chain speed adjustments are not thought through, yet. We
-   think the pinning action can be used to show where the chains are relative
-   to each other - possibly we also need something akin to "a reverse pinning".
+The producer of block N+1 should follow the following algorithm (as long as it isn't the last block in the epoch.)
+
+Given that the Minimum Block Timestamp for N+1 is MinBT:
+- 1: Calculate `MaxBT = MinBT + block production time + (block latency / 2)`.
+- 2: Calculate `SPT = MaxBT - block production time`.
+- 3: Calculate `CutOffTime = MaxBT - 2 * block production time`.
+- 4: Wait for block N and all previous blocks so that the full state of the chain is known.
+   If we reach the CutOffTime go to `late`.
+- 5: If transaction pool >> what fits in a block: produce a block and gossip ASAP.
+   else wait for more transactions until `SPT`.
+- 6: At `SPT` produce a block and gossip. Go to `end`.
+- `late`: Produce `Hole keyblocks` for any missing blocks + produce block N+1 and gossip.
+- `end`: Find out if I have another block to produce in this Epoch, repeat for that block.
 
 
 
