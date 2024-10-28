@@ -1057,12 +1057,12 @@ The hyperchain blocktime is defined as the time between each keyblock being prod
 The specifics on how nodes should deal with this blocktime are provided here.
 
 Important terminology in this setting are
- - blocktime: The average time between block timestamps in ms. E.g. 3000 ms. This is configured when setting up the hyperchain.
- - block production time: The time (in ms) it takes to produce both a micro block and a keyblock from a given transaction mempool. The real production time is not a constant, but some kind of maximum worst case can be determined, since a micro block has a maximum gas limit and gas is related to computation time. This should be configured when setting up the hyperchain and is indicative of the minimum hardware requirements for a producer on the chain. E.g 500 ms.
+ - `child_block_time`: (Abbreviated to just "blocktime" in this section.) The average time between child chain block timestamps in ms. E.g. 3000 ms. This is configured when setting up the hyperchain. (Note should be renamed to `hc_block_time` in config.)
+ - `hc_block_production_time`: (Called block production time or BPT here.) The time (in ms) it takes to produce both a micro block and a keyblock from a given transaction mempool. The real production time is not a constant, but some kind of maximum worst case can be determined, since a micro block has a maximum gas limit and gas is related to computation time. This should be configured when setting up the hyperchain and is indicative of the minimum hardware requirements for a producer on the chain. E.g 500 ms.
  - block latency: 2x the time it takes for a block to be gossiped from the producer to any other node. Clearly latency is not a constant but depends on the network conditions. The configuration constant (used for further calculations) is calculated as `blocktime - block production time`. E.g 3000 - 500 = 2500 ms.
- - Block timestamp: is the UTC timestamp in milliseconds that is part of each keyblock (header)
+ - Block `timestamp`: is the UTC timestamp in milliseconds that is part of each keyblock (header)
  - timestamp(N): same as Block timestamp for a specific keyblock at height N.
- - `T0` (start time) is (the block timestamp of block 1) - "Maximum block timestamp" in the hyperchain (block 0 is the genesis block).
+ - `T0` (start time) `T0 = timestamp(1) - (block production time + (block latency / 2))`. This is the start time of epoch 1 on the hyperchain (block 0 is the genesis block, block 1 is the first block produced when entropy is known).
  - `EpochT0(E)` refers to the Block timestamp of the first block of epoch E (`T0` is `EpochT0(1)`).
  - Minimum block timestamp: The timestamp of the Nth block in epoch E should be larger or equal to `(N-1) *  blocktime + EpochT0(E)`. The minimum block timestamp of the first block of an epoch is `T0 + (height-1) * blocktime`.
  - Maximum block timestamp: The timestamp of the Nth block in Epoch E should be smaller or equal to `(N-1) * blocktime + EpochT0(E) + block production time + (block latency / 2)`.
