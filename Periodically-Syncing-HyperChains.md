@@ -879,7 +879,7 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
    **Vote Payload Example:**
 
    ```plaintext
-   vote|epoch:42|block_hash:abc123def456ghi789|+2|producer:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   vote|epoch:42|block_hash:abc123def456ghi789|epoch_length_delta:+2|producer:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
    ```
 
    - **Type**: `"vote"` indicates the transaction is a vote.
