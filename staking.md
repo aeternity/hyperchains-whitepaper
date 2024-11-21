@@ -11,7 +11,7 @@
 - **Locked Balance (LB)**: The max of staked amounts over the **current staking cycle**, i.e., epochs `N` to `N + C`, where `C` is the number of epochs in the staking cycle (in our case, `C = 3`).
 - **Available Balance (AB)**: The portion of the Total Balance that is not locked in the current staking cycle.
   - **AB = TB - LB**
-- **Staking Schedule (orderdlist ({epoch, amount}))**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs and onwards if not changed.
+- **Staking Schedule (SC)**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs and onwards if not changed. As an orderd list ({epoch, stake amount, locked amount})
 
 Automatic Restaking: Unless adjusted, the stake for an epoch automatically continues into future cycles.
 
@@ -54,14 +54,44 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
      - **Minimum Stake Requirement**:
        - After adjustment, if the participant's stake is below `MINIMUM_STAKE`, they will not be eligible for leader selection in the upcoming cycle.
    - **Behavior**:
-     - Updates the participant's stake commitment for the next staking cycle.
-       - Insert {current_epoch, new_stake} into SC, GC any old values epoch-C from SC.
-     - Recalculats LB
-     - Recalculates AB
+       - SC: is an orderd list `[{epoch, stake amount, locked amount}| ... ]`
+       - Calculate new_stake: find the stake for current_epoch in SC or take the value of the last epoch in the list.
+         - `new_stake = stake + amount`
+       - drop all values in SC where epcoh < current_epoch
+       - n = current_epoch (n1 = leder selection epoch, n2 = production epoch, n3 = payout epoch)
+       - Recreate the list:
+        ```
+        case SC of
+            [{n, n_stake, n_lock}|Rest1]  ->
+                [{current_epoch, new_stake, max(new_stake, n_lock)} | case Rest1 of
+                    [{n1, n1_stake, n1_lock} | Rest2] ->
+                        [{n1, new_stake, max(new_stake, n1_lock)} | case Rest2 of
+                            [{n2, n2_stake, n2_lock} | Rest3] ->
+                                [{n2, new_stake, max(new_stake, n2_lock)} | case Rest3 of
+                                    [{n3, n3_stake, n3_lock}] ->
+                                        [{n3, new_stake, max(new_stake, n3_lock)}];
+                                    [] ->
+                                        [{n3, new_stake, max(new_stake, n2_lock)}]
+                                end];
+                            [] ->
+                                [{n2, new_stake, max(new_stake, n1_lock)},
+                                 {n3, new_stake, max(new_stake, n1_lock)}]
+                            end];
+                    [] ->
+                        [{n1, new_stake, max(new_stake, n_lock)}, {n2, new_stake, max(new_stake, n_lock)},
+                         {n3, new_stake, max(new_stake, n_lock)}]
+                    end];
+            [] ->
+                [{n, new_stake, new_stake}, {n1, new_stake, new_stake},
+                 {n2, new_stake, new_stake}, {n3, new_stake, new_stake}]
+        end
+        ```
+     - Recalculats LB (max of SC)
+     - Recalculates AB = TB - LB
 
 Alternatively
 
-3. **`stake(producer:pubkey, amount:unsigned integer)`**
+1. **`stake(producer:pubkey, amount:unsigned integer)`**
    - **Description**: sets the amount of tokens a participant wishes to stake for the **next staking cycle**.
    - **Parameters**:
      - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
