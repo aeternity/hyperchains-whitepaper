@@ -263,6 +263,21 @@ Let's illustrate how the balances change over epochs with this updated model.
 | 14    | 900  | 0    |  900 | Tokens unlocked; AB recalculated                     |
 | After | 900  | 0    |  400 | After adjusting stake for next cycle (500 tokens)    |
 
+
+### **SC Over Epochs**
+
+
+| Epoch | TB   | LB   | AB   | SC Entries                                              | Notes                                                |
+|-------|------|------|------|---------------------------------------------------------|------------------------------------------------------|
+| 09    | 1000 | 0    | 1000 | *Empty*                                                 | Previous deposit                                     |
+| 10    | 900  | 0    | 500  | `{10, 400, 400}, {11, 400, 400}, {12, 400, 400}, {13, 400, 400}` | After staking and withdrawal actions                 |
+| 11    | 900  | 400  | 500  | `{11, 0, 400}, {12, 0, 400}, {13, 0, 400}, {14, 0, 0}`  | Alice reduces stake by 400 tokens; tokens remain locked |
+| 12    | 900  | 400  | 500  | `{12, 0, 400}, {13, 0, 400}, {14, 0, 0}`                | No further adjustments                               |
+| 13    | 900  | 400  | 500  | `{13, 0, 400}, {14, 0, 0}`                              | Payout Epoch                                         |
+| 14    | 900  | 0    | 900  | `{14, 0, 0}`                                            | Tokens unlocked; AB recalculated                     |
+| After | 900  | 0    | 400  | `{14, 500, 500}, {15, 500, 500}, {16, 500, 500}, {17, 500, 500}` | After adjusting stake for next cycle (500 tokens)    |
+
+
 ---
 
 ### **Key Points**
