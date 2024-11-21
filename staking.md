@@ -9,7 +9,7 @@
 
 - **Total Balance (TB)**: The total number of tokens a participant has deposited in the staking contract via the `stake()` function.
 - **Staking Schedule (SS)**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs.
-- **Locked Balance (LB)**: The sum of staked amounts over the **current staking cycle**, i.e., epochs `N` to `N + C`, where `C` is the number of epochs in the staking cycle (in your case, `C = 3`).
+- **Locked Balance (LB)**: The max of staked amounts over the **current staking cycle**, i.e., epochs `N` to `N + C`, where `C` is the number of epochs in the staking cycle (in our case, `C = 3`).
 - **Available Balance (AB)**: The portion of the Total Balance that is not locked in the current staking cycle.
   - **AB = TB - LB**
 
