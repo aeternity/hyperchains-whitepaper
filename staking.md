@@ -8,10 +8,12 @@
 #### **Participant's Balances:**
 
 - **Total Balance (TB)**: The total number of tokens a participant has deposited in the staking contract via the `stake()` function.
-- **Staking Schedule (SS)**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs.
 - **Locked Balance (LB)**: The max of staked amounts over the **current staking cycle**, i.e., epochs `N` to `N + C`, where `C` is the number of epochs in the staking cycle (in our case, `C = 3`).
 - **Available Balance (AB)**: The portion of the Total Balance that is not locked in the current staking cycle.
   - **AB = TB - LB**
+- **Staking Schedule (orderdlist ({epoch, amount}))**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs and onwards if not changed.
+
+Automatic Restaking: Unless adjusted, the stake for an epoch automatically continues into future cycles.
 
 ---
 
@@ -49,10 +51,9 @@
        - After adjustment, if the participant's stake is below `MINIMUM_STAKE`, they will not be eligible for leader selection in the upcoming cycle.
    - **Behavior**:
      - Updates the participant's stake commitment for the next staking cycle.
-     - Recalculats LB:
-       - **LB = LB + amount**
-     - Recalculates AB:
-       - **AB = TB - LB**
+       - Insert {current_epoch, new_stake} into SC, GC any old values epoch-C from SC.
+     - Recalculats LB
+     - Recalculates AB
 
 Alternatively
 
@@ -279,6 +280,6 @@ Suppose Alice stake different amounts in each epoch:
 
 Then in epoch 13, we are still in the cycle started in epoch 11.
 
-- **LB = max(SS[11] + SS[12] + SS[13])**
+- **LB = max(SS[11], SS[12], SS[13])**
 - **LB = max(500,300,400) = 500 tokens**
 
