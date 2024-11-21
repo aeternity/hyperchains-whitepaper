@@ -88,7 +88,7 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
         ```
      - Recalculats LB (max of SC)
      - Recalculates AB = TB - LB
-
+     - All these values are stored in a map with producer as key.
 Alternatively
 
 1. **`stake(producer:pubkey, amount:unsigned integer)`**
@@ -229,7 +229,7 @@ Let's illustrate how the balances change over epochs with this updated model.
 #### **Epoch 14 (Next Staking Epoch)**
 
 - **Unlocking Funds**:
-  - At the end of epoch 13 (Payout Epoch), the 400 tokens become unlocked.
+  - At the end of epoch 13 (Payout Epoch), the 400 tokens become possible to unlock which Alice did in epoch 11.
   - **LB** decreases by 400 tokens:
     - LB = 400 - 400 = 0 tokens.
   - **AB** increases by 400 tokens:
