@@ -19,28 +19,32 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
 
 #### **API Functions**
 
-1. **`deposit()`** (Payable Endpoint)
+1. **`deposit(producer:pubkey)`** (Payable Endpoint)
    - **Description**: Allows a participant to deposit tokens into the staking contract, increasing their Total Balance (TB) and Available Balance (AB).
-   - **Parameters**: None (the amount is determined by the value of tokens sent with the transaction).
+   - **Parameters**:
+     - producer - the pubkey of the producer who can become leader and then produce and sign blocks.
+     -  (the amount is determined by the value of tokens sent with the transaction).
    - **When Callable**: At any time.
    - **Behavior**:
      - Increases TB by the amount of tokens sent.
      - Increases AB by the same amount.
 
-2. **`withdraw(amount)`**
+2. **`withdraw(producer:pubkey, amount:unsigned integer)`**
    - **Description**: Allows a participant to withdraw tokens from their Available Balance (AB).
    - **Parameters**:
+     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
      - `amount`: The amount of tokens to withdraw.
    - **When Callable**: At any time.
    - **Constraints**:
      - `amount` must be less than or equal to AB.
      - Cannot withdraw tokens locked in the current staking cycle (i.e., tokens committed in SS for epochs `N` to `N + C`).
 
-3. **`adjustStake(amount:integer)`**
+3. **`adjustStake(producer:pubkey, amount:integer)`**
    - **Description**: Adjusts the amount of tokens a participant wishes to stake for the **next staking cycle**.
    - **Parameters**:
+     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
      - `amount`: The amount to adjust (positive to increase stake, negative to decrease stake).
-   - **When Callable**: Only during the **Staking Epoch**.
+   - **When Callable**: Only during the **Staking Epoch** of a cycle, but every epoch is the staking epoch of some cycle, so syou can always call it.
    - **Constraints**:
      - Adjustments made in the current epoch `N` affect the staking cycle starting in epoch `N`, with leader election in epoch  `N + 1`.
      - **Positive `amount`**:
@@ -57,9 +61,10 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
 
 Alternatively
 
-1. **`stake(amount:unsigned integer)`**
+3. **`stake(producer:pubkey, amount:unsigned integer)`**
    - **Description**: sets the amount of tokens a participant wishes to stake for the **next staking cycle**.
    - **Parameters**:
+     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
      - `amount`: The amount to stake in this staking cycle.
    - **When Callable**: Only during the **Staking Epoch**.
    - **Constraints**:
@@ -76,15 +81,17 @@ Alternatively
        - **AB = TB - LB**
 
 
-4. **`getStakedAmount(epoch)`**
+4. **`getStakedAmount(producer:pubkey, epoch:integer)`**
    - **Description**: Returns the amount of tokens the participant has committed to stake in the staking cycle starting at `epoch` and ending in `epoch + 3`
    - **Parameters**:
-     - `epoch`: The epoch number.
+     - `producer`: The pubkey of the producer.
+     - `epoch`: The epoch number. (Or possibly a block height?)
    - **When Callable**: At any time.
 
-5. **`getAvailableBalance()`**
+5. **`getAvailableBalance(producer:pubkey)`**
    - **Description**: Returns the participant's current Available Balance (AB).
-   - **Parameters**: None.
+   - **Parameters**:
+     - `producer`: The pubkey of the producer.
    - **When Callable**: At any time.
 
 ---
