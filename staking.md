@@ -133,7 +133,7 @@ Let's illustrate how the balances change over epochs with this updated model.
 #### **Constants and Parameters**
 
 - **Current Epoch (`N`)**: 10 (Staking Epoch)
-- **Staking Cycle Length (`C`)**: 3 epochs (epochs 10 to 13)
+- **Staking Cycle Length (`C`)**: 4 epochs (epochs 10 to 13)
   - Epoch 10: Staking Epoch
   - Epoch 11: Leader Election Epoch
   - Epoch 12: Block Production Epoch
@@ -164,7 +164,7 @@ Let's illustrate how the balances change over epochs with this updated model.
     - AB = 600 - 100 = 500 tokens.
 
 - **Locked Balance (LB)**:
-  - Remains at 0 during the Staking Epoch.
+  - Set at 400 from the call to adjustStake till the end of the Staking Epoch.
 
 #### **Epoch 11 (Leader Election Epoch)**
 
@@ -216,12 +216,13 @@ Let's illustrate how the balances change over epochs with this updated model.
 
 | Epoch | TB   | LB   | AB   | Notes                                                |
 |-------|------|------|------|------------------------------------------------------|
-| 10    | 900  | 0    | 500  | After staking and withdrawal actions                 |
-| 11    | 900  | 400  | 500  | 400 tokens locked for staking cycle                  |
-| 12    | 900  | 400  | 500  | (Alice produces blocks according to leader schedule) |
-| 13    | 900  | 400  | 500  | Payout Epoch; tokens remain locked until end         |
-| 14    | 900  | 0    | 900  | Tokens unlocked; AB recalculated                     |
-| After | 900  | 0    | 400  | After adjusting stake for next cycle (500 tokens)    |
+| 09    | 1000 | 0    | 1000 | Previous deposit                                     |
+| 10    | 900  | 0    |  500 | After staking and withdrawal actions                 |
+| 11    | 900  | 400  |  500 | 400 tokens locked for staking cycle                  |
+| 12    | 900  | 400  |  500 | (Alice produces blocks according to leader schedule) |
+| 13    | 900  | 400  |  500 | Payout Epoch; tokens remain locked until end         |
+| 14    | 900  | 0    |  900 | Tokens unlocked; AB recalculated                     |
+| After | 900  | 0    |  400 | After adjusting stake for next cycle (500 tokens)    |
 
 ---
 
