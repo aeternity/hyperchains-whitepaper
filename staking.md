@@ -176,7 +176,8 @@ Let's illustrate how the balances change over epochs with this updated model.
     - AB = TB - LB = 900 - 400 = 500 tokens.
 
 - **Adjusting Stake for Next Cycle**:
-  - Alice can now adjust her stake for the **next staking cycle** (epochs 14 to 16) during the Staking Epoch of that cycle.
+  - Alice can now adjust her stake for the **next staking cycle** (epochs 11 to 14) during the Staking Epoch of that cycle.
+ - She calls `adjustStake(-400)` this will not free up her available balance right away but in epoch 14.
 
 #### **Epochs 11 to 13**
 
@@ -201,7 +202,7 @@ Let's illustrate how the balances change over epochs with this updated model.
     - She calls `adjustStake(500)`.
     - **AB** decreases by 500 tokens:
       - AB = 900 - 500 = 400 tokens.
-    - **LB** remains at 0 tokens (since the new stake is for the next cycle).
+    - **LB** increases to  500 tokens.
 
 #### **Withdrawal After Epoch 14**
 
@@ -261,8 +262,8 @@ Let's illustrate how the balances change over epochs with this updated model.
   - Attempting to withdraw more than AB will result in an error.
 
 - **Automatic Re-Staking:**
-  - Tokens unlocked after the Payout Epoch become part of AB.
-  - Participants must call `adjustStake()` during the next Staking Epoch to commit these tokens to the next staking cycle.
+  - Tokens do not automatically unlock, instead if no change in staking is registerd they remain at stake.
+  - Participants must call `adjustStake()` during the next Staking Epoch to free tokens during the next staking cycle.
 
 ---
 
