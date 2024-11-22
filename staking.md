@@ -335,3 +335,166 @@ Then in epoch 13, we are still in the cycle started in epoch 11.
 - **LB = max(SS[11], SS[12], SS[13])**
 - **LB = max(500,300,400) = 500 tokens**
 
+
+
+# Block Rewards
+
+## Glossary and Concepts
+
+- **Leader Schedule**: Blocks are produced in accordance with a predetermined leader schedule. Each validator is assigned specific slots during which they are responsible for producing blocks.
+
+- **Timely Block Production**: Validators are expected to produce blocks **on time** during their assigned slots to ensure the smooth operation of the network.
+
+- **Missed Blocks**: If a validator fails to produce a block in their assigned time slot, this results in a **missing block**.
+
+- **Producing a 'Hole'**:
+  - The subsequent validator in the leader schedule is allowed to produce a special type of block called a **'hole'**.
+  - **Hole Characteristics**:
+    - Represents the absence of the expected block.
+    - Contains no transactions.
+    - Serves as a placeholder to maintain the continuity of the blockchain.
+  - **No Rewards for Holes**:
+    - Validators producing holes do **not** receive any rewards for these blocks.
+    - The missed block's potential rewards are effectively forfeited, including the award of fees for following the previous block.
+
+
+## Reward Distribution for Correct Blocks
+
+When a validator successfully produces a block on time, the rewards are distributed as follows:
+
+### Components of Rewards
+
+1. **Block Fees**: Transaction fees collected from transactions included in the block.
+2. **Epoch Coinbase**: Newly minted tokens allocated for that epoch.
+
+### Distribution Breakdown
+
+- **Block Producer (Current Validator)**:
+  - Receives **X% of the block fees**, X defaults to 75% but is configurable in genisis.
+  - Receives the **full epoch coinbase reward**.
+  - **Incentive**: Encourages validators to produce blocks promptly and include transactions to maximize fees.
+
+- **Next Validator (Following Validator)**:
+  - Receives **(100-X)% of the block fees** from the previous block.
+  - **Role**:
+    - Validates the correctness of the previous block.
+    - Builds upon it by producing the next block in the chain.
+  - **Incentive**: Motivates validators to participate actively in the validation process and ensures they have a stake in the accuracy of preceding blocks.
+
+### Visualization of Reward Flow
+
+```plaintext
++-----------------------+                   +-----------------------+
+|                       |                   |                       |
+|  Validator A          |                   |  Validator B          |
+|  (Block Producer)     |                   |  (Next Validator)     |
+|                       |                   |                       |
+| - Validates Block N-1 |                   |  - Validates Block N  |
+|  - Produces Block N   |                   |  - Builds Block N+1   |
+|  - Receives:          |                   |  - Receives:          |
+|    * 25% of N-1 Fees  |                   |    * 75% of Block N+1 |
+|    * 75% of Block     |------------------>|    * 25% of N-1 Fees  |
+|            N Fees     |                   |                       |
+|    * Epoch Coinbase   |                   |    * Epoch Coinbase   |
+|                       |                   |                       |
++-----------------------+                   +-----------------------+
+```
+
+## Fee Payout Timing
+
+- **Payout Fee Epoch**: The rewards (fees and coinbase) are not distributed immediately but are paid out during the **Payout Fee Epoch** of the staking cycle.
+
+- **Staking Cycle Phases**:
+  1. **Staking Epoch**: Validators stake their tokens.
+  2. **Leader Selection Epoch**: Leaders (validators) are selected based on their stake.
+  3. **Block Production Epoch**: Validators produce blocks according to the leader schedule.
+  4. **Payout Fee Epoch**: Accumulated rewards are distributed to validators.
+
+- **Benefits**:
+  - Allows for accounting of all rewards and penalties within a cycle.
+  - Provides a window to resolve disputes or adjust for any detected misbehavior before rewards are paid.
+
+---
+
+## Reward Distribution Mechanics
+
+### Configurable Parameters
+
+- **75/25 Fee Split**:
+  - The proportion of fees allocated to the block producer and the next validator is **configurable** for a Hyperchain.
+  - Networks can adjust the split (e.g., 80/20, 70/30) based on governance decisions or to incentivize certain behaviors.
+
+- **Epoch Coinbase Amount**:
+  - The coinbase reward (newly minted tokens) per epoch is **configurable** per chain.
+  - Allows for economic flexibility and inflation control across different Hyperchains.
+
+### Reward Accumulation and Distribution
+
+- **Accumulation**:
+  - Fees and coinbase rewards earned by validators are accumulated during the staking cycle.
+  - Rewards are tracked per validator and stored within the protocol until payout.
+
+- **Distribution**:
+  - During the **Payout Fee Epoch**, rewards are disbursed to validators' accounts.
+  - Validators receive their total accumulated rewards for the cycle in a lump sum.
+
+### Payment to Delegator Contracts
+
+- **Delegator Contracts**:
+  - Validators may have associated **delegator contracts**, where other token holders delegate their stake to the validator.
+  - Rewards can be configured to be paid directly to these contracts.
+
+- **Benefits**:
+  - Facilitates the distribution of rewards to delegators according to agreed terms.
+  - Encourages participation from token holders who may not run validator nodes themselves.
+
+---
+
+## Example Scenario
+
+### Assumptions
+
+- **Fee Split**: 75% to block producer, 25% to next validator.
+- **Epoch Coinbase**: 10 tokens per epoch.
+- **Block Fees**: Varies per block.
+
+### Block Production Sequence
+
+1. **Validator A** produces Block N on time.
+2. **Validator B** is scheduled to produce Block N+1.
+
+### Reward Distribution
+
+- **Validator A (Block N Producer)**:
+  - Receives:
+    - **75% of Block N Fees**.
+    - **Epoch Coinbase** (10 tokens).
+
+- **Validator B (Block N+1 Producer)**:
+  - Receives:
+    - **25% of Block N Fees** (for validating and building upon Block N).
+    - Their own rewards for producing Block N+1 when applicable.
+
+### Missed Block Scenario
+
+- If **Validator A** fails to produce Block N:
+  - **Validator B** produces a **hole** instead.
+  - **No Rewards**:
+    - Validator B receives **no rewards** for the hole.
+    - Validator A forfeits potential rewards for Block N.
+  - **Continued Operation**:
+    - **Validator B** continues with Block N+1.
+
+---
+
+## Configurability and Governance
+
+- **Hyperchain Configurability**:
+  - The fee split ratio and coinbase amounts are parameters that can be adjusted through governance mechanisms.
+  - This flexibility allows each Hyperchain to tailor economic incentives to its specific needs.
+
+- **Possible Governance Process**:
+  - In future versions we could add:
+    - Changes to the reward parameters can be proposed and voted upon by stakeholders.
+    - Ensures that adjustments reflect the consensus of the network participants.
+
