@@ -335,7 +335,13 @@ Then in epoch 13, we are still in the cycle started in epoch 11.
 - **LB = max(SS[11], SS[12], SS[13])**
 - **LB = max(500,300,400) = 500 tokens**
 
+## Locking
 
+In the current proposal a stake is only locked for one cycle.
+We could consider adding a network/hyperchain parameter stating the numner of epochs or cycles that
+a stake is locked.
+In this case the `adjustStake` function would need to be updated to keep track of the locking for
+the whole locking period.
 
 # Block Rewards
 
@@ -498,3 +504,103 @@ When a validator successfully produces a block on time, the rewards are distribu
     - Changes to the reward parameters can be proposed and voted upon by stakeholders.
     - Ensures that adjustments reflect the consensus of the network participants.
 
+# Penalties & Slashable Offenses
+
+Here we describe the effects of penalties on staking and rewards for validators who commit slashable offenses. It outlines how these penalties impact a validator's staked tokens, their eligibility for rewards, and their future participation in the network.
+
+## Overview of Penalties and Slashable Events
+
+Penalties are enforced to deter malicious actions or protocol violations. **Slashable events** are actions that result in the forfeiture of a validator's stake, reputation, or other penalties to maintain network integrity and fairness. Any participant can submit proof of such wrongdoing, ensuring a decentralized and fair enforcement mechanism.
+
+### Slashable Offenses
+
+1. **Producing Two Versions of a Block at a Specific Height (Double-Spending Attack)**
+2. **Double Voting**
+3. **Ignoring Votes**
+4. **Consistently Failing to Submit Blocks on Time**
+
+### Minor Offenses
+1. **Ignoring the `finalize_epoch` Fork**
+2. **Ignoring a Correctly Pinned Fork**
+
+ For minor offenses like ignoring forks (items 5 and 6), the protocol ignore the validator's actions without imposing penalties.
+
+### Details TBD
+The exact detials of what these offenses and how proof of these offense should look and the penalties is yet to be decided.
+
+## Effects of Penalties on Staking
+
+### Slashing of Staked Tokens
+
+- **Reduction of Total Staked Balance**: When a validator commits a slashable offense, a portion or the entirety of their **Total Balance (TB)** of staked tokens is **slashed** (i.e., permanently deducted).
+- **Impact on Locked Balance (LB)**: The **Locked Balance**, which is the amount currently staked and locked for participation, decreases by the slashed amount.
+- **Available Balance (AB)**: The **Available Balance**, representing tokens that can be withdrawn or restaked, remains unaffected by the slashing unless the slashed amount exceeds the LB, in which case it may be reduced to cover the penalty.
+
+### Example Scenario
+
+- **Before Penalty**:
+  - **Total Balance (TB)**: 1,000 tokens
+  - **Locked Balance (LB)**: 800 tokens
+  - **Available Balance (AB)**: 200 tokens
+- **Penalty Imposed**: 400 tokens slashed due to a severe offense.
+- **After Penalty**:
+  - **TB**: 600 tokens (1,000 - 400)
+  - **LB**: 400 tokens (800 - 400)
+  - **AB**: 200 tokens (unchanged)
+
+### Implications
+
+- **Reduced Staking Power**: With a lower TB and LB, the validator's influence in leader elections and block production diminishes.
+- **Risk of Falling Below Minimum Stake**: If the remaining LB falls below the **Minimum Stake Requirement**, the validator becomes ineligible for leader selection until they top up their stake.
+
+---
+
+## Effects of Penalties on Rewards
+
+### Forfeiture of Rewards
+
+- **No Rewards Paid Out**: Validators who commit slashable offenses **forfeit any pending rewards** for the current and possibly future epochs.
+  - **Block Rewards**: They lose eligibility for block rewards associated with blocks they produced during the period of misbehavior.
+  - **Transaction Fees**: They forfeit any transaction fees collected in blocks they produced or validated.
+- **Redistribution of Forfeited Rewards**:
+  - **To Honest Validators**: The forfeited rewards may be redistributed among honest validators as an incentive for maintaining network integrity.
+  - **To Reporter**: A portion of the forfeited rewards or slashed stake may be awarded to the participant who submitted the valid proof of misconduct.
+
+## Process for Applying Penalties
+
+### Submission of Proof of Misconduct
+
+- **Any Participant Can Report**: Network participants can submit evidence of a validator's wrongdoing via a special "Proof of Misconduct" transaction to the election contract.
+- **Required Information**:
+  - **Evidence**: Detailed and verifiable proof of the validator's misconduct. TBD.
+  - **Reporter Address**: The identity of the participant submitting the proof.
+  - **Signature**: Digital signature of the reporter to ensure authenticity.
+
+### Verification and Enforcement
+
+1. **Verification of Evidence**:
+   - The network validates the submitted evidence against blockchain data. TBD.
+   - Ensures that the proof is legitimate and the offense is verifiable.
+
+2. **Application of Penalties**:
+   - **Slashing of Stake**: Deducts the specified amount from the validator's TB and LB.
+   - **Forfeiture of Rewards**: Removes any pending rewards owed to the validator.
+
+3. **Distribution of Slashed Funds**:
+   - **Reporter Reward**: Allocates a portion of the slashed stake to the reporter as a reward for maintaining network security.
+   - **Network Treasury**: Remaining slashed funds may be burned or allocated to other stakers. TBD.
+
+---
+
+## Impact on Validator's Future Participation
+
+### Loss of Stake Balance
+- **Loss of staking power**: By loosing staking power in the staking contract the ability of a validator to earn future rewards is decreased.
+- **Below Minimum Stake**: If slashing reduces the validator's LB below the required **Minimum Stake**, they become ineligible for:
+  - **Leader Selection**: Cannot be selected to produce blocks.
+  - **Voting Rights**: May lose the ability to participate in governance decisions.
+- **Reputation Loss**: Validators with a history of penalties may be viewed as untrustworthy, affecting their chances of being selected in delegation pools or staking contracts.
+
+### Rebuilding Stake and Reputation
+
+- **Re-Staking Required**: Validators must deposit additional tokens to meet the minimum stake if they wish to resume participation.
