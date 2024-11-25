@@ -376,7 +376,7 @@ When a validator successfully produces a block on time, the rewards are distribu
 ### Distribution Breakdown
 
 - **Block Producer (Current Validator)**:
-  - Receives **X% of the block fees**, X defaults to 75% but is configurable in genisis.
+  - Receives **X% of the block fees**, X defaults to 75% but is configurable in genesis.
   - Receives the **full epoch coinbase reward**.
   - **Incentive**: Encourages validators to produce blocks promptly and include transactions to maximize fees.
 
