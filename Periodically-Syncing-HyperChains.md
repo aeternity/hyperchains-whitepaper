@@ -227,7 +227,7 @@ We implement part of the child chain by means of one or more smart contracts tha
 For example, there will be a staking contract that keeps track of the stakers at each height. Updates to these contracts is
 performed by contract calls, which makes the state of the contracts visible on-chain.
 
-The main contract must be aware of the four staking cycles and keeps track of those four cycles independently.
+The main contract must be aware of the five staking cycles and keeps track of those five cycles independently.
 At the end of a child epoch, the state is updated and the epochs shift taking the correct parameters into account.
 
 The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
@@ -552,7 +552,7 @@ if you have tokens at stake.
 #### Staking Cycle Structure
 
 Each epoch needs a schedule of producers. These producers are randomly selected from registered stakers.
-We are concerned about the following:
+The election procedure has following goals:
 - To prevent stakers to influence the schedule, the staking distribution should be known before the seed of the random selection is known.
 - The seed should be final (that is it should be guaranteed not to disappear from the parent chain due to forking)
 - The seed should be known before the actual schedule needs to be computed, otherwise the child chain is stuck
