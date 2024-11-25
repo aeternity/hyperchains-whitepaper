@@ -18,7 +18,7 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
 ---
 
 #### **API Functions**
-
+ytgg
 1. **`deposit(producer:pubkey)`** (Payable Endpoint)
    - **Description**: Allows a participant to deposit tokens into the staking contract, increasing their Total Balance (TB) and Available Balance (AB).
    - **Parameters**:
@@ -29,20 +29,20 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
      - Increases TB by the amount of tokens sent.
      - Increases AB by the same amount.
 
-2. **`withdraw(producer:pubkey, amount:unsigned integer)`**
+2. **`withdraw(amount:unsigned integer)`**
    - **Description**: Allows a participant to withdraw tokens from their Available Balance (AB).
    - **Parameters**:
-     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
+     - `producer`: The pubkey of the producer given in Call.caller.
      - `amount`: The amount of tokens to withdraw.
    - **When Callable**: At any time.
    - **Constraints**:
      - `amount` must be less than or equal to AB.
      - Cannot withdraw tokens locked in the current staking cycle (i.e., tokens committed in SS for epochs `N` to `N + C`).
 
-3. **`adjustStake(producer:pubkey, amount:integer)`**
+3. **`adjustStake(amount:integer)`**
    - **Description**: Adjusts the amount of tokens a participant wishes to stake for the **next staking cycle**.
    - **Parameters**:
-     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
+     - `producer`: The pubkey of the producer in Call.caller.
      - `amount`: The amount to adjust (positive to increase stake, negative to decrease stake).
    - **When Callable**: Only during the **Staking Epoch** of a cycle, but every epoch is the staking epoch of some cycle, so you can always call it.
    - **Constraints**:
@@ -62,31 +62,43 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
        - Recreate the list:
         ```
         case SC of
-            [{n, n_stake, n_lock}|Rest1]  ->
-                [{current_epoch, new_stake, max(new_stake, n_lock)} | case Rest1 of
-                    [{n1, n1_stake, n1_lock} | Rest2] ->
-                        [{n1, new_stake, max(new_stake, n1_lock)} | case Rest2 of
-                            [{n2, n2_stake, n2_lock} | Rest3] ->
-                                [{n2, new_stake, max(new_stake, n2_lock)} | case Rest3 of
-                                    [{n3, n3_stake, n3_lock}] ->
-                                        [{n3, new_stake, max(new_stake, n3_lock)}];
-                                    [] ->
-                                        [{n3, new_stake, max(new_stake, n2_lock)}]
-                                end];
-                            [] ->
-                                [{n2, new_stake, max(new_stake, n1_lock)},
-                                 {n3, new_stake, max(new_stake, n1_lock)}]
-                            end];
-                    [] ->
-                        [{n1, new_stake, max(new_stake, n_lock)}, {n2, new_stake, max(new_stake, n_lock)},
-                         {n3, new_stake, max(new_stake, n_lock)}]
-                    end];
-            [] ->
-                [{n, new_stake, new_stake}, {n1, new_stake, new_stake},
-                 {n2, new_stake, new_stake}, {n3, new_stake, new_stake}]
+          [{n, n_stake, n_lock}|Rest1] ->
+              [{n, new_stake, max(new_stake, n_lock)} | case Rest1 of
+                  [{n1, n1_stake, n1_lock} | Rest2] ->
+                      [{n1, new_stake, max(new_stake, n1_lock)} | case Rest2 of
+                          [{n2, n2_stake, n2_lock} | Rest3] ->
+                              [{n2, new_stake, max(new_stake, n2_lock)} | case Rest3 of
+                                  [{n3, n3_stake, n3_lock} | Rest4] ->
+                                      [{n3, new_stake, max(new_stake, n3_lock)} | case Rest4 of
+                                          [{n4, n4_stake, n4_lock}] ->
+                                              [{n4, new_stake, max(new_stake, n4_lock)}];
+                                          [] ->
+                                              [{n4, new_stake, max(new_stake, n3_lock)}]
+                                      end];
+                                  [] ->
+                                      [{n3, new_stake, max(new_stake, n2_lock)},
+                                      {n4, new_stake, max(new_stake, n2_lock)}]
+                                  end];
+                          [] ->
+                              [{n2, new_stake, max(new_stake, n1_lock)},
+                              {n3, new_stake, max(new_stake, n1_lock)},
+                              {n4, new_stake, max(new_stake, n1_lock)}]
+                          end];
+                  [] ->
+                      [{n1, new_stake, max(new_stake, n_lock)},
+                      {n2, new_stake, max(new_stake, n_lock)},
+                      {n3, new_stake, max(new_stake, n_lock)},
+                      {n4, new_stake, max(new_stake, n_lock)}]
+                  end];
+          [] ->
+              [{n, new_stake, new_stake},
+              {n1, new_stake, new_stake},
+              {n2, new_stake, new_stake},
+              {n3, new_stake, new_stake},
+              {n4, new_stake, new_stake}]
         end
         ```
-     - Recalculats LB (max of SC)
+     - Recalculate LB (max of SC)
      - Recalculates AB = TB - LB
      - All these values are stored in a map with producer as key.
 Alternatively
@@ -131,7 +143,7 @@ Alternatively
 ### **Key Concepts**
 
 - **Total Balance (TB)**: Sum of all tokens deposited via `deposit()` and not yet withdrawn.
-- **Locked Balance (LB)**: The total amount of tokens locked in the current staking cycle, i.e., epochs `N` to `N + 3`.
+- **Locked Balance (LB)**: The total amount of tokens locked in the current staking cycle, i.e., epochs `N` to `N + 4`.
 - **Available Balance (AB)**: Calculated as the difference between TB and LB.
   - **AB = TB - LB**
 
@@ -154,158 +166,203 @@ Alternatively
 
 3. **Withdrawal (`withdraw()`):**
    - Decreases TB and AB by `amount`.
-   - Cannot affect tokens locked in the any of the 4 concurrent staking cycles.
+   - Cannot affect tokens locked in the any of the 5 concurrent staking cycles.
 
 4. **Epoch Transition:**
-   - At the end of the Payout Epoch (`N + 3`):
+   - At the end of the Payout Epoch (`N + 4`):
      - Tokens locked in the current staking cycle become available.
      - **LB** decreases by the amount of tokens that were locked.
      - **AB** increases accordingly.
 
 ---
 
-### **Updated Example Scenario**
+## **Example Scenario**
 
-Let's illustrate how the balances change over epochs with this updated model.
+Let's illustrate how the balances change over epochs.
 
-#### **Constants and Parameters**
+### **Constants and Parameters**
 
-- **Current Epoch (`N`)**: 10 (Staking Epoch)
-- **Staking Cycle Length (`C`)**: 4 epochs (epochs 10 to 13)
-  - Epoch 10: Staking Epoch
-  - Epoch 11: Leader Election Epoch
-  - Epoch 12: Block Production Epoch
-  - Epoch 13: Payout Epoch
+- **Current Epoch (`N`)**: 10 (**Staking Epoch**)
+- **Staking Cycle Length (`C`)**: 5 epochs (epochs 10 to 14)
+  - **Epoch 10**: Staking Epoch
+  - **Epoch 11**: Entropy Epoch
+  - **Epoch 12**: Leader Election Epoch
+  - **Epoch 13**: Block Production Epoch
+  - **Epoch 14**: Payout Epoch
 - **Participant**: Alice
 - **`MINIMUM_STAKE`**: 100 tokens
 
-#### **Alice's Balances**
+### **Alice's Balances**
 
 - **Total Balance (TB)**: 1000 tokens (Alice has already deposited these via `deposit()`).
 - **Available Balance (AB)**: 1000 tokens (initially, no tokens are locked).
 - **Locked Balance (LB)**: 0 tokens.
 
-#### **Epoch 10 (Staking Epoch)**
+---
 
-- **Action 1**: Alice decides to stake 400 tokens for the next staking cycle (epochs 11 to 13).
-  - She calls `adjustStake(400)`.
-  - **AB** decreases by 400 tokens:
-    - AB = 1000 - 400 = 600 tokens.
-  - **Stake Commitment**:
-    - Alice's stake commitment for the next staking cycle is now 400 tokens.
+### **Epoch 10 (Staking Epoch)**
 
-- **Action 2**: Alice withdraws 100 tokens.
-  - She calls `withdraw(100)`.
-  - **TB** decreases by 100 tokens:
-    - TB = 1000 - 100 = 900 tokens.
-  - **AB** decreases by 100 tokens:
-    - AB = 600 - 100 = 500 tokens.
+#### **Action 1**: Alice Stakes 400 Tokens
 
-- **Locked Balance (LB)**:
-  - Set at 400 from the call to adjustStake till the end of the Staking Epoch.
+- Alice decides to stake **400 tokens** for this staking cycle (epochs **10** to **14**) with production in epoch **13**.
+- She calls `adjustStake(400)`.
+- **Available Balance (AB)** decreases by 400 tokens:
+  - **AB** = 1000 - 400 = **600 tokens**.
+- **Stake Commitment**:
+  - Alice's stake commitment for this staking cycle is now **400 tokens**.
+- **Locked Balance (LB)** remains at **0 tokens** till the end of the epoch (the stake will be locked in Epoch 11).
 
-#### **Epoch 11 (Leader Election Epoch)**
+#### **Action 2**: Alice Withdraws 100 Tokens
 
-- **Transition to New Staking Cycle**:
-  - Alice's stake of 400 tokens becomes locked for the duration of the staking cycle (epochs 11 to 13).
-  - **LB** increases by 400 tokens:
-    - LB = 0 + 400 = 400 tokens.
-  - **AB** remains at 500 tokens:
-    - AB = TB - LB = 900 - 400 = 500 tokens.
-
-- **Adjusting Stake for Next Cycle**:
-  - Alice can now adjust her stake for the **next staking cycle** (epochs 11 to 14) during the Staking Epoch of that cycle.
- - She calls `adjustStake(-400)` this will not free up her available balance right away but in epoch 14.
-
-#### **Epochs 11 to 13**
-
-- **Funds Locked**:
-  - The 400 tokens are locked and cannot be withdrawn until the end of the Payout Epoch (epoch 13).
-  - **AB** remains at 500 tokens.
-
-- **Actions**:
-  - Alice cannot adjust her current stake but can plan for the next cycle.
-
-#### **Epoch 14 (Next Staking Epoch)**
-
-- **Unlocking Funds**:
-  - At the end of epoch 13 (Payout Epoch), the 400 tokens become possible to unlock which Alice did in epoch 11.
-  - **LB** decreases by 400 tokens:
-    - LB = 400 - 400 = 0 tokens.
-  - **AB** increases by 400 tokens:
-    - AB = TB - LB = 900 - 0 = 900 tokens.
-
-- **Adjusting Stake for Next Cycle**:
-  - Alice decides to increase her stake to 500 tokens for the next staking cycle.
-    - She calls `adjustStake(500)`.
-    - **AB** decreases by 500 tokens:
-      - AB = 900 - 500 = 400 tokens.
-    - **LB** increases to  500 tokens.
-
-#### **Withdrawal After Epoch 14**
-
-- Alice has an AB of 400 tokens.
-- She can choose to:
-  - Withdraw up to 400 tokens via `withdraw()`.
-  - Leave the tokens in the staking contract for future staking.
+- She calls `withdraw(100)`.
+- **Total Balance (TB)** decreases by 100 tokens:
+  - **TB** = 1000 - 100 = **900 tokens**.
+- **Available Balance (AB)** decreases by 100 tokens:
+  - **AB** = 600 - 100 = **500 tokens**.
+- **Locked Balance (LB)** **400 tokens**.
 
 ---
 
-### **Summary of Balances Over Epochs**
+### **Epoch 11 (Entropy Epoch)**
 
-| Epoch | TB   | LB   | AB   | Notes                                                |
-|-------|------|------|------|------------------------------------------------------|
-| 09    | 1000 | 0    | 1000 | Previous deposit                                     |
-| 10    | 900  | 0    |  500 | After staking and withdrawal actions                 |
-| 11    | 900  | 400  |  500 | 400 tokens locked for staking cycle                  |
-| 12    | 900  | 400  |  500 | (Alice produces blocks according to leader schedule) |
-| 13    | 900  | 400  |  500 | Payout Epoch; tokens remain locked until end         |
-| 14    | 900  | 0    |  900 | Tokens unlocked; AB recalculated                     |
-| After | 900  | 0    |  400 | After adjusting stake for next cycle (500 tokens)    |
+- Alice can now plan her stake for the **following** staking cycle and decides on no change.
+
+- **System Process**:
+  - The system awaits the parent chain's hash to generate entropy.
+- **Alice's Balances**:
+  - No changes occur in this epoch.
+  - **AB** remains at **500 tokens**.
+  - **LB** remains at **400 tokens**.
+
+---
+
+### **Epoch 12 (Leader Election Epoch)**
+
+- Alice's stake of **400 tokens** stays **locked** for the duration of the staking cycle (epochs **12** to **14**).
+- **Alice's Balances**:
+  - **LB** = **400 tokens**.
+  - **AB** = **500 tokens**.
+
+#### **Adjusting Stake for Next Cycle**
+- Alice can now plan her stake for the next next staking cycle (block production in epoch 15) and decides on no change.
+- She decides to **withdraw** her stake after the current cycle:
+  - She calls `adjustStake(-400)`.
+  - This action schedules her stake to be reduced by 400 tokens after the current cycle ends.
+- **Note**: The **AB** and **LB** remain unchanged until the stake is unlocked.
+
+---
+
+### **Epoch 13 (Block Production Epoch)**
+
+- **Block Production**:
+  - Alice participates in block production based on her **locked stake** of **400 tokens**.
+- **Alice's Balances**:
+  - No changes occur in this epoch.
+  - **AB** remains at **500 tokens**.
+  - **LB** remains at **400 tokens**.
+
+---
+
+### **Epoch 14 (Payout Epoch)**
+
+#### **Rewards Distribution**
+
+- Alice receives rewards based on her participation, paid out directly to her account.
+- Alice's **stake adjustment** from Epoch 12 takes effect.
+- **Locked Balance (LB)** decreases by 400 tokens:
+  - **LB** = 400 - 400 = **0 tokens**.
+- **Available Balance (AB)** increases by 400 tokens:
+  - **AB** = 500 + 400 = **900 tokens**.
+- **Total Balance (TB)** remains at **900 tokens**.
+
+---
+
+### **Epoch 15 (Next Staking Epoch)**
+
+#### **Adjusting Stake for New Cycle**
+
+- Alice decides to **increase** her stake to **500 tokens** for the staking cycle in epochs **15** to **19**.
+- She calls `adjustStake(500)`.
+- **Available Balance (AB)** decreases by 500 tokens:
+  - **AB** = 900 - 500 = **400 tokens**.
+- **Stake Commitment**:
+  - Alice's stake commitment for the next staking cycle is now **500 tokens**.
+- **Locked Balance (LB)** remains at **0 tokens** (the stake will be locked in Epoch 16).
+
+---
+
+### **Epoch 16 (Entropy Epoch)**
+- Alice's stake of **500 tokens** becomes **locked** for the duration of the staking cycle (epochs **16** to **19**).
+
+- **System Process**:
+  - The system waits for the parent chain's hash for entropy.
+- **Alice's Balances**:
+  - The stake become locked
+  - **AB** remains at **400 tokens**.
+  - **LB** is set to **500 tokens**.
+
+---
+
+### **Epoch 17 (Leader Election Epoch)**
+
+- **Alice's Balances**:
+  - No changes occur.
+  - **AB** remains at **400 tokens**.
+  - **LB** is set to **500 tokens**.
+
+---
+
+### **Epochs 17 to 19**
+
+- **Block Production and Payout**:
+  - Alice participates in block production.
+  - Rewards are earned and distributed in the Payout Epoch (epoch **19**).
+- **Actions**:
+  - Alice cannot adjust her **current** stake but can plan for the **next** cycle during Epoch 20.
+
+---
+Certainly! Based on your updated scenario where the stake becomes locked directly after the end of the **Staking Epoch** (at the start of the **Entropy Epoch**), here is the updated table reflecting Alice's balances over the epochs:
+
+---
+
+### **Summary of Alice's Balances Over Epochs**
+
+| Epoch | TB (tokens) | AB (tokens) | LB (tokens) | Notes                                                 |
+|-------|-------------|-------------|-------------|-------------------------------------------------------|
+| 09    | 1000        | 500         |   0         | Inital balance 1000 tokens                            |
+| 10    |  900        | 500         |   0         | Staked 400 tokens, withdrew 100 tokens                |
+| 11    |  900        | 500         | 400         | **Stake locked at start of Entropy Epoch**            |
+| 12    |  900        | 500         | 400         | Leader Election Epoch                                 |
+| 13    |  900        | 500         | 400         | Block Production Epoch                                |
+| 14    |  900        | 900         |   0         | Stake unlocked; AB increases by 400 tokens            |
+| 15    |  900        | 400         |   0         | Staked 500 tokens for next cycle                      |
+| 16    |  900        | 400         | 500         | **Stake locked at start of Entropy Epoch**            |
+| 17    |  900        | 400         | 500         | Leader Election Epoch                                 |
+| 18    |  900        | 400         | 500         | Block Production Epoch                                |
+| 19    |  900        | 400         |   0         | Stake unlocked; rewards added to AB                   |
+---
 
 
 ### **SC Over Epochs**
 
 
-| Epoch | TB   | LB   | AB   | SC Entries                                              | Notes                                                |
-|-------|------|------|------|---------------------------------------------------------|------------------------------------------------------|
-| 09    | 1000 | 0    | 1000 | *Empty*                                                 | Previous deposit                                     |
-| 10    | 900  | 0    | 500  | `{10, 400, 400}, {11, 400, 400}, {12, 400, 400}, {13, 400, 400}` | After staking and withdrawal actions                 |
-| 11    | 900  | 400  | 500  | `{11, 0, 400}, {12, 0, 400}, {13, 0, 400}, {14, 0, 0}`  | Alice reduces stake by 400 tokens; tokens remain locked |
-| 12    | 900  | 400  | 500  | `{12, 0, 400}, {13, 0, 400}, {14, 0, 0}`                | No further adjustments                               |
-| 13    | 900  | 400  | 500  | `{13, 0, 400}, {14, 0, 0}`                              | Payout Epoch                                         |
-| 14    | 900  | 0    | 900  | `{14, 0, 0}`                                            | Tokens unlocked; AB recalculated                     |
-| After | 900  | 0    | 400  | `{14, 500, 500}, {15, 500, 500}, {16, 500, 500}, {17, 500, 500}` | After adjusting stake for next cycle (500 tokens)    |
-
-
----
-
-### **Key Points**
-
-- **Staking Adjustments:**
-  - Adjustments via `adjustStake()` affect the **next staking cycle**.
-  - Funds committed are locked for the duration of the staking cycle (epochs `N` to `N + C`).
-
-- **Balances:**
-  - **TB** changes when depositing (`deposit()`) or withdrawing (`withdraw()`).
-  - **LB** represents the total amount of tokens locked in the current staking cycle.
-  - **AB** is recalculated as **AB = TB - LB**.
-
-- **Eligibility for Leader Selection:**
-  - Participants must have at least `MINIMUM_STAKE` committed to be eligible in the upcoming staking cycle.
-  - In our example, Alice had 400 tokens committed, meeting the requirement.
-
-- **Withdrawal Constraints:**
-  - Participants can withdraw up to their AB at any time.
-  - Cannot withdraw tokens locked in the current staking cycle.
-
+| Epoch | TB   | LB   | AB   | SB   | SC Entries (epoch, stake, locked amount)                                                 | Notes                                               |
+|-------|------|------|------|------|------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| 09    | 1000 |    0 | 1000 |    0 | *Empty*                                                                                  | Initial balance                                     |
+| 10    | 900  |    0 | 500  |  400 | `{10, 400, 0}`, `{11, 400, 400}`, `{12, 400, 400}`, `{13, 400, 400}`, `{14, 400, 400}`   | Staked 400 tokens, withdrew 100 tokens              |
+| 11    | 900  | 400  | 500  |  400 | `{10, 400, 0}`, `{11, 400, 400}`, `{12, 400, 400}`, `{13, 400, 400}`, `{14, 400, 400}`   | Stake locked at start of Entropy Epoch              |
+| 12    | 900  | 400  | 500  |  400 | `{12, 400, 400}`, `{13, 0, 400}`, `{14, 0, 400}`, `{15, 0, 0}`                           | Reduced stake by 400 tokens                         |
+| 13    | 900  | 400  | 500  |  400 | `{12, 400, 400}`, `{13, 0, 400}`, `{14, 0, 400}`, `{15, 0, 0}`                           | Block Production Epoch                              |
+| 14    | 900  | 400  | 500  |    0 | `{12, 400, 400}`, `{13, 0, 400}`, `{14, 0, 400}`, `{15, 0, 0}`                           | Payout Epoch                                        |
+| 15    | 900  | 0    | 400  |  500 | `{15, 500, 0}` , `{16, 500, 500}`, `{17, 500, 500}`, `{18, 500, 500}`, `{19, 500, 500}`  | New Stake of 500                                    |
+| 16    | 900  | 500  | 400  |  500 | `{15, 500, 0}` , `{16, 500, 500}`, `{17, 500, 500}`, `{18, 500, 500}`, `{19, 500, 500}`  |                                                     |
 ---
 
 ### **Edge Cases and Additional Notes**
 
 - **Adjusting Stake During Staking Epoch:**
-  - Participants can only adjust their stake for the **next staking cycle** during the Staking Epoch.
-  - Once the Staking Epoch ends, the stake commitments are locked.
+  - Participants can only adjust their stake for the **current staking cycle** during the Staking Epoch.
+  - Once the Staking Epoch ends, the stake commitments are locked till the end of the cycle.
 
 - **Insufficient AB for Adjusting Stake:**
   - If a participant tries to increase their stake but does not have sufficient AB, they must first increase TB via `deposit()`.
