@@ -329,7 +329,7 @@ Certainly! Based on your updated scenario where the stake becomes locked directl
 
 | Epoch | TB (tokens) | AB (tokens) | LB (tokens) | Notes                                                 |
 |-------|-------------|-------------|-------------|-------------------------------------------------------|
-| 09    | 1000        | 500         |   0         | Inital balance 1000 tokens                            |
+| 09    | 1000        | 500         |   0         | Initial balance 1000 tokens                           |
 | 10    |  900        | 500         |   0         | Staked 400 tokens, withdrew 100 tokens                |
 | 11    |  900        | 500         | 400         | **Stake locked at start of Entropy Epoch**            |
 | 12    |  900        | 500         | 400         | Leader Election Epoch                                 |
