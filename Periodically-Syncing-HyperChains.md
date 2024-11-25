@@ -166,7 +166,8 @@ Once a leader is chosen, there is a deterministic way to choose subsequent leade
 
 ```mermaid
 sequenceDiagram
-  participant S as Stakeholder/Validator
+  participant S as Staker (an account address)
+  participant V as Validator (a node)
   participant CC as Child Chain
   participant PC as Parent Chain
 
@@ -174,25 +175,43 @@ sequenceDiagram
     note over CC: Staking epoch 1
     note over PC: PE(1)
       loop for each stakeholder
-        S->>CC: Stake for Block production epoch
+        S->>CC: Stake for Block production epoch 4
     end
-    Note left of CC: Stakeholders influence future CC epoch 3 election through staking
+    Note left of CC: Stakeholders influence future CC epoch 4 election through staking
   end
 
   rect rgb(20,80,20)
-    note over CC: election epoch 2
+    note over CC: Entropy epoch 2
     note over PC: PE(2)
-    S->>CC: Validate block
-    note over CC: Transactions
+    S->>CC: Stake for Block production epoch 5, next cycle
+    Note left of CC: (In the next cycle stakeholders influence future CC epoch 5 election through staking)
+  end
+
+  rect rgb(30,100,30)
+    note over CC: Election epoch 3
+    note over PC: PE(3)
     Note over PC: Finality Zone
+    S->>CC: Stake for Block production epoch 6, next next cycle
     PC->>CC: Seed for Leader Election
  end
 
- rect rgb(30,100,30)
-  note over CC: block production epoch 3
-  note over PC: PE(3)
-  S->>CC: New leaders from epoch 1 stake
+ rect rgb(40,120,40)
+  note over CC: Block production epoch 4
+  note over PC: PE(4)
+  V->>CC: New leaders from epoch 1 stake
+  loop for each validator
+    V->>CC: Validate block
+    S->>CC: Stake for Block production epoch 7, next next next cycle
+    note over CC: Transactions
+  end
+ end
 
+ rect rgb(50,140,50)
+  note over CC: Payout epoch 5
+  note over PC: PE(5)
+  V->>CC: New leaders from epoch 2 stake
+  CC->>S: Payout of rewards
+  S->>CC: Stake for Block production epoch 8, next next next next cycle
 end
 
 ```
@@ -227,7 +246,7 @@ We implement part of the child chain by means of one or more smart contracts tha
 For example, there will be a staking contract that keeps track of the stakers at each height. Updates to these contracts is
 performed by contract calls, which makes the state of the contracts visible on-chain.
 
-The main contract must be aware of the four staking cycles and keeps track of those four cycles independently.
+The main contract must be aware of the five staking cycles and keeps track of those five cycles independently.
 At the end of a child epoch, the state is updated and the epochs shift taking the correct parameters into account.
 
 The epoch length can be adjusted within a cycle by having the last leader of the production epoch propose decrease or increase of the length.
@@ -552,23 +571,25 @@ if you have tokens at stake.
 #### Staking Cycle Structure
 
 Each epoch needs a schedule of producers. These producers are randomly selected from registered stakers.
-We are concerned about the following:
+The election procedure has following goals:
 - To prevent stakers to influence the schedule, the staking distribution should be known before the seed of the random selection is known.
 - The seed should be final (that is it should be guaranteed not to disappear from the parent chain due to forking)
 - The seed should be known before the actual schedule needs to be computed, otherwise the child chain is stuck
 - The stakers should actually do work, so only after the work is done, their rewards for doing the work is paid out.
 
-This leads to a design with of a staking cycle that consists of four distinct phases:
+This leads to a design with of a staking cycle that consists of five distinct phases:
 
 1. **Staking epoch**: Participants register and adjust their stakes.
-   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is refered to as s<sub>n</sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
+   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is referred to as s<sub>n</sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
 
-2. **Leader Election epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
+2. **Entropy Epoch**: Waiting for the parent chain to produce the hash used for entropy.
+
+3. **Leader Election epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
    In the leader election phase we retrieve the first hash of a parent chain epoch to be used as a seed later on. For CE<sub>n</sub> we store the first blockhash of PE<sub>n-1</sub> as seed for later schedule computation.
    Note that effectively at this moment we know the schedule for block production 2 epochs ahead. Among others, future stakers now can be more attentive.
-3. **Block Production epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
+4. **Block Production epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
    The schedule for CE<sub>n</sub> block production is based upon the stake set s<sub>n-5</sub> produced in CE<sub>n-5</sub> and the seed from the first block of PE<sub>n-3</sub>
-4. **Payout epoch**: Rewards are distributed based on block production results.
+5. **Payout epoch**: Rewards are distributed based on block production results.
 
 Note that each child epoch has all of these characteristics, viz. child epoch nine is the payout  phase for a cycle
 that started in a staking phase in the past (child epoch four as we will see).
@@ -589,36 +610,42 @@ The start of the chain looks as follows (wait until parent start height is final
 
 epoch 1 (CE<sub>1</sub>):
 - **Staking epoch** use the configured stake
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of `parent_start_height`
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** no actions
 
 epoch 2 (CE<sub>2</sub>):
 - **Staking epoch** staking distribution s<sub>1</sub> from staking during block producing epoch CE<sub>1</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of `parent_start_height`
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>1</sub> block production epoch
 
 epoch 3 (CE<sub>3</sub>):
 - **Staking epoch** staking distribution s<sub>2</sub> from staking during block producing CE<sub>2</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of **first hash of PE<sub>1</sub>** (which is `parent_start height`)
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and `parent_start_height` for entropy
 - **Payout Epoch** use results of CE<sub>2</sub>* block production epoch
 
 epoch 4 (CE<sub>4</sub>):
 - **Staking epoch** staking distribution s<sub>3</sub> from staking during block producing epoch CE<sub>3</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of **first block of PE<sub>2</sub>**
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and **first hash of PE<sub>1</sub>**  for entropy
 - **Payout Epoch** use results of CE<sub>3</sub> block production epoch
 
 epoch 5 (CE<sub>5</sub>):
 - **Staking epoch** staking distribution s<sub>4</sub> from staking during block producing CE<sub>4</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of **first block of PE<sub>3</sub>**
 - **Block Producer Epoch** use the schedule based upon configured stake s<sub>0</sub> and **first block of PE<sub>2</sub>** for entropy
 - **Payout Epoch** use results of CE<sub>4</sub> block production epoch
 
 epoch 6 (CE<sub>6</sub>):
 - **Staking epoch** staking distribution s<sub>5</sub> from staking during block producing CE<sub>5</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of **first block of PE<sub>4</sub>**
 - **Block Producer Epoch** use the schedule based upon **s<sub>1</sub>** and **first block of PE<sub>3</sub>** for entropy
 - **Payout Epoch** use results of epoch 5 block production epoch
@@ -627,8 +654,9 @@ and for the Nth epoch:
 
 epoch N (CE<sub>n</sub>):
 - **Staking epoch** staking distribution s<sub>max(n-1, 0)</sub> from staking during block producing CE<sub>max(n-1, 0)</sub>
+- **Entropy Epoch** no actions
 - **Leader Election Epoch** ensure finality of **first block of PE<sub>max(n-1, 0)</sub>**
-- **Block Producer Epoch** use the schedule based upon **s<sub>max(n-5, 0)</sub>** and **first block of PE<sub>max(n-3, 0)</sub>** for entropy
+- **Block Producer Epoch** use the schedule based upon **s<sub>max(n-3, 0)</sub>** and **first block of PE<sub>max(n-3, 0)</sub>** for entropy
 - **Payout Epoch** use results of epoch n-1 block production epoch
 
 
@@ -640,6 +668,7 @@ tokens staked for the upcoming block production epoch.
  schedule using a hash from the parent chain and the `tokens_at_stake` data for all eligible staking contracts.
 - The leader election contract stores each validator's `tokens_at_stake`.
 
+See [staking.md](staking.md) for details (to be worked in here).
 
 During the block production epoch, blocks are considered valid only if they are produced by validators who have at least the `tokens_at_stake` in (their deposit in the election contract + their token balance in the staking contract) and at least `MINIMUM_STAKE` deposited in the election contract. (A penalty could bring your balance
 below `MINIMUM_STAKE`.)
