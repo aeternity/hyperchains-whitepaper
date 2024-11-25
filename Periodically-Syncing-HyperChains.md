@@ -180,17 +180,32 @@ sequenceDiagram
   end
 
   rect rgb(20,80,20)
-    note over CC: election epoch 2
+    note over CC: Entropy epoch 2
     note over PC: PE(2)
+      loop for each stakeholder
+        S->>CC: Stake for Block production epoch
+    end
+    Note left of CC: Stakeholders influence future CC epoch 3 election through staking
+  end
+
+  rect rgb(30,100,30)
+    note over CC: Election epoch 3
+    note over PC: PE(3)
     S->>CC: Validate block
     note over CC: Transactions
     Note over PC: Finality Zone
     PC->>CC: Seed for Leader Election
  end
 
- rect rgb(30,100,30)
-  note over CC: block production epoch 3
-  note over PC: PE(3)
+ rect rgb(40,120,40)
+  note over CC: Block production epoch 4
+  note over PC: PE(4)
+  S->>CC: New leaders from epoch 1 stake
+ end
+
+ rect rgb(50,140,50)
+  note over CC: Payout epoch 5
+  note over PC: PE(5)
   S->>CC: New leaders from epoch 1 stake
 
 end
