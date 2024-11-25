@@ -558,17 +558,19 @@ We are concerned about the following:
 - The seed should be known before the actual schedule needs to be computed, otherwise the child chain is stuck
 - The stakers should actually do work, so only after the work is done, their rewards for doing the work is paid out.
 
-This leads to a design with of a staking cycle that consists of four distinct phases:
+This leads to a design with of a staking cycle that consists of five distinct phases:
 
 1. **Staking epoch**: Participants register and adjust their stakes.
-   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is refered to as s<sub>n</sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
+   In the staking phase, we collect all stakes posted in the ongoing child epoch. The result at the Nth child epoch CE<sub>n</sub> is referred to as s<sub>n</sub>.  The initial stake as configured for the child chain is s<sub>0</sub>.
 
-2. **Leader Election epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
+2. **Entropy Epoch**: Waiting for the parent chain to produce the hash used for entropy.
+
+3. **Leader Election epoch**: The system uses the state of the parent chain and the stakes recorded to generate a schedule for selecting leaders.
    In the leader election phase we retrieve the first hash of a parent chain epoch to be used as a seed later on. For CE<sub>n</sub> we store the first blockhash of PE<sub>n-1</sub> as seed for later schedule computation.
    Note that effectively at this moment we know the schedule for block production 2 epochs ahead. Among others, future stakers now can be more attentive.
-3. **Block Production epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
+4. **Block Production epoch**: Only validators meeting the minimum staking requirements are eligible to produce blocks.
    The schedule for CE<sub>n</sub> block production is based upon the stake set s<sub>n-5</sub> produced in CE<sub>n-5</sub> and the seed from the first block of PE<sub>n-3</sub>
-4. **Payout epoch**: Rewards are distributed based on block production results.
+5. **Payout epoch**: Rewards are distributed based on block production results.
 
 Note that each child epoch has all of these characteristics, viz. child epoch nine is the payout  phase for a cycle
 that started in a staking phase in the past (child epoch four as we will see).
