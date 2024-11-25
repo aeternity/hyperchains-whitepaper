@@ -44,7 +44,7 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
    - **Parameters**:
      - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
      - `amount`: The amount to adjust (positive to increase stake, negative to decrease stake).
-   - **When Callable**: Only during the **Staking Epoch** of a cycle, but every epoch is the staking epoch of some cycle, so syou can always call it.
+   - **When Callable**: Only during the **Staking Epoch** of a cycle, but every epoch is the staking epoch of some cycle, so you can always call it.
    - **Constraints**:
      - Adjustments made in the current epoch `N` affect the staking cycle starting in epoch `N`, with leader election in epoch  `N + 1`.
      - **Positive `amount`**:
