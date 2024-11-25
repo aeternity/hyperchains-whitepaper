@@ -1,5 +1,8 @@
 # Staking
 
+In the following description when we talk about "a staker" this somewhat imprecise term is in essence
+the control of a key pair that can sign transactions and produce validate blocks on the chain.
+This key pair could also be used by a delegation contract for delegated stake.
 
 #### **Constants:**
 
@@ -18,7 +21,7 @@ Automatic Restaking: Unless adjusted, the stake for an epoch automatically conti
 ---
 
 #### **API Functions**
-ytgg
+
 1. **`deposit(producer:pubkey)`** (Payable Endpoint)
    - **Description**: Allows a participant to deposit tokens into the staking contract, increasing their Total Balance (TB) and Available Balance (AB).
    - **Parameters**:
