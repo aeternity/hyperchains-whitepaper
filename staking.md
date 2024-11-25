@@ -523,7 +523,7 @@ Penalties are enforced to deter malicious actions or protocol violations. **Slas
 1. **Ignoring the `finalize_epoch` Fork**
 2. **Ignoring a Correctly Pinned Fork**
 
- For minor offenses like ignoring forks (items 5 and 6), the protocol ignore the validator's actions without imposing penalties.
+ For minor offenses like ignoring forks (items 1 and 2), the protocol ignore the validator's actions without imposing penalties.
 
 ### Details TBD
 The exact details of what these offenses and how proof of these offense should look and the penalties is yet to be decided.
