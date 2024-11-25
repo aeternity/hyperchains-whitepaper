@@ -338,7 +338,7 @@ Then in epoch 13, we are still in the cycle started in epoch 11.
 ## Locking
 
 In the current proposal a stake is only locked for one cycle.
-We could consider adding a network/hyperchain parameter stating the numner of epochs or cycles that
+We could consider adding a network/hyperchain parameter stating the number of epochs or cycles that
 a stake is locked.
 In this case the `adjustStake` function would need to be updated to keep track of the locking for
 the whole locking period.
