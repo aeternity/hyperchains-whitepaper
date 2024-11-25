@@ -179,6 +179,12 @@ Alternatively
 ## **Example Scenario**
 
 Let's illustrate how the balances change over epochs.
+For simplicity we do not distinguish between the different roles of Alice
+in this example.
+Here Alice is both person who can commit a stake and the the running
+node that can validate and produce blocks, all roles have access to the same
+key pair which is used to identify as "Alice" in the example.
+Alice could also be a delegation contract used for delegated stake.
 
 ### **Constants and Parameters**
 
