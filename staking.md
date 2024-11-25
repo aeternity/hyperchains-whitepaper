@@ -11,7 +11,7 @@
 - **Locked Balance (LB)**: The max of staked amounts over the **current staking cycle**, i.e., epochs `N` to `N + C`, where `C` is the number of epochs in the staking cycle (in our case, `C = 3`).
 - **Available Balance (AB)**: The portion of the Total Balance that is not locked in the current staking cycle.
   - **AB = TB - LB**
-- **Staking Schedule (SC)**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs and onwards if not changed. As an orderd list ({epoch, stake amount, locked amount})
+- **Staking Schedule (SC)**: A mapping of epochs to the amount of tokens the participant has committed to stake in each of those epochs and onwards if not changed. As an ordered list ({epoch, stake amount, locked amount})
 
 Automatic Restaking: Unless adjusted, the stake for an epoch automatically continues into future cycles.
 
@@ -46,7 +46,7 @@ ytgg
      - `amount`: The amount to adjust (positive to increase stake, negative to decrease stake).
    - **When Callable**: Only during the **Staking Epoch** of a cycle, but every epoch is the staking epoch of some cycle, so you can always call it.
    - **Constraints**:
-     - Adjustments made in the current epoch `N` affect the staking cycle starting in epoch `N`, with leader election in epoch  `N + 1`.
+     - Adjustments made in the current epoch `N` affect the staking cycle starting in epoch `N`, with leader election and production in epoch  `N + 3`.
      - **Positive `amount`**:
        - Must have sufficient AB to cover the increase.
      - **Negative `amount`**:
