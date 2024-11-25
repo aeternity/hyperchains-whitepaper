@@ -526,7 +526,7 @@ Penalties are enforced to deter malicious actions or protocol violations. **Slas
  For minor offenses like ignoring forks (items 5 and 6), the protocol ignore the validator's actions without imposing penalties.
 
 ### Details TBD
-The exact detials of what these offenses and how proof of these offense should look and the penalties is yet to be decided.
+The exact details of what these offenses and how proof of these offense should look and the penalties is yet to be decided.
 
 ## Effects of Penalties on Staking
 
