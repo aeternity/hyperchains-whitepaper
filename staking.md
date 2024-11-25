@@ -103,10 +103,10 @@ ytgg
      - All these values are stored in a map with producer as key.
 Alternatively
 
-1. **`stake(producer:pubkey, amount:unsigned integer)`**
+1. **`stake(amount:unsigned integer)`**
    - **Description**: sets the amount of tokens a participant wishes to stake for the **next staking cycle**.
    - **Parameters**:
-     - `producer`: The pubkey of the producer, must match the signature of the call transaction (do we need it).
+     - `producer`: The pubkey of the producer in Call.caller.
      - `amount`: The amount to stake in this staking cycle.
    - **When Callable**: Only during the **Staking Epoch**.
    - **Constraints**:
