@@ -321,15 +321,12 @@ Let's illustrate how the balances change over epochs.
   - Alice cannot adjust her **current** stake but can plan for the **next** cycle during Epoch 20.
 
 ---
-Certainly! Based on your updated scenario where the stake becomes locked directly after the end of the **Staking Epoch** (at the start of the **Entropy Epoch**), here is the updated table reflecting Alice's balances over the epochs:
-
----
 
 ### **Summary of Alice's Balances Over Epochs**
 
 | Epoch | TB (tokens) | AB (tokens) | LB (tokens) | Notes                                                 |
 |-------|-------------|-------------|-------------|-------------------------------------------------------|
-| 09    | 1000        | 500         |   0         | Initial balance 1000 tokens                           |
+| 09    | 1000        | 500         |   0         | Inital balance 1000 tokens                            |
 | 10    |  900        | 500         |   0         | Staked 400 tokens, withdrew 100 tokens                |
 | 11    |  900        | 500         | 400         | **Stake locked at start of Entropy Epoch**            |
 | 12    |  900        | 500         | 400         | Leader Election Epoch                                 |
