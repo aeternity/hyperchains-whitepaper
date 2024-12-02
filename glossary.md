@@ -34,7 +34,7 @@ the unqualified "Epoch" may be assuemd to refer to a child chain epoch.
 The number of blocks on the parent chain that indicates which parent chain block will be used as the source of entropy for leader election.
 
 ### Staking Cycle
-Contains 4 epochs: staking epoch, leader (s)election epoch, block production + pinning epoch, payout epoch. Represents minimum duration during which tokens are locked into staking contract.
+Contains 5 epochs: staking epoch, entropy epoch, leader (s)election epoch, block production + pinning epoch, payout epoch. Represents minimum duration during which tokens are locked into staking contract.
 
 
 ```mermaid
@@ -47,26 +47,38 @@ gantt
     Staking          :a1, 2024-01-01, 6d
 
     section CC Epoch 2
-    Leader Election  :b1, 2024-01-01, 6d
     Staking          :a2, 2024-01-07, 6d
+    Entropy          :a1, 2024-01-01, 6d
 
     section CC Epoch 3
-    Block Production :c1, 2024-01-01, 6d
-    Leader Election  :b2, 2024-01-07, 6d
     Staking          :c1, 2024-01-14, 6d
+    Entropy          :a2, 2024-01-07, 6d
+    Leader Election  :b1, 2024-01-01, 6d
+
     section CC Epoch 4
-    Payout           :d1, 2024-01-01, 6d
-    Block Production :c2, 2024-01-07, 6d
-    Leader Election  :b3, 2024-01-14, 6d
     Staking          :a1, 2024-01-21, 6d
+    Entropy          :c1, 2024-01-14, 6d
+    Leader Election  :b2, 2024-01-07, 6d
+    Block Production :c1, 2024-01-01, 6d
+
     section CC Epoch 5
-    Payout           :d2, 2024-01-07, 6d
-    Block Production :c3, 2024-01-14, 6d
-    Leader Election  :b4, 2024-01-21, 6d
+    Entropy          :b4, 2024-01-21, 6d
+    Leader Election  :b3, 2024-01-14, 6d
+    Block Production :c2, 2024-01-07, 6d
+    Payout           :d1, 2024-01-01, 6d
+
+
     section CC Epoch 6
-    Payout           :d3, 2024-01-14, 6d
-    Block Production :c4, 2024-01-21, 6d
+    Leader Election  :b4, 2024-01-21, 6d
+    Block Production :c3, 2024-01-14, 6d
+    Payout           :d2, 2024-01-07, 6d
+
+
     section CC Epoch 7
+    Block Production :c4, 2024-01-21, 6d
+    Payout           :d3, 2024-01-14, 6d
+
+    section CC Epoch 8
     ... :c4, 2024-01-21, 6d
 ```
 
