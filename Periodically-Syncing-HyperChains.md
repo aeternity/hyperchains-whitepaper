@@ -858,43 +858,48 @@ A Byzantine Fault Tolerant (BFT) voting mechanism is proposed to allow producers
 
 The main objectives of this proposal are:
 
-1. **Utilize Existing Mechanisms**: Implement the BFT voting process using existing transaction types (spend transactions) to avoid protocol changes.
-2. **Ensure Security and Decentralization**: Provide a secure method for producers to propose and vote on forks without relying on centralized authorities.
-3. **Maintain Efficiency**: Use minimal overhead to keep transaction costs low while ensuring robust consensus.
+1. **Ensure Security and Decentralization**: Provide a secure method for producers to propose and vote on forks without relying on centralized authorities.
+2. **Maintain Efficiency**: Use minimal overhead to keep transaction costs low while ensuring robust consensus.
 
 #### BFT Voting Process
 
-The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase leverages spend transactions to encode necessary information, enabling producers to communicate and reach consensus.
+The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase leverages vote transactions to encode necessary information, enabling producers to communicate and reach consensus.
 
 1. **Proposal Phase**:
-    - At the end of each epoch, a designated producer (e.g., the last leader) initiates the fork selection process by broadcasting a "Fork Proposal" transaction. This transaction is a standard spend transaction with an encoded payload that contains the details of the proposed fork.
-    - The transaction is added to the transaction pool, making it visible to all validators.
+    - At the end of each epoch, a designated producer (i.e., the last leader) initiates the fork selection process by broadcasting a "Fork Proposal" vote transaction.
+    - The transaction is added to the vote pool, making it visible to all validators.
 
 2. **Voting Phase**:
-    - Producers monitor the transaction pool for "Fork Proposal" transactions. Upon detecting a proposal, they verify the details and decide whether to support the proposed fork.
-    - Producers create "Vote" transactions, which are also spend transactions with an encoded payload indicating their vote for a particular fork. These transactions are broadcast to the network and added to the transaction pool.
+    - Producers monitor the vote pool for "Fork Proposal" vote transactions. Upon detecting a proposal, they verify the details and decide whether to support the proposed fork.
+    - Producers create "Vote" transactions, which are also vote transactions with fields indicating their vote for the proposed fork. These vote transactions are broadcast to the network and added to the vote pool.
 
 3. **Finalization Phase**:
-    - If producers observes that a particular fork has received more than two-thirds of the total stake in votes, they generate a "Commit" transaction, indicating their support for the final decision.
-    - Once a quorum is reached, the leader create a "Finalize" transactions to confirm the chosen fork. The finalization messages are broadcast to the network, signaling that consensus has been reached.
+    - If producers observes that a particular fork has received more than two-thirds of the total stake in votes, they generate a "Commit" vote, indicating their support for the final decision.
+    - Once a quorum is reached, the leader creates a "Finalize" contract call transaction on chain to confirm the chosen fork.
 
 #### Detailed Transaction Encoding
 
 1. **Fork Proposal Transaction**
 
-   A Fork Proposal transaction is a standard spend transaction with a minimal amount, sent from the producer to themselves, containing the proposal details in the payload.
+   A Fork Proposal transaction is a standard vote transaction with a minimal amount, sent from the producer to themselves, containing the proposal details in the fields.
 
    **Structure of Fork Proposal Transaction:**
 
   ```plaintext
-   fork_proposal|epoch:42|block_hash:abc123def456ghi789|block_height:100000|producer:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...|justification:Chosen for stability
+   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+   epoch:42
+   type:1
+   data:
+    block_hash:abc123def456ghi789
+    block_height:100000
+    signature:sg_7bf3c4e5d62a8e...
+    justification:Chosen for stability
   ```
-
-   - **Type**: `"fork_proposal"` indicates the transaction is a fork proposal.
+   - **Voter Id**: The public address of the proposing producer.
    - **Epoch**: The epoch number for which the proposal is made.
+   - **Type**: `1` indicates the transaction is a fork proposal.
    - **Block Hash**: The hash of the proposed fork head.
    - **Block Height**: The block height of the proposed fork. (Maybe not necessary given epoch)
-   - **Producer**: The public address of the proposing producer.
    - **Signature**: The producer’s digital signature to ensure authenticity.
    - **Justification**: Optional reasoning for selecting the fork.
 
@@ -903,35 +908,47 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
 
    Producers use spend transactions to cast their votes and commit to the final decision. Each transaction includes an encoded payload specifying the vote or commit.
 
-   Thy also vote on adjusting the next epoch length see [Epochs](#epochs).
+   They also vote on adjusting the next epoch length see [Epochs](#epochs).
 
    **Vote Payload Example:**
 
    ```plaintext
-   vote|epoch:42|block_hash:abc123def456ghi789|epoch_length_delta:+2|producer:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+   epoch:42
+   type:2
+   data:
+    block_hash:abc123def456ghi789
+    epoch_length_delta:2
+    signature:sg_7bf3c4e5d62a8e...
    ```
 
-   - **Type**: `"vote"` indicates the transaction is a vote.
+   - **Voter Id**: The public address of the proposing producer.
    - **Epoch**: The epoch number being voted on.
+   - **Type**: `2` indicates the transaction is a vote.
    - **Block Hash**: The block hash for which the vote is cast.
    - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
-   - **Producer**: The address of the voting producer.
    - **Signature**: The digital signature of the producer.
 
    **Commit Payload Example:**
 
    ```plaintext
-   commit|epoch:42|block_hash:abc123def456ghi789|producer:ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...|signature:sg_7bf3c4e5d62a8e...
+   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+   epoch:42
+   type:3
+   data:
+    block_hash:abc123def456ghi789
+    epoch_length_delta:2
+    signature:sg_7bf3c4e5d62a8e...
    ```
 
-   - **Type**: `"commit"` indicates the transaction is a commit.
+   - **Type**: `3` indicates the transaction is a commit.
    - **Other fields**: Same as the vote transaction.
 
    Producers create and broadcast these transactions, using the transaction pool to share their votes and commits.
 
 3. **Finalization Process**
 
-   - Once the current producer detects that a quorum has been reached (two-thirds of the total stake), the leader generate a `finalize_epoch` call transaction.
+   - Once the current producer detects that a quorum has been reached (two-thirds of the total stake), the leader generate a `finalize_epoch` call transaction on chain.
    - This transaction is a call to the leader election contract that confirms the chosen fork.
    - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch. Ignoring any fork they previously thought was good.
 
@@ -940,7 +957,7 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
       - Each producer monitors the transaction pool for incoming "Vote" transactions. When a producer observes that a fork has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that fork.
 
    2. **Creating the "Finalize" Transaction**:
-      - Once a quorum is detected, the leader creates a "Finalize" transaction. This is a contract
+      - Once a quorum is detected, the leader creates a "Finalize" transaction. This is an on chain contract
       call to the election contract `finalize_epoch`.
       - The arguments are:
         - **Epoch**: The epoch number for which the finalization is being done.
@@ -971,25 +988,24 @@ To implement a robust BFT voting mechanism, it's essential to establish clear ru
 
 ##### Setting Timeouts
 
-We can define timeouts for each phase of the voting process. These timeouts should be possible to configure
-(within some bounds) when initializing a hyperchain.
+The timeouts for each phase of the voting process is the child block time.
 When calculation the leader schedule for one epoch we also calculate 5 more leaders past the last leader.
 If the last leader doesn't start the voting in time the next leader can start the voting instead.
 
-- **Proposal Timeout**: A predefined period (e.g., 10 seconds) within which validators can submit their fork proposals. After this period, no new proposals are accepted.
+- **Proposal Timeout**: A predefined period (i.e., child block time) within which the leader can submit it's fork proposal. After this period, no proposal is accepted.
 
-- **Voting Timeout**: A defined period (e.g., 30 seconds) for validators to submit their votes for a fork proposal. This time window allows all validators to observe the proposals and cast their votes. The timeout duration can be set based on the expected network latency and block production time.
+- **Voting Timeout**: A defined period (i.e., child block time) for validators to submit their votes for a fork proposal. This time window allows all validators to observe the proposals and cast their votes.
 
-- **Finalization Timeout**: A specified period (e.g., 20 seconds) after the voting phase ends, within which a validator must create and broadcast the "Finalize" transaction. If no finalization occurs within this period, the network takes predefined corrective actions. (The new leader in the next epoch just runs with his preferred fork.)
+- **Finalization Timeout**: A specified period (i.e., child block time) after the voting phase ends, within which a validator must create and broadcast the "Finalize" transaction. If no finalization occurs within this period, the network takes predefined corrective actions. (The new leader in the next epoch just runs with his preferred fork.)
 
 ##### Handling Scenarios Where a Majority is Not Reached
-If a quorum (two-thirds of the total stake) is not reached within the voting timeout the next leader in the current epoch .
+If a quorum (two-thirds of the total stake) is not reached within the voting timeout the next leader in the current epoch.
 
 ##### Handling Minority Vote in Finalization
 
 If a validator ignores some votes and attempts to create a minority vote in the finalization process, the following steps can be taken:
 
-- **Reject Invalid Finalization Transactions**: Validators must verify the "Finalize" transaction against the recorded votes in the transaction pool. If the transaction does not include votes representing at least two-thirds of the total stake, it is considered invalid, and validators should ignore it.
+- **Reject Invalid Finalization Transactions**: Validators must verify the "Finalize" transaction against the recorded votes in the vote pool. If the transaction does not include votes representing at least two-thirds of the total stake, it is considered invalid, and validators should ignore it.
 
 - **Slashing Penalties for Malicious Behavior**: If a validator is found to have created a minority "Finalize" transaction deliberately (i.e., one that lacks sufficient proof of a majority), they can be penalized through slashing. This involves reducing the validator's stake (the deposit in the election contract) and if the
 deposit is less than the minimum temporarily banning them from participating in future consensus rounds.
