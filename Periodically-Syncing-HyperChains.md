@@ -677,7 +677,7 @@ below `MINIMUM_STAKE`.)
 
 For hyperchains we calculate the "difficulty" of a normal block as the difficulty of the preceding 
 block + 1. The difficulty of a hole is the same as the difficulty of the preceding block.
-Choosing the best fork is done by choosing the block with the highest difficulty. In the case of two
+Choosing the best fork is done by choosing the block with the highest difficulty.
 The block with the highest height is better for blocks with the same difficulty.
 
 #### Producer diagram
