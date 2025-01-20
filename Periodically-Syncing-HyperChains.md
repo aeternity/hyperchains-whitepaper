@@ -680,7 +680,7 @@ block + 1. The difficulty of a hole is the same as the difficulty of the precedi
 Choosing the best fork is done by choosing the block with the highest difficulty.
 The block with the highest height is better for blocks with the same difficulty.
 
-When a vote for a fork gets 2/3 of the stake the dificulty of the block containing that vote will be 
+When a vote for a fork gets 2/3 of the stake the difficulty of the block containing that vote will be 
 updated so that difficulty is set to the height.
 
 #### Producer diagram
