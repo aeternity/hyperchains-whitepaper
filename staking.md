@@ -454,7 +454,7 @@ When a validator successfully produces a block on time, the rewards are distribu
   - Receives **(100-(X+Y))% of the block fees** from the following block.
   - **Role**:
     - Validates the correctness of the previous block.
-    - Is encourage to produce the block in time so that the next validator builds on top of it.
+    - Is encouraged to produce the block in time so that the next validator builds on top of it.
   - **Incentive**: Motivates validators to produce blocks in a timely manner.
 
 
