@@ -993,7 +993,7 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
 
    - **Definition**: A validator that was chosen leader but that does not produce any 
                      valid or in time blocks during an epoch.
-   - **Penalty**: The validator's stake is partialy slashed down below minimum stake, 
+   - **Penalty**: The validator's stake is partially slashed down below minimum stake, 
    causing a temporary ban from participating in leader elections and block production.
 
 4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
