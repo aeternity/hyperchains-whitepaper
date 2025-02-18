@@ -424,7 +424,7 @@ the whole locking period.
     - Serves as a placeholder to maintain the continuity of the blockchain.
   - **No Rewards for Holes**:
     - Validators producing holes do **not** receive any rewards for these blocks.
-    - The missed block's potential rewards are effectively forfeited, including the award of fees for following the previous block.
+    - The missed block's potential rewards are effectively forfeited, including the award of fees for following the previous block, and for the following block.
 
 
 ## Reward Distribution for Correct Blocks
@@ -439,34 +439,43 @@ When a validator successfully produces a block on time, the rewards are distribu
 ### Distribution Breakdown
 
 - **Block Producer (Current Validator)**:
-  - Receives **X% of the block fees**, X defaults to 75% but is configurable in genesis.
+  - Receives **X% of the block fees**, X defaults to 40% but is configurable in genesis.
   - Receives the **full epoch coinbase reward**.
   - **Incentive**: Encourages validators to produce blocks promptly and include transactions to maximize fees.
 
 - **Next Validator (Following Validator)**:
-  - Receives **(100-X)% of the block fees** from the previous block.
+  - Receives **Y% of the block fees**, Y defaults to 30% from the previous block.
   - **Role**:
     - Validates the correctness of the previous block.
     - Builds upon it by producing the next block in the chain.
   - **Incentive**: Motivates validators to participate actively in the validation process and ensures they have a stake in the accuracy of preceding blocks.
 
+- **Previous Producer (Preceding Validator)**:
+  - Receives **(100-(X+Y))% of the block fees** from the following block.
+  - **Role**:
+    - Validates the correctness of the previous block.
+    - Is encouraged to produce the block in time so that the next validator builds on top of it.
+  - **Incentive**: Motivates validators to produce blocks in a timely manner.
+
+
 ### Visualization of Reward Flow
 
 ```plaintext
-+-----------------------+                   +-----------------------+
-|                       |                   |                       |
-|  Validator A          |                   |  Validator B          |
-|  (Block Producer)     |                   |  (Next Validator)     |
-|                       |                   |                       |
-| - Validates Block N-1 |                   |  - Validates Block N  |
-|  - Produces Block N   |                   |  - Builds Block N+1   |
-|  - Receives:          |                   |  - Receives:          |
-|    * 25% of N-1 Fees  |                   |    * 75% of Block N+1 |
-|    * 75% of Block     |------------------>|    * 25% of N-1 Fees  |
-|            N Fees     |                   |                       |
-|    * Epoch Coinbase   |                   |    * Epoch Coinbase   |
-|                       |                   |                       |
-+-----------------------+                   +-----------------------+
++-----------------------+         +-----------------------+        +-----------------------+
+|                       |         |                       |        |                       |
+|  Validator: A         |         |  Validator B          |        |  Validator C          |
+|  Block: N-1           |         |  Block: N             |        |  Block: N+1           |
+|  (Previous Producer)  |         |  (Block Producer)     |        |  (Next Validator)     |
+|                       |         |                       |        |                       |
+| - Validates Block N-2 |         | - Validates Block N-1 |        |  - Validates Block N  |
+|  - Produces Block N-1 |         |  - Produces Block N   |        |  - Builds Block N+1   |
+|  - Receives Fees:     |         |  - Receives Fees:     |        |  - Receives Fees:     |
+|    * 30% of N-2       |         |    * 30% of N-1       |        |    * 30% of N         |
+|    * 40% of N-1       |-------->|    * 40% of N         |------->|    * 40% of N+1       |
+|    * 30% of N         |         |    * 30% of N+1       |        |    * 30% of N+2       |
+|    * Epoch Coinbase   |         |    * Epoch Coinbase   |        |    * Epoch Coinbase   |
+|                       |         |                       |        |                       |
++-----------------------+         +-----------------------+        +-----------------------+
 ```
 
 ## Fee Payout Timing
@@ -489,9 +498,9 @@ When a validator successfully produces a block on time, the rewards are distribu
 
 ### Configurable Parameters
 
-- **75/25 Fee Split**:
+- **30/40/30 Fee Split**:
   - The proportion of fees allocated to the block producer and the next validator is **configurable** for a Hyperchain.
-  - Networks can adjust the split (e.g., 80/20, 70/30) based on governance decisions or to incentivize certain behaviors.
+  - Networks can adjust the split (e.g., 10/70/20, 20/30/50) based on governance decisions or to incentivize certain behaviors.
 
 - **Epoch Coinbase Amount**:
   - The coinbase reward (newly minted tokens) per epoch is **configurable** per chain.
@@ -523,36 +532,43 @@ When a validator successfully produces a block on time, the rewards are distribu
 
 ### Assumptions
 
-- **Fee Split**: 75% to block producer, 25% to next validator.
+- **Fee Split**: 30% previous produer, 40% to block producer, 30% to next validator.
 - **Epoch Coinbase**: 10 tokens per epoch.
 - **Block Fees**: Varies per block.
 
 ### Block Production Sequence
 
-1. **Validator A** produces Block N on time.
-2. **Validator B** is scheduled to produce Block N+1.
+1. **Validator A** has produced Block N-1 on time.
+2. **Validator B** produces Block N on time.
+2. **Validator C** is scheduled to produce Block N+1.
 
 ### Reward Distribution
 
-- **Validator A (Block N Producer)**:
+- **Validator A (Block N-1 Producer)**:
   - Receives:
-    - **75% of Block N Fees**.
+    - **30% of Block N Fees**.
     - **Epoch Coinbase** (10 tokens).
 
-- **Validator B (Block N+1 Producer)**:
+
+- **Validator B (Block N Producer)**:
   - Receives:
-    - **25% of Block N Fees** (for validating and building upon Block N).
+    - **40% of Block N Fees**.
+    - **Epoch Coinbase** (10 tokens).
+
+- **Validator C (Block N+1 Producer)**:
+  - Receives:
+    - **30% of Block N Fees** (for validating and building upon Block N).
     - Their own rewards for producing Block N+1 when applicable.
 
 ### Missed Block Scenario
 
-- If **Validator A** fails to produce Block N:
-  - **Validator B** produces a **hole** instead.
+- If **Validator B** fails to produce Block N:
+  - **Validator C** produces a **hole** instead.
   - **No Rewards**:
-    - Validator B receives **no rewards** for the hole.
-    - Validator A forfeits potential rewards for Block N.
+    - Validator C receives **no rewards** for the hole.
+    - Validator B forfeits potential rewards for Block N.
   - **Continued Operation**:
-    - **Validator B** continues with Block N+1.
+    - **Validator C** continues with Block N+1.
 
 ---
 
@@ -579,8 +595,7 @@ Penalties are enforced to deter malicious actions or protocol violations. **Slas
 
 1. **Producing Two Versions of a Block at a Specific Height (Double-Spending Attack)**
 2. **Double Voting**
-3. **Ignoring Votes**
-4. **Consistently Failing to Submit Blocks on Time**
+3. **Consistently Failing to Submit Blocks on Time**
 
 ### Minor Offenses
 1. **Ignoring the `finalize_epoch` Fork**

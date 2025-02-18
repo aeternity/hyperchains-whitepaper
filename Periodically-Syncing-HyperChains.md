@@ -675,6 +675,14 @@ below `MINIMUM_STAKE`.)
 
 ### Consensus Details
 
+For hyperchains we calculate the "difficulty" of a normal block as the difficulty of the preceding 
+block + 1. The difficulty of a hole is the same as the difficulty of the preceding block.
+Choosing the best fork is done by choosing the block with the highest difficulty.
+The block with the highest height is better for blocks with the same difficulty.
+
+When a vote for a fork gets 2/3 of the stake the difficulty of the block containing that vote will be 
+updated so that difficulty is set to the height.
+
 #### Producer diagram
 
 ```mermaid
@@ -777,7 +785,7 @@ graph TD
     penalty["Prepare proof of all 'double' blocks in same slot.
      Post proof of missconduct.
      Fill all 'double' blocks with 'holes' "]
-    n21["Prefer chain with holes late"]
+    n21["Prefer chain with holes early"]
     done["pick that fork"]
 
 
@@ -788,65 +796,6 @@ graph TD
     penalty --> done
     bad_chain --> |NO| n21
     n21 --> done
- ```
-
-
-#### More...
-```mermaid
-graph TD
-    n13["Unsolved or un-placed problems"]
-    n14["Gossiped block is too late"]
-    n15["Network split?"]
-    n16["Lasting multiple epochs?"]
-    n17["No majority can't finish the epoch"]
-    n18["Malicious or bad nodes"]
-    n19["How to choose the best fork?"]
-    n20["Pick 1 with fewest holes"]
-    n21["Prefer chain with holes late"]
-    n22["Can a producer do multiple blocks in a slot\nNO!"]
-    n23["How to detect?"]
-    n24["Act?"]
-    n25["Producer timing Design decisions"]
-    n26["How long to wait?"]
-    n27["Prefer to gossip early?"]
-    n28["But prefer to build complete chain!\nHow to incentivize?"]
-
-
-
-    n13 --> n14
-    n13 --> n15
-    n15 --> n16
-    n15 --> n17
-    n13 --> n18
-    n10 --> n19
-    n19 --> n20
-    n19 --> n21
-    n13 --> n22
-    n15 --> n23
-    n15 --> n24
-    n8 --> n25
-    n25 --> n26
-    n25 --> n27
-    n27 --> n28
-
- ```
-
-```mermaid
-graph TD
-
-    n29["Attacks?"]
-    n30["Double spend"]
-    n31["Halt"]
-    n32["Take over\n* Force majority while not having majority stake"]
-    n34["Penalties\nhttps://ethereum.org/en/developers/docs/consensus-mechanisms/pos/#crypto-economic-security"]
-    n35["Extra end of epoch logic"]
-
-
-    n29 --> n30
-    n29 --> n31
-    n29 --> n32
-    n13 --> n34
-    n13 --> n35
  ```
 
 
@@ -1056,18 +1005,16 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
    - **Definition**: A validator casts multiple votes for different forks or outcomes in a single voting phase. This action is considered malicious and undermines the voting process.
    - **Penalty**: The validator's stake is slashed, and their voting rights are suspended for one or more epochs. The network may also distribute the slashed amount among honest validators as a reward for maintaining integrity.
 
-3. **Ignoring Votes:**
+3. **Not producing blocks:**
 
-   - **Definition**: A validator deliberately ignores valid votes when creating a "Finalize" transaction, attempting to force a minority or incorrect outcome. This is only an offense if the ignored votes
-   would change the outcome. This is so that it is not an attack to send in a late vote for the majority
-   outcome and then slash the validator for not including it.
-   - **Penalty**: The validator's stake is partially slashed, and they are penalized with a temporary ban from participating in leader elections or block production if their deposit stakes fall below the minimum.
+   - **Definition**: A validator that was chosen leader but that does not produce any 
+                     valid or in time blocks during an epoch.
+   - **Penalty**: The validator's stake is partially slashed down below minimum stake, 
+   causing a temporary ban from participating in leader elections and block production.
 
-4. **Submitting an incorrect block, or not submitting a block in time**: If a block producer's block has been replaced by holes more than 50% of the time during one epoch.
+4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
 
-5. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
-
-6. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
+5. **Ignoring a correctly pinned fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
 
 
 #### Submitting Proof of Wrongdoings
