@@ -300,9 +300,7 @@ sequenceDiagram
         S->>CC: Commit block to CC
       end
       CC->>S: "Select last Staker based on epoch schedule"
-      opt Verify valid and final PIN hash
-         S-->PC:
-      end
+      S-->PC: Verify valid and final PIN hash
       S->>CC: Last block (Proof of Pinning)
     end
 
