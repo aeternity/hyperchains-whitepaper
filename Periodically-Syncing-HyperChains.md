@@ -281,29 +281,31 @@ Our system incorporates a reward mechanism to encourage stakers to perform this 
 
 ```mermaid
 sequenceDiagram
-  participant CC as Child Chain
-  participant PC as Parent Chain
-  participant S as Stakeholder
+    participant CC as Child Chain
+    participant S as Stakeholders
+    actor User as Anyone<br>(often Stakeholder)
+    participant PC as Parent Chain
 
-  loop every generation in CC
+    loop every generation in CC
 
-    CC->>S: "Select Staker based on Stake Power"
-    S->>CC: Commit Data to CC
-    S->>PC: Post Signed Data to PC
-    PC->>S: Acknowledge Data Posted
-    S->>CC: Write Proof of Inclusion (PoI) to CC
-  end
+      User -->> PC: PIN CC observed previous Epoch
+      loop Block production
+        CC->>S: "Select Staker based on epoch schedule"
+        S->>CC: Commit block to CC
+      end
+      User -> PC: observe Hash of PIN transaction
+      User -->> S: Hash of PIN transaction
+      loop Block production
+        CC->>S: "Select Staker based on epoch schedule"
+        S->>CC: Commit block to CC
+      end
+      CC->>S: "Select last Staker based on epoch schedule"
+      S-->PC: Verify valid and final PIN hash
+      S->>CC: Last block (Proof of Pinning)
+    end
 
-  opt No Pinning Action
-    CC->>CC: Carry Over Reward to Next Block
-  end
-
-   opt Successful Pinning Action
-     CC->>S: Reward Staker
-   end
-  Note left of CC: Pinning action synchronizes CC with PC
-  Note right of S: Rewards incentivize stakers
-
+   Note left of CC: Pinning action synchronizes CC with PC
+   Note right of S: Rewards incentivize stakers
 ```
 
 ### Pinning format
@@ -675,12 +677,12 @@ below `MINIMUM_STAKE`.)
 
 ### Consensus Details
 
-For hyperchains we calculate the "difficulty" of a normal block as the difficulty of the preceding 
+For hyperchains we calculate the "difficulty" of a normal block as the difficulty of the preceding
 block + 1. The difficulty of a hole is the same as the difficulty of the preceding block.
 Choosing the best fork is done by choosing the block with the highest difficulty.
 The block with the highest height is better for blocks with the same difficulty.
 
-When a vote for a fork gets 2/3 of the stake the difficulty of the block containing that vote will be 
+When a vote for a fork gets 2/3 of the stake the difficulty of the block containing that vote will be
 updated so that difficulty is set to the height.
 
 #### Producer diagram
@@ -1007,9 +1009,9 @@ Penalties are enforced to deter malicious actions or protocol violations. Slasha
 
 3. **Not producing blocks:**
 
-   - **Definition**: A validator that was chosen leader but that does not produce any 
+   - **Definition**: A validator that was chosen leader but that does not produce any
                      valid or in time blocks during an epoch.
-   - **Penalty**: The validator's stake is partially slashed down below minimum stake, 
+   - **Penalty**: The validator's stake is partially slashed down below minimum stake,
    causing a temporary ban from participating in leader elections and block production.
 
 4. **Ignoring the finalize_epoch fork**: This is a minor event just as any other incorrect block. It should probably just be ignored with no penalty.
