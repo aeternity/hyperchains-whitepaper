@@ -863,115 +863,179 @@ The main objectives of this proposal are:
 
 #### BFT Voting Process
 
-The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase leverages vote transactions to encode necessary information, enabling producers to communicate and reach consensus.
+##### Vote types
+1. **Fork**: a vote on which fork to follow
+2. **Speed of chain**: vote on the speed of the chain using the epoch delta length (positive to slow down, negative to speed up).
+
+The BFT voting process involves three main phases: Proposal, Voting, and Finalization. Each phase utilizes vote transactions to communicate and reach consensus.
 
 1. **Proposal Phase**:
-    - At the end of each epoch, a designated producer (i.e., the last leader) initiates the fork selection process by broadcasting a "Fork Proposal" vote transaction.
-    - The transaction is added to the vote pool, making it visible to all validators.
+    - At the end of each epoch, a designated producer (i.e., the last leader) initiates the fork selection process by broadcasting:
+        - A Fork Proposal transaction.
+        - A Speed of Chain Proposal transaction (for proposing changes to epoch length).
+    - The propsal transactions are added to the vote pool, making them visible to all validators.
 
 2. **Voting Phase**:
-    - Producers monitor the vote pool for "Fork Proposal" vote transactions. Upon detecting a proposal, they verify the details and decide whether to support the proposed fork.
-    - Producers create "Vote" transactions, which are also vote transactions with fields indicating their vote for the proposed fork. These vote transactions are broadcast to the network and added to the vote pool.
+    - Producers monitor the vote pool for incoming proposal transactions.
+    - Upon detecting valid proposals, they verify the contents and broadcast their Vote transactions indicating support for:
+        - The proposed fork.
+        - The proposed epoch length delta.
 
 3. **Finalization Phase**:
-    - If producers observes that a particular fork has received more than two-thirds of the total stake in votes, they generate a "Commit" vote, indicating their support for the final decision.
-    - Once a quorum is reached, the leader creates a "Finalize" contract call transaction on chain to confirm the chosen fork.
+    - If a proposal gathers support from more than two-thirds of the total stake, producers generate a Commit vote.
+    - Once a quorum is reached:
+        - The current leader creates a Finalize contract call on-chain for the fork (finalize_epoch).
+        - The leader also finalizes the epoch delta using finalize_epoch_length if applicable.
 
 #### Detailed Transaction Encoding
 
-1. **Fork Proposal Transaction**
+1. **Proposal transactions**
+    1. ***Fork Proposal Transaction***
 
-   A Fork Proposal transaction is a standard vote transaction with a minimal amount, sent from the producer to themselves, containing the proposal details in the fields.
+       A Fork Proposal transaction is a standard vote transaction with a minimal amount, sent from the producer to themselves, containing the proposal details in the fields.
 
-   **Structure of Fork Proposal Transaction:**
+          **Structure of Fork Proposal Transaction:**
+            ```plaintext
+             voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+             epoch:42
+             type:1
+             data:
+              block_hash:abc123def456ghi789
+              signature:sg_7bf3c4e5d62a8e...
+            ```
 
-  ```plaintext
-   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
-   epoch:42
-   type:1
-   data:
-    block_hash:abc123def456ghi789
-    block_height:100000
-    signature:sg_7bf3c4e5d62a8e...
-    justification:Chosen for stability
-  ```
-   - **Voter Id**: The public address of the proposing producer.
-   - **Epoch**: The epoch number for which the proposal is made.
-   - **Type**: `1` indicates the transaction is a fork proposal.
-   - **Block Hash**: The hash of the proposed fork head.
-   - **Block Height**: The block height of the proposed fork. (Maybe not necessary given epoch)
-   - **Signature**: The producer’s digital signature to ensure authenticity.
-   - **Justification**: Optional reasoning for selecting the fork.
+          - **Voter Id**: The public address of the proposing producer.
+          - **Epoch**: The epoch number for which the proposal is made.
+          - **Type**: `1` indicates the transaction is a fork proposal.
+          - **Block Hash**: The hash of the proposed fork head.
+          - **Signature**: The producer’s digital signature to ensure authenticity.
 
+    2. **Speed of Chain Proposal Transaction**
+
+       A Speed of Chain Proposal transaction is a standard vote transaction with a minimal amount, sent from the producer to themselves, containing the proposal details in the fields.
+
+       **Structure of Speed of Chain Proposal Transaction:**
+
+          ```plaintext
+           voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+           epoch:42
+           type:4
+           data:
+            epoch_length_delta:2
+            signature:sg_7bf3c4e5d62a8e...
+          ```
+
+          - **Voter Id**: The public address of the proposing producer.
+          - **Epoch**: The epoch number for which the proposal is made.
+          - **Type**: `4` indicates the transaction is a fork proposal.
+          - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
+          - **Signature**: The producer’s digital signature to ensure authenticity.
 
 2. **Voting and Commit Transactions**
 
-   Producers use spend transactions to cast their votes and commit to the final decision. Each transaction includes an encoded payload specifying the vote or commit.
+   Producers use vote transactions to cast their votes and commit to the final decision. Each transaction includes an payload specifying the vote or commit.
 
    They also vote on adjusting the next epoch length see [Epochs](#epochs).
 
-   **Vote Payload Example:**
+     **Fork Vote Payload Example:**
 
-   ```plaintext
-   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
-   epoch:42
-   type:2
-   data:
-    block_hash:abc123def456ghi789
-    epoch_length_delta:2
-    signature:sg_7bf3c4e5d62a8e...
-   ```
+     ```plaintext
+     voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+     epoch:42
+     type:2
+     data:
+      block_hash:abc123def456ghi789
+      signature:sg_7bf3c4e5d62a8e...
+     ```
 
-   - **Voter Id**: The public address of the proposing producer.
-   - **Epoch**: The epoch number being voted on.
-   - **Type**: `2` indicates the transaction is a vote.
-   - **Block Hash**: The block hash for which the vote is cast.
-   - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
-   - **Signature**: The digital signature of the producer.
+     - **Voter Id**: The public address of the proposing producer.
+     - **Epoch**: The epoch number being voted on.
+     - **Type**: `2` indicates the transaction is a vote.
+     - **Block Hash**: The block hash for which the vote is cast.
+     - **Signature**: The digital signature of the producer.
 
-   **Commit Payload Example:**
 
-   ```plaintext
-   voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
-   epoch:42
-   type:3
-   data:
-    block_hash:abc123def456ghi789
-    epoch_length_delta:2
-    signature:sg_7bf3c4e5d62a8e...
-   ```
+     **Speed of Chain Vote Payload Example:**
 
-   - **Type**: `3` indicates the transaction is a commit.
-   - **Other fields**: Same as the vote transaction.
+     ```plaintext
+     voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+     epoch:42
+     type:5
+     data:
+      epoch_length_delta:2
+      signature:sg_7bf3c4e5d62a8e...
+     ```
+
+     - **Voter Id**: The public address of the proposing producer.
+     - **Epoch**: The epoch number being voted on.
+     - **Type**: `5` indicates the transaction is a vote.
+     - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
+     - **Signature**: The digital signature of the producer.
+
+     **Fork Commit Payload Example:**
+
+     ```plaintext
+     voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+     epoch:42
+     type:3
+     data:
+      block_hash:abc123def456ghi789
+      signature:sg_7bf3c4e5d62a8e...
+     ```
+
+     - **Type**: `3` indicates the transaction is a commit.
+     - **Other fields**: Same as the fork vote transaction.
+
+     **Speed of Chain Commit Payload Example:**
+
+     ```plaintext
+     voter_id: ak_2cFaGrYvPgsEwMhDPXXrTj2CsW6XrA...
+     epoch:42
+     type:6
+     data:
+      epoch_length_delta:2
+      signature:sg_7bf3c4e5d62a8e...
+     ```
+
+     - **Type**: `6` indicates the transaction is a commit.
+     - **Other fields**: Same as the speed of chain vote transaction.
 
    Producers create and broadcast these transactions, using the transaction pool to share their votes and commits.
 
 3. **Finalization Process**
 
-   - Once the current producer detects that a quorum has been reached (two-thirds of the total stake), the leader generate a `finalize_epoch` call transaction on chain.
-   - This transaction is a call to the leader election contract that confirms the chosen fork.
-   - After finalization, the validators update their local states to reflect the newly chosen fork and continue with the next epoch. Ignoring any fork they previously thought was good.
+   - Once the current producer detects that a quorum has been reached (two-thirds of the total stake), the leader generates a `finalize_epoch` call transaction on chain in the case of a fork vote or `finalize_epoch_length` in the case of a epoch delta vote.
+   - These transactions are calls to leader election contract that confirms the chosen fork and/or epoch delta.
+   - After finalization, the validators update their local states to reflect the newly chosen fork, adjust the epoch length and continue with the next epoch. Ignoring any fork they previously thought was good.
 
 
    1. **Detecting Quorum**:
-      - Each producer monitors the transaction pool for incoming "Vote" transactions. When a producer observes that a fork has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that fork.
+      - Each producer monitors the transaction pool for incoming "Vote" transactions. When a producer observes that a proposal has received votes representing at least two-thirds of the total stake, it concludes that a quorum has been reached for that proposal.
 
-   2. **Creating the "Finalize" Transaction**:
-      - Once a quorum is detected, the leader creates a "Finalize" transaction. This is an on chain contract
+   2. **Creating the "Finalize" Transactions**:
+      - Once a quorum is detected for the fork proposal, the leader creates a "Finalize" transaction. This is an on chain contract
       call to the election contract `finalize_epoch`.
       - The arguments are:
         - **Epoch**: The epoch number for which the finalization is being done.
         - **Chosen Fork**: The block hash of the chosen fork.
-        - **new_epoch_length**: The length of the next epoch calculated by multiplying submitted deltas
-                                by staking percentage rounded towards 0 + current length.
-        - **pc_root_hash**: The root hash at PC the given PC height that is used as seed for leader     election.
+        - **pc_root_hash**: The root hash at PC the given PC height that is used as seed for leader election.
         - **Producer**: The address of the producer creating the finalization transaction.
         - **Votes Proof**: A list of votes from other producers, each containing their transaction payloads.
           - The block hash they voted for.
-          - The epoch length deltas.
           - The producer’s address.
           - The producer’s signature.
-      - The call is obviously signed by the producer creating the finalization transaction to ensure authenticity, as with any transaction/contract call. This is the same leader that is
+      - Once a quorum is detected for the chain speed proposal, the leader creates a "Finalize" transaction. This is an on chain contract
+      call to the election contract `finalize_epoch_length`.
+      - The arguments are:
+        - **Epoch**: The epoch number for which the finalization is being done.
+        - **new_epoch_length**: The length of the next epoch calculated adding proposed delta to the current length.
+        - **pc_root_hash**: The root hash at PC the given PC height that is used as seed for leader election.
+        - **Producer**: The address of the producer creating the finalization transaction.
+        - **Votes Proof**: A list of votes from other producers, each containing their transaction payloads.
+          - The epoch length delta they voted for.
+          - The producer’s address.
+          - The producer’s signature.
+      - The calls are obviously signed by the producer creating the finalization transactions to ensure authenticity, as with any transaction/contract call. This is the same leader that is
       producing the block so the transaction will not be refused. A correct call should give a reward.
       an illegal call can be challenged and result in a penalty.
 
