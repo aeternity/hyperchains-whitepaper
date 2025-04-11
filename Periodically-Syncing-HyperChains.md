@@ -873,7 +873,7 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
     - At the end of each epoch, a designated producer (i.e., the last leader) initiates the fork selection process by broadcasting:
         - A Fork Proposal transaction.
         - A Speed of Chain Proposal transaction (for proposing changes to epoch length).
-    - The propsal transactions are added to the vote pool, making them visible to all validators.
+    - The proposal transactions are added to the vote pool, making them visible to all validators.
 
 2. **Voting Phase**:
     - Producers monitor the vote pool for incoming proposal transactions.
