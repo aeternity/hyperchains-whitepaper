@@ -927,8 +927,7 @@ The BFT voting process involves three main phases: Proposal, Voting, and Finaliz
 
           - **Voter Id**: The public address of the proposing producer.
           - **Epoch**: The epoch number for which the proposal is made.
-          - **Type**: `4` indicates the transaction is a fork proposal.
-          - **Epoch length adjustment**: +/- N blocks. Increase or decrease the next cycle epoch length.
+          - **Type**: `4` indicates the transaction is a Speed of Chain Proposal Transaction.
           - **Signature**: The producer’s digital signature to ensure authenticity.
 
 2. **Voting and Commit Transactions**
